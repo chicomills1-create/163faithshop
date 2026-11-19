@@ -1,0 +1,798 @@
+{
+ "generatedAt": "2026-11-19T18:27:37.143Z",
+ "provenance": "Baked snapshot of the production cinema catalog (faith-hub-api /api/sanctuary/cinema-hub), assembled from the catalog's own production source records — archive-films.ts (verbatim), jfp.ts VERIFIED_CINEMA_METADATA (cured 2026-11-16), SPEC §3.1 / census #1+#25 verified entries. The hub attempts a live fetch of the endpoint first at runtime and replaces this snapshot when it answers; see records/HUB-WATCH-RECORD.md for the route evidence.",
+ "apiBase": "https://faith-hub-api.onrender.com",
+ "cinemaHubPath": "/api/sanctuary/cinema-hub?lang=en",
+ "heroId": "the-chosen",
+ "featuredIds": [
+  "the-chosen",
+  "2_GOJ-0-0",
+  "2_Augustine",
+  "king-of-kings-1927",
+  "ten-commandments-1923",
+  "14_TPP",
+  "blood-of-jesus-1941"
+ ],
+ "doors": [
+  {
+   "slug": "faith",
+   "name": "Faith Films",
+   "blurb": "Stories of lives changed by faith"
+  },
+  {
+   "slug": "bible",
+   "name": "Bible Feature Films",
+   "blurb": "Scripture on screen — epics & the Gospels"
+  },
+  {
+   "slug": "classics",
+   "name": "Classics",
+   "blurb": "Public-domain treasures from cinema's first decades"
+  },
+  {
+   "slug": "documentaries",
+   "name": "Documentaries",
+   "blurb": "True stories, history & testimony"
+  },
+  {
+   "slug": "series",
+   "name": "Series",
+   "blurb": "Episode by episode"
+  },
+  {
+   "slug": "kids",
+   "name": "Kids",
+   "blurb": "For the little ones — Bible adventures"
+  }
+ ],
+ "titles": [
+  {
+   "id": "king-of-kings-1927",
+   "title": "The King of Kings",
+   "description": "Cecil B. DeMille's landmark silent epic — the life of Jesus Christ from the cleansing of the Temple to the Resurrection. One of the most-seen films in history.",
+   "poster": "https://archive.org/services/img/the-king-of-kings-1927",
+   "year": 1927,
+   "badge": "Silent Epic",
+   "durationMs": 9300000,
+   "durationLabel": "2h 35m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/the-king-of-kings-1927/The%20King%20of%20Kings%201927.ia.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/king-of-kings-1927/stream"
+   },
+   "cast": [
+    "H.B. Warner",
+    "Dorothy Cumming",
+    "Ernest Torrence"
+   ],
+   "creator": "Cecil B. DeMille",
+   "scriptureReferences": [
+    "Matthew 21–28",
+    "Mark 11–16",
+    "Luke 19–24",
+    "John 12–21"
+   ],
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "ten-commandments-1923",
+   "title": "The Ten Commandments",
+   "description": "Cecil B. DeMille's original 1923 epic — Moses leads the Israelites from Egypt in this breathtaking silent spectacle with hand-colored sequences.",
+   "poster": "https://archive.org/services/img/ten-commandments-1923",
+   "year": 1923,
+   "badge": "Cecil B. DeMille",
+   "durationMs": 8172000,
+   "durationLabel": "2h 16m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/ten-commandments-1923/TEN%20COMMANDMENTs%20(1923).ia.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/ten-commandments-1923/stream"
+   },
+   "cast": [
+    "Theodore Roberts",
+    "Charles de Rochefort",
+    "Esther Ralston"
+   ],
+   "creator": "Cecil B. DeMille",
+   "scriptureReferences": [
+    "Exodus 1–20"
+   ],
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "bible-in-the-beginning-1966",
+   "title": "The Bible: In the Beginning",
+   "description": "John Huston's monumental adaptation — from the Creation through the story of Abraham. Narrated and directed by Huston himself.",
+   "poster": "https://archive.org/services/img/The_Bible_In_The_Beginning",
+   "year": 1966,
+   "badge": "John Huston",
+   "durationMs": 10800000,
+   "durationLabel": "3h 0m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/The_Bible_In_The_Beginning/The%20Bible%20~%20In%20the%20Beginning.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/bible-in-the-beginning-1966/stream"
+   },
+   "cast": [
+    "John Huston",
+    "Michael Parks",
+    "Ulla Bergryd"
+   ],
+   "creator": "John Huston",
+   "scriptureReferences": [
+    "Genesis 1–23"
+   ],
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "sign-of-the-cross-1932",
+   "title": "The Sign of the Cross",
+   "description": "Restored 1932 DeMille epic — a Roman prefect falls in love with a Christian woman during Nero's persecution of the early Church.",
+   "poster": "https://archive.org/services/img/the-sign-of-the-cross-restored-1932-version",
+   "year": 1932,
+   "badge": "Restored",
+   "durationMs": 7440000,
+   "durationLabel": "2h 4m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/the-sign-of-the-cross-restored-1932-version/The%20Sign%20of%20the%20Cross%20(Restored)%201932%20Version.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/sign-of-the-cross-1932/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "martin-luther-1953",
+   "title": "Martin Luther",
+   "description": "The acclaimed biographical film of Martin Luther — his crisis of faith, the 95 Theses, and the birth of the Reformation. Academy Award nominated.",
+   "poster": "https://archive.org/services/img/martin-luther-1953",
+   "year": 1953,
+   "badge": "Award-Nominated",
+   "durationMs": 6300000,
+   "durationLabel": "1h 45m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/martin-luther-1953/Martin%20Luther%20_%20Der%20Film%20_%20Deutsch_HD.ia.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/martin-luther-1953/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "constantine-and-the-cross-1962",
+   "title": "Constantine and the Cross",
+   "description": "The story of Constantine the Great — from soldier to Emperor, and his conversion to Christianity that changed the Roman Empire forever.",
+   "poster": "https://archive.org/services/img/PublicDomainJadranPicturesandJoniaPicturesConstantineandtheCross1962",
+   "year": 1962,
+   "badge": "Historical Epic",
+   "durationMs": 6000000,
+   "durationLabel": "1h 40m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/PublicDomainJadranPicturesandJoniaPicturesConstantineandtheCross1962/Constantine_and_the_Cross.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/constantine-and-the-cross-1962/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "esther-and-the-king-1960",
+   "title": "Esther and the King",
+   "description": "The Old Testament story of Esther — a Jewish woman who becomes Queen of Persia and saves her people from destruction.",
+   "poster": "https://archive.org/services/img/esther-and-the-king-1960",
+   "year": 1960,
+   "badge": "Old Testament",
+   "durationMs": 6540000,
+   "durationLabel": "1h 49m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/esther-and-the-king-1960/Esther%20and%20the%20King%20(1960).ia.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/esther-and-the-king-1960/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "david-and-goliath-1960",
+   "title": "David and Goliath",
+   "description": "The biblical epic of David — shepherd, warrior, and king — from his anointing by Samuel through his legendary defeat of the Philistine giant.",
+   "poster": "https://archive.org/services/img/DavidandGoliath1960",
+   "year": 1960,
+   "badge": "Old Testament",
+   "durationMs": 5460000,
+   "durationLabel": "1h 31m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/DavidandGoliath1960/DavidandGoliath1960.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/david-and-goliath-1960/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "joseph-and-his-brethren-1960",
+   "title": "Joseph and His Brethren",
+   "description": "The epic story of Joseph — sold into slavery by his jealous brothers, rising to become Pharaoh's right hand, and his miraculous reunion with his family.",
+   "poster": "https://archive.org/services/img/JosephAndHisBrethren1960",
+   "year": 1960,
+   "badge": "Old Testament",
+   "durationMs": 6180000,
+   "durationLabel": "1h 43m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/JosephAndHisBrethren1960/JosephAndHisBrethren1960.m4v",
+    "apiStreamPath": "/api/sanctuary/archive-films/joseph-and-his-brethren-1960/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "i-beheld-his-glory-1952",
+   "title": "I Beheld His Glory",
+   "description": "Easter television special — the story of the Resurrection told through the eyes of a Roman centurion who witnesses the crucifixion and empty tomb.",
+   "poster": "https://archive.org/services/img/i-beheld-his-glory_201903",
+   "year": 1952,
+   "badge": "Easter Classic",
+   "durationMs": 3600000,
+   "durationLabel": "1h 0m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/i-beheld-his-glory_201903/I_beheld_his_glory.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/i-beheld-his-glory-1952/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "studio-one-nativity-1952",
+   "title": "Studio One: The Nativity",
+   "description": "CBS television's landmark live production of the Nativity story — the birth of Jesus Christ brought to life in this historic early television drama.",
+   "poster": "https://archive.org/services/img/StudioOne-TheNativity",
+   "year": 1952,
+   "badge": "Christmas Classic",
+   "durationMs": 3480000,
+   "durationLabel": "58m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/StudioOne-TheNativity/StudioOne-TheNativity.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/studio-one-nativity-1952/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "ill-give-my-life-1960",
+   "title": "I'll Give My Life",
+   "description": "A missionary story of sacrifice and faith — a young evangelist answers the call to serve in a remote community, facing both hardship and transformation.",
+   "poster": "https://archive.org/services/img/ill_give_my_life",
+   "year": 1960,
+   "badge": "Missionary",
+   "durationMs": 4260000,
+   "durationLabel": "1h 11m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/ill_give_my_life/illgivemylife.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/ill-give-my-life-1960/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "all-that-i-have-1951",
+   "title": "All That I Have",
+   "description": "A moving drama about a farm family whose faith is tested by hardship — a testament to the power of prayer, community, and trust in God's provision.",
+   "poster": "https://archive.org/services/img/AllThatIHave1951_201707",
+   "year": 1951,
+   "badge": "Faith Drama",
+   "durationMs": 4200000,
+   "durationLabel": "1h 10m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/AllThatIHave1951_201707/All-that-I-Have-1951.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/all-that-i-have-1951/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "from-the-manger-to-the-cross-1912",
+   "title": "From the Manger to the Cross",
+   "description": "The earliest surviving feature-length film about the life of Jesus — filmed on location in Palestine and Egypt. A historic piece of Christian cinema.",
+   "poster": "https://archive.org/services/img/FromTheMangerToTheCross1912",
+   "year": 1912,
+   "badge": "Silent · 1912",
+   "durationMs": 4200000,
+   "durationLabel": "1h 10m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/FromTheMangerToTheCross1912/From%20the%20Manger%20To%20the%20Cross%201912.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/from-the-manger-to-the-cross-1912/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "light-of-faith-1922",
+   "title": "The Light of Faith",
+   "description": "A lost-and-found silent era drama about the redemptive power of faith — a community transformed when an outsider's belief rekindles the light in their lives.",
+   "poster": "https://archive.org/services/img/The_Light_Of_Faith",
+   "year": 1922,
+   "badge": "Silent Era",
+   "durationMs": 3900000,
+   "durationLabel": "1h 5m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/The_Light_Of_Faith/LightOfFaith.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/light-of-faith-1922/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "honor-thy-family-1951",
+   "title": "Honor Thy Family",
+   "description": "Part of the Family Films Collection — a wholesome story of family values, faith, and the bonds that hold a community together through life's trials.",
+   "poster": "https://archive.org/services/img/TheFamilyFilmsCollection",
+   "year": 1951,
+   "badge": "Family",
+   "durationMs": 2280000,
+   "durationLabel": "38m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/TheFamilyFilmsCollection/HonorThyFamily1951.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/honor-thy-family-1951/stream"
+   },
+   "door": "classics",
+   "kind": "film"
+  },
+  {
+   "id": "blood-of-jesus-1941",
+   "title": "The Blood of Jesus",
+   "description": "Spencer Williams' landmark Black gospel film — a woman shot by her husband's stray bullet hovers between life and death, guided by an angel toward salvation. One of the most important African American religious films ever made.",
+   "poster": "https://archive.org/services/img/blood_of_jesus",
+   "year": 1941,
+   "badge": "Gospel Classic",
+   "durationMs": 3480000,
+   "durationLabel": "58m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/blood_of_jesus/blood_of_jesus.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/blood-of-jesus-1941/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "hill-number-one-1951",
+   "title": "Hill Number One",
+   "description": "An Easter television drama set during the Korean War — soldiers sheltering on a hill hear the story of another hill: Golgotha. Features James Dean in one of his earliest screen appearances as James the Apostle.",
+   "poster": "https://archive.org/services/img/HillNumberOne",
+   "year": 1951,
+   "badge": "James Dean · Easter",
+   "durationMs": 3600000,
+   "durationLabel": "1h 0m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/HillNumberOne/HillNumberOne.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/hill-number-one-1951/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "judith-of-bethulia-1914",
+   "title": "Judith of Bethulia",
+   "description": "D.W. Griffith's groundbreaking first feature film — the biblical story of Judith, a courageous widow who saves her besieged city by entering the Assyrian camp and beheading the general Holofernes. A landmark of early cinema.",
+   "poster": "https://archive.org/services/img/JudithOfBethulia",
+   "year": 1914,
+   "badge": "Silent · D.W. Griffith",
+   "durationMs": 3660000,
+   "durationLabel": "1h 1m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/JudithOfBethulia/Judith%20of%20Bethulia.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/judith-of-bethulia-1914/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "king-of-kings-1961",
+   "title": "King of Kings",
+   "description": "MGM's sweeping epic of the life of Jesus Christ, with Jeffrey Hunter in the title role — from the birth in Bethlehem through the Sermon on the Mount, the miracles, the Passion, and the Resurrection. Narrated by Orson Welles.",
+   "poster": "https://archive.org/services/img/king-of-kings-1961",
+   "year": 1961,
+   "badge": "MGM Epic",
+   "durationMs": 10080000,
+   "durationLabel": "2h 48m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/king-of-kings-1961/KING%20OF%20KINGS%20-%201961.ia.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/king-of-kings-1961/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "go-down-death-1944",
+   "title": "Go Down, Death!",
+   "description": "Spencer Williams' powerful gospel drama — a crooked saloon owner schemes against a beloved preacher and his congregation, until divine justice intervenes. Inspired by James Weldon Johnson's poem and featuring a stunning vision of death and heaven.",
+   "poster": "https://archive.org/services/img/go_down_death",
+   "year": 1944,
+   "badge": "Gospel Classic",
+   "durationMs": 3240000,
+   "durationLabel": "54m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/go_down_death/go_down_death.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/go-down-death-1944/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "golgotha-1935",
+   "title": "Golgotha",
+   "description": "French director Julien Duvivier's acclaimed biblical epic — the final days of Jesus Christ from his triumphal entry into Jerusalem through the crucifixion. Praised for its reverence and cinematic power, it was one of the most ambitious religious films of its era.",
+   "poster": "https://archive.org/services/img/golgotha_1935",
+   "year": 1935,
+   "badge": "French Cinema · 1935",
+   "durationMs": 6000000,
+   "durationLabel": "1h 40m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/golgotha_1935/golgotha_1935.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/golgotha-1935/stream"
+   },
+   "door": "bible",
+   "kind": "film"
+  },
+  {
+   "id": "passion-of-joan-of-arc-1928",
+   "title": "The Passion of Joan of Arc",
+   "description": "Carl Theodor Dreyer's transcendent silent masterpiece — the trial and martyrdom of Joan of Arc, told almost entirely in close-up. Consistently ranked among the greatest films ever made. Maria Falconetti's performance remains one of cinema's most extraordinary.",
+   "poster": "https://archive.org/services/img/ThePassionOfJoanOfArc1928",
+   "year": 1928,
+   "badge": "Silent Masterpiece",
+   "durationMs": 4920000,
+   "durationLabel": "1h 22m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/ThePassionOfJoanOfArc1928/ThePassionOfJoanOfArc1928.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/passion-of-joan-of-arc-1928/stream"
+   },
+   "door": "faith",
+   "kind": "film"
+  },
+  {
+   "id": "a-christmas-carol-1910",
+   "title": "A Christmas Carol",
+   "description": "The earliest surviving film adaptation of Charles Dickens' classic tale of redemption — Ebenezer Scrooge is visited by the three spirits of Christmas and transformed from miser to generous benefactor. A 1910 silent treasure.",
+   "poster": "https://archive.org/services/img/AChristmasCarol1910",
+   "year": 1910,
+   "badge": "Silent · 1910",
+   "durationMs": 720000,
+   "durationLabel": "12m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/AChristmasCarol1910/A-Christmas-Carol--1910.mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/a-christmas-carol-1910/stream"
+   },
+   "door": "classics",
+   "kind": "film"
+  },
+  {
+   "id": "intolerance-1916",
+   "title": "Intolerance",
+   "description": "D.W. Griffith's ambitious epic weaving four stories of human intolerance across the ages — including the life and crucifixion of Jesus Christ and the fall of ancient Babylon. A monumental achievement of early cinema and a profound meditation on injustice.",
+   "poster": "https://archive.org/services/img/Intolerance1916",
+   "year": 1916,
+   "badge": "D.W. Griffith · Epic",
+   "durationMs": 11820000,
+   "durationLabel": "3h 17m",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "play": {
+    "type": "mp4",
+    "src": "https://archive.org/download/Intolerance1916/Intolerance%20(1916).mp4",
+    "apiStreamPath": "/api/sanctuary/archive-films/intolerance-1916/stream"
+   },
+   "door": "classics",
+   "kind": "film"
+  },
+  {
+   "id": "living-christ-series",
+   "title": "The Living Christ Series",
+   "kind": "series",
+   "door": "series",
+   "description": "Cathedral Films' landmark 12-chapter series on the life of Jesus Christ — one of the most-screened biblical film series of the 20th century.",
+   "poster": "https://archive.org/services/img/TheLivingChristSeries",
+   "year": 1951,
+   "badge": "Cathedral Films",
+   "durationMs": null,
+   "durationLabel": "12 episodes · ~30m each",
+   "source": "Internet Archive",
+   "rights": "Public Domain",
+   "episodes": [
+    {
+     "id": "living-christ-series-1951",
+     "title": "Ep. 1: Holy Night",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries/chpt.01-HolyNight_512kb.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-1951/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep2",
+     "title": "Ep. 2: Escape to Egypt",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode2EscapeToEgypt.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep2/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep3",
+     "title": "Ep. 3: Boyhood and Baptism",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode3BoyhoodAndBaptism.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep3/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep4",
+     "title": "Ep. 4: Men of the Wilderness",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode4MenOfTheWilderness.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep4/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep5",
+     "title": "Ep. 5: Challenge of Faith",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode5ChallengeOfFaith.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep5/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep6",
+     "title": "Ep. 6: Discipleship",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode6Discipleship.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep6/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep7",
+     "title": "Ep. 7: Return to Nazareth",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode7ReturnToNazareth.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep7/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep8",
+     "title": "Ep. 8: Conflict",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode8Conflict.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep8/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep9",
+     "title": "Ep. 9: Fate of John the Baptist",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode9FateOfJohnTheBaptist.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep9/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep10",
+     "title": "Ep. 10: Retreat and Decision",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode10RetreatAndDecision.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep10/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep11",
+     "title": "Ep. 11: Triumph and Defeat",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode11TriumphAndDefeat.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep11/stream"
+     }
+    },
+    {
+     "id": "living-christ-series-ep12",
+     "title": "Ep. 12: Crucifixion and Resurrection",
+     "durationMs": null,
+     "durationLabel": "~30m",
+     "poster": "https://archive.org/services/img/TheLivingChristSeries_33",
+     "play": {
+      "type": "mp4",
+      "src": "https://archive.org/download/TheLivingChristSeries_33/Episode12CrucifixionAndResurrection.mp4",
+      "apiStreamPath": "/api/sanctuary/archive-films/living-christ-series-ep12/stream"
+     }
+    }
+   ]
+  },
+  {
+   "id": "the-chosen",
+   "title": "The Chosen",
+   "kind": "series",
+   "door": "series",
+   "description": "Experience the story of Jesus and the people whose lives He changed.",
+   "poster": "https://i.ytimg.com/vi/0E-8-NcL7tc/hqdefault.jpg",
+   "year": null,
+   "badge": "Series",
+   "durationMs": 5522000,
+   "durationLabel": "1h 32m",
+   "note": "Featured from the 16:3 Faith Watch library · Free to watch — presented by The Chosen.",
+   "episodes": [
+    {
+     "id": "the-chosen-s1-e1e2",
+     "title": "Season 1, Episodes 1 & 2 — I Have Called You by Name / Shabbat",
+     "durationMs": 5522000,
+     "durationLabel": "1h 32m",
+     "poster": "https://i.ytimg.com/vi/0E-8-NcL7tc/hqdefault.jpg",
+     "play": {
+      "type": "youtube",
+      "youtubeId": "0E-8-NcL7tc"
+     }
+    }
+   ]
+  },
+  {
+   "id": "2_GOJ-0-0",
+   "title": "Gospel of John",
+   "kind": "film",
+   "door": "bible",
+   "description": "",
+   "poster": null,
+   "year": null,
+   "badge": "Gospel Film",
+   "durationMs": null,
+   "durationLabel": null,
+   "cast": [
+    "Henry Ian Cusick",
+    "Christopher Plummer",
+    "Stuart Bunce"
+   ],
+   "creator": "Philip Saville",
+   "scriptureReferences": [
+    "Gospel of John (chapters 1–21)"
+   ],
+   "play": {
+    "type": "jfp",
+    "jfpId": "2_GOJ-0-0"
+   }
+  },
+  {
+   "id": "2_Augustine",
+   "title": "Augustine",
+   "kind": "film",
+   "door": "faith",
+   "description": "",
+   "poster": null,
+   "year": null,
+   "badge": "Gospel Film",
+   "durationMs": 5980000,
+   "durationLabel": "1h 40m",
+   "play": {
+    "type": "jfp",
+    "jfpId": "2_Augustine"
+   }
+  },
+  {
+   "id": "14_TPP",
+   "title": "The Pilgrim's Progress",
+   "kind": "film",
+   "door": "faith",
+   "description": "",
+   "poster": null,
+   "year": null,
+   "badge": "Gospel Film",
+   "durationMs": 400000,
+   "durationLabel": "7m",
+   "play": {
+    "type": "jfp",
+    "jfpId": "14_TPP"
+   }
+  }
+ ]
+}
