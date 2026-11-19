@@ -1,0 +1,363 @@
+{
+ "provenance": "Member entries derived from the production feed capture above (every distinct author of a served post, with that author's real name/avatar/counts) plus Bella (Goodyear, AZ) from the 2026-11-15 census walk. The production members counter reads 126 (2026-11-17/18 census); the full 126-row directory is served by the live API at runtime when it answers — this snapshot carries the members the capture evidences, and says so in the UI.",
+ "capturedAt": "2026-10-21/22",
+ "counterValue": 126,
+ "counterSource": "Homepage/Prayer Room counters, rendered 2026-11-17 + 2026-11-18 (DATA-CENSUS §2)",
+ "members": [
+  {
+   "id": "system_163faith",
+   "name": "16:3 Faith",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 2,
+   "latestAt": "2026-10-21T13:13:52.830Z",
+   "types": {
+    "general": 1,
+    "testimony": 1
+   }
+  },
+  {
+   "id": "official_163faith",
+   "name": "16:3 Ministry",
+   "avatar": "https://faith-hub-api.onrender.com/images/community/ministry-avatar.webp",
+   "verified": true,
+   "badges": [
+    "bible_scholar"
+   ],
+   "location": null,
+   "posts": 2,
+   "latestAt": "2026-10-21T12:00:00.000Z",
+   "types": {
+    "testimony": 2
+   }
+  },
+  {
+   "id": "user_3JyJWBQQp1PGQUSKMF4dtsdeX2u",
+   "name": "Chico M.",
+   "avatar": "https://faith-hub-api.onrender.com/images/uploads/0ecfe052-879f-467a-8e1e-0b9db6da1e3b.png",
+   "verified": true,
+   "badges": [],
+   "location": null,
+   "posts": 1,
+   "latestAt": "2026-10-16T03:06:00.000Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3JngQsrAYQ3UG2mLE7fkDN2uJXi",
+   "name": "Julie P.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-10-05T13:17:23.436Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3K54v50FwebOJ0iILtn5uoftLFy",
+   "name": "Pegann C.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-10-03T16:42:38.424Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3KA0KRv4UHuBPB7wbMG6yz47eRo",
+   "name": "Michelle A.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 1,
+   "latestAt": "2026-10-02T23:52:55.467Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3EYNtD2HL0VlfdWs1xkljEalbWF",
+   "name": "Delniev5",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/5aaf0158-ece7-4031-927b-c9abca3877da",
+   "verified": true,
+   "badges": [
+    "bible_scholar"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 6,
+   "latestAt": "2026-09-22T04:11:17.893Z",
+   "types": {
+    "prayer": 3,
+    "general": 3
+   }
+  },
+  {
+   "id": "user_3Ex4WDXlhUGbThK6Wp9QtXbAa2g",
+   "name": "mdswannie",
+   "avatar": null,
+   "verified": false,
+   "badges": [
+    "bible_scholar",
+    "testimony",
+    "faith_builder"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 6,
+   "latestAt": "2026-09-22T03:37:30.948Z",
+   "types": {
+    "testimony": 2,
+    "general": 4
+   }
+  },
+  {
+   "id": "user_3Jc2k1h85rQIEqBcjF6IoVkmghC",
+   "name": "M L.",
+   "avatar": null,
+   "verified": false,
+   "badges": [
+    "testimony"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-09-21T00:12:17.055Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3EvFzwU6VUU2DOAoVBsegALjNJk",
+   "name": "pcrosby27",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-09-18T04:10:35.102Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3FGAwW93HfPzYQxPOc1JIYopFQv",
+   "name": "Julie P.",
+   "avatar": null,
+   "verified": true,
+   "badges": [
+    "faith_builder"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 4,
+   "latestAt": "2026-09-17T17:43:12.365Z",
+   "types": {
+    "general": 4
+   }
+  },
+  {
+   "id": "user_3IpFWKRodHuwJRTp9yMHyY6R4d3",
+   "name": "wonnacottalisha",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 2,
+   "latestAt": "2026-09-15T23:33:19.735Z",
+   "types": {
+    "general": 2
+   }
+  },
+  {
+   "id": "user_3G6tZtHw0J7UBzTYHSGzyRVf5tw",
+   "name": "Conscious Blessings",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/dc3e0367-ce67-456f-8c1b-2b684e448cdd",
+   "verified": false,
+   "badges": [
+    "bible_scholar"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 6,
+   "latestAt": "2026-09-14T01:36:30.690Z",
+   "types": {
+    "general": 6
+   }
+  },
+  {
+   "id": "user_3EvErksAwwPfrzgZzNtCynekBtN",
+   "name": "Andrialynn0525",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/a4b517a7-b020-4176-9ed7-1b96e7aa7b5a",
+   "verified": true,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 5,
+   "latestAt": "2026-09-12T20:09:27.470Z",
+   "types": {
+    "general": 3,
+    "prayer": 2
+   }
+  },
+  {
+   "id": "user_3ES0Sm8gm9pnY6x8GXjNWLSYnEA",
+   "name": "Chico M.",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/bc39d369-7fd6-4173-8706-2712ee15b500",
+   "verified": true,
+   "badges": [
+    "bible_scholar",
+    "faith_builder"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 8,
+   "latestAt": "2026-09-12T18:06:42.520Z",
+   "types": {
+    "general": 8
+   }
+  },
+  {
+   "id": "user_3E2hf6c97ll5IJn3dbATp9LrSph",
+   "name": "shantamonroe",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/5517d5d2-521c-4d72-be98-85b6dddfd788",
+   "verified": true,
+   "badges": [
+    "bible_scholar",
+    "testimony"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 2,
+   "latestAt": "2026-09-04T13:14:14.786Z",
+   "types": {
+    "general": 2
+   }
+  },
+  {
+   "id": "user_3GRuBU6JPJp5CpsgxSsTM0qZYPA",
+   "name": "Bowiegirl63",
+   "avatar": null,
+   "verified": true,
+   "badges": [
+    "prayer_warrior",
+    "testimony"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 6,
+   "latestAt": "2026-08-31T12:58:12.702Z",
+   "types": {
+    "general": 3,
+    "prayer": 3
+   }
+  },
+  {
+   "id": "user_3GLCiow1X6OTh6FEUi2u9dtmz42",
+   "name": "Christine B.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-08-25T04:29:11.085Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3IFnoO3cgL3OgEPgC3g0QC5CEJt",
+   "name": "j Cindy C.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 1,
+   "latestAt": "2026-08-22T03:30:47.263Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3EyEZs5BkDfan8hdoRfxaS72zU9",
+   "name": "Mgmanning2003",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/da94f6c2-f722-4fdd-b58e-a4b2f0f943c6",
+   "verified": true,
+   "badges": [
+    "bible_scholar"
+   ],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-08-18T13:16:30.227Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": "user_3GVTH4zwuyMrLWkL4KbOxKV2mvQ",
+   "name": "Larisa D.",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/ce7fd5ed-4dd6-4464-8869-56d3b123143c",
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 1,
+   "latestAt": "2026-08-03T02:20:20.629Z",
+   "types": {
+    "testimony": 1
+   }
+  },
+  {
+   "id": "user_3GNFCY12YCpa26S2rgpu9a21wKu",
+   "name": "Mari.marisol0311",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 3,
+   "latestAt": "2026-07-20T15:38:25.061Z",
+   "types": {
+    "general": 2,
+    "testimony": 1
+   }
+  },
+  {
+   "id": "user_3GKnomXvfXDNhyUZEGEqz1DbQBq",
+   "name": "Carolinegleeson1",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/e294cd95-60d4-481e-9ad7-7cd2370e9036",
+   "verified": true,
+   "badges": [],
+   "location": "Canada 🇨🇦",
+   "posts": 2,
+   "latestAt": "2026-07-12T01:42:10.387Z",
+   "types": {
+    "testimony": 2
+   }
+  },
+  {
+   "id": "user_3Fz61p22KXpfxZnEeyfH3ZQQ0BN",
+   "name": "Info",
+   "avatar": "https://faith-hub-api.onrender.com/api/storage/objects/uploads/3308fa65-5938-4a38-b2ee-b0997a11086b",
+   "verified": false,
+   "badges": [],
+   "location": "United States 🇺🇸",
+   "posts": 1,
+   "latestAt": "2026-07-05T17:12:51.420Z",
+   "types": {
+    "general": 1
+   }
+  },
+  {
+   "id": null,
+   "name": "Bella",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "Goodyear, AZ",
+   "posts": 0,
+   "latestAt": null,
+   "types": {},
+   "sourceNote": "Profile render proven in census-2026-11-15 Leg-4 walk (2026-11-15); no post of hers falls inside the baked feed capture."
+  }
+ ]
+}

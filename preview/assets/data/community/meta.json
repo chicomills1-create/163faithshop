@@ -1,0 +1,55 @@
+{
+ "provenance": "Counters + feature states with per-item evidence. Flag states: no record after 2026-10-10 establishes a change, and live reads were impossible from the build sandbox (egress dead at the VM proxy, 2026-11-19) — every flag is therefore UNPROVEN and the UI states each feature honestly.",
+ "counters": {
+  "members": 126,
+  "testimoniesCounter": 50,
+  "prayerRequests": 84,
+  "prayersLifted": 19,
+  "source": "Rendered production counters 2026-11-17/18 (DATA-CENSUS §2)",
+  "pulseCapture20261021": {
+   "members": 111,
+   "testimonies": 177,
+   "prayerRequests": 74,
+   "prayersLifted": 4
+  },
+  "dbProbe20261026": {
+   "profiles": 122,
+   "postsTotal": 1249,
+   "postsPublished": 982,
+   "testimonyPostsPublished": 182,
+   "commentsTotal": 775,
+   "commentsPublished": 765
+  }
+ },
+ "flags": {
+  "prayers": "UNPROVEN",
+  "messages": "UNPROVEN",
+  "conversations": "UNPROVEN",
+  "groups": "UNPROVEN",
+  "prayer_chain_links": "UNPROVEN",
+  "lastKnown": "All five disabled 2026-10-10 with reason \"Data restoration pending\" (BATCH1-EVIDENCE-REPORT, Item 7). No later record reads their state."
+ },
+ "house": [
+  {
+   "id": "system_163faith",
+   "name": "16:3 Faith",
+   "kind": "House author",
+   "note": "The feed's house voice — Verse of the Day, Monday Prayer Kickoff, Sunday Gathering and more. On the old face this profile rendered dead (census defect #29); here it renders fully, with its posts."
+  },
+  {
+   "id": "official_163faith",
+   "name": "16:3 Ministry",
+   "kind": "Official page",
+   "headline": "Daily devotionals from 16:3 Faith",
+   "bio": "The official account of 16:3 Faith. Every day we share the devotional and verse from 163faith.com — real, honest words for the walk.",
+   "avatar": "https://faith-hub-api.onrender.com/images/community/ministry-avatar.webp",
+   "followerCount": 86,
+   "postCount": 99,
+   "source": "Production /api/community/pages capture, 2026-10-21/22"
+  }
+ ],
+ "groups": {
+  "state": "UNPROVEN flag; guest API returned an empty list for signed-out visitors in two captures (2026-10-21/22); rendered walks counted 7 starter groups (2026-11-15 Leg-5, 2026-11-17). Group names/counts are not in verified records (the 2026-10-22 interim names were formally withdrawn), so none are listed.",
+  "starterCount": 7
+ }
+}
