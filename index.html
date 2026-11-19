@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>163 Faith Shop — Wear the Work | Faith Streetwear, Gold on Black</title>
+<meta name="description" content="The official 163 Faith shop. Six launch pieces in gold on black: CROWNED, AFTER THE 1, NARROW IS THE WAY, FAITH OVER FEAR, 16:3 LEGACY. Commit thy works unto the LORD. — Proverbs 16:3">
+<meta property="og:title" content="163 Faith Shop — Wear the Work">
+<meta property="og:description" content="Six launch pieces. Gold on black. Printed when you order, fulfilled by Printful.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://163faithshop.com/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23d4af37' font-family='Georgia'>16:3</text></svg>">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Store","name":"163 Faith Shop","url":"https://163faithshop.com/","email":"shop@163faithshop.com","description":"Faith streetwear in gold on black. The clothing line of 16:3 Faith, founded by Pastor Jeremy \"Chico\" Mills.","brand":{"@type":"Brand","name":"16:3 Faith"}}
+</script>
+<style>
+:root{
+  --black:#050505; --coal:#0d0d0d; --panel:#121212; --line:#26221a;
+  --gold:#d4af37; --gold-hi:#f3d27a; --gold-dim:#9a7f2c; --bone:#efe9dc; --mute:#a89f8d;
+  --serif:Georgia,'Times New Roman',serif; --sans:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--bone);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--gold);text-decoration:none}
+img{max-width:100%;display:block}
+button{font-family:var(--sans);cursor:pointer}
+
+/* ---------- NAV ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;background:linear-gradient(180deg,rgba(0,0,0,.92),rgba(0,0,0,.75) 70%,transparent);backdrop-filter:blur(6px)}
+.wordmark{font-family:var(--serif);font-size:20px;letter-spacing:.14em;color:var(--bone)}
+.wordmark b{color:var(--gold);font-weight:700}
+.navlinks{display:flex;gap:18px;align-items:center;font-size:13px;letter-spacing:.18em;text-transform:uppercase}
+.navlinks a{color:var(--bone)}
+.navlinks a:hover{color:var(--gold-hi)}
+.navbtn{background:none;border:1px solid var(--gold-dim);color:var(--gold);border-radius:999px;padding:7px 14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.navbtn:hover{border-color:var(--gold);color:var(--gold-hi)}
+@media(max-width:640px){.navlinks a{display:none}.navlinks{gap:10px}}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:110px 20px 44px;overflow:hidden}
+.hero video,.hero .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.62}
+.hero .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.25) 40%,rgba(5,5,5,.94) 88%)}
+.hero-in{position:relative;max-width:1100px;margin:0 auto;width:100%}
+.kicker{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(52px,11vw,124px);line-height:.98;letter-spacing:.01em;
+  background:linear-gradient(100deg,var(--gold-dim),var(--gold-hi) 35%,var(--gold) 60%,var(--gold-hi));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.verse{margin-top:18px;font-size:clamp(16px,2.4vw,21px);color:var(--bone);max-width:620px;line-height:1.55}
+.hero p.verse em{color:var(--gold-hi)}
+.hero-cta{margin-top:28px;display:flex;gap:14px;flex-wrap:wrap}
+.btn-gold{background:linear-gradient(120deg,var(--gold-dim),var(--gold) 45%,var(--gold-hi));color:#141005;border:none;border-radius:999px;
+  padding:15px 30px;font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.btn-gold:hover{filter:brightness(1.1)}
+.btn-ghost{background:rgba(0,0,0,.35);color:var(--gold-hi);border:1px solid var(--gold-dim);border-radius:999px;padding:15px 30px;font-size:14px;letter-spacing:.16em;text-transform:uppercase}
+.btn-ghost:hover{border-color:var(--gold)}
+
+/* ---------- MARQUEE ---------- */
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:13px 0;background:var(--coal)}
+.marquee-track{display:flex;gap:0;white-space:nowrap;animation:scroll 30s linear infinite;width:max-content}
+.marquee span{font-family:var(--serif);font-size:15px;letter-spacing:.34em;color:var(--gold);padding:0 26px}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* ---------- SECTIONS ---------- */
+section{padding:72px 20px;max-width:1100px;margin:0 auto}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:30px;flex-wrap:wrap}
+h2{font-family:var(--serif);font-size:clamp(30px,5.4vw,46px);color:var(--bone);letter-spacing:.02em}
+h2 .g{color:var(--gold)}
+.sec-head p{color:var(--mute);font-size:14px;letter-spacing:.08em}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.reveal.on{opacity:1;transform:none}
+
+/* ---------- AI SEARCH ---------- */
+.aisearch{background:linear-gradient(160deg,#141105,#0a0a0a 55%);border:1px solid var(--line);border-radius:20px;padding:26px}
+.aisearch h3{font-family:var(--serif);font-size:24px;color:var(--gold-hi);margin-bottom:6px}
+.aisearch .sub{color:var(--mute);font-size:14px;margin-bottom:18px}
+.searchrow{display:flex;gap:10px}
+.searchrow input{flex:1;background:#000;border:1px solid var(--gold-dim);border-radius:999px;color:var(--bone);padding:14px 20px;font-size:16px;outline:none}
+.searchrow input:focus{border-color:var(--gold)}
+.answer{margin-top:18px;font-size:16px;line-height:1.6;color:var(--bone);display:none}
+.answer.show{display:block}
+.answer b{color:var(--gold-hi)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{background:#000;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:7px 13px;font-size:12.5px}
+.chip:hover{color:var(--gold-hi);border-color:var(--gold-dim)}
+.minirow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:16px}
+.minicard{background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;text-align:left;padding:0;color:var(--bone)}
+.minicard img{aspect-ratio:1;object-fit:cover;width:100%}
+.minicard .mc{padding:10px 12px}
+.minicard .mc b{font-size:13.5px;display:block}
+.minicard .mc span{color:var(--gold);font-size:13px}
+
+/* ---------- PRODUCT GRID ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px}
+.catnav{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0 4px}
+.catnav a{border:1px solid var(--line);border-radius:999px;padding:9px 18px;font-size:12px;letter-spacing:.22em;color:var(--gold-hi);text-transform:uppercase;background:rgba(0,0,0,.3);text-decoration:none}
+.catnav a:hover{border-color:var(--gold)}
+.audnav{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+.audnav button{border:1px solid var(--gold-dim);border-radius:999px;padding:9px 20px;font-size:12px;letter-spacing:.22em;color:var(--gold-hi);text-transform:uppercase;background:rgba(0,0,0,.3);cursor:pointer;font-family:inherit}
+.audnav button.on{background:linear-gradient(120deg,var(--gold-dim),var(--gold) 45%,var(--gold-hi));color:#141005;font-weight:700}
+.catblock{margin-top:46px}
+.cathead{display:flex;align-items:baseline;gap:16px;margin-bottom:18px}
+.cathead h3{font-family:var(--serif);font-size:clamp(22px,3.6vw,30px);color:var(--bone);letter-spacing:.04em}
+.cathead .rule{flex:1;height:1px;background:var(--line)}
+.cathead .cnt{font-size:12px;letter-spacing:.22em;color:var(--mute)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-align:left;padding:0;color:var(--bone);transition:transform .25s ease,border-color .25s ease;width:100%}
+.card:hover{transform:translateY(-5px);border-color:var(--gold-dim)}
+.card .imgwrap{background:#1a1a1a;aspect-ratio:1;overflow:hidden}
+.card img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.card:hover img{transform:scale(1.045)}
+.card .body{padding:18px 20px 20px}
+.card .tag{font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+.card h3{font-family:var(--serif);font-size:23px;margin:7px 0 5px}
+.card .blurb{color:var(--mute);font-size:14px;line-height:1.5;min-height:42px}
+.card .row{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.price{font-size:20px;color:var(--gold-hi);font-weight:700}
+.sizes{font-size:12px;color:var(--mute);letter-spacing:.06em}
+
+/* ---------- FILM / STORY ---------- */
+.filmwrap{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#000}
+.filmwrap video{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.story{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+@media(max-width:760px){.story{grid-template-columns:1fr}}
+.story img{border-radius:20px;border:1px solid var(--line)}
+.story .big{font-family:var(--serif);font-size:clamp(24px,3.6vw,32px);line-height:1.35}
+.story p{color:var(--mute);line-height:1.7;margin-top:14px;font-size:15.5px}
+.story .founder{margin-top:18px;font-size:12.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
+
+/* ---------- PRODUCT DIALOG ---------- */
+dialog{background:var(--coal);color:var(--bone);border:1px solid var(--gold-dim);border-radius:20px;max-width:880px;width:calc(100% - 28px);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.82)}
+.pd{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:700px){.pd{grid-template-columns:1fr}}
+.pd .gal{background:#161616}
+.pd .gal img.main{width:100%;aspect-ratio:1;object-fit:cover}
+.pd .thumbs{display:flex;gap:8px;padding:10px;overflow-x:auto}
+.pd .thumbs img{width:62px;height:62px;object-fit:cover;border-radius:9px;border:2px solid transparent;cursor:pointer;background:#222}
+.pd .thumbs img.sel{border-color:var(--gold)}
+.pd .info{padding:26px 26px 30px}
+.pd h3{font-family:var(--serif);font-size:29px;margin:6px 0 4px}
+.pd .garment{color:var(--mute);font-size:13.5px;letter-spacing:.05em}
+.pd .desc{color:var(--bone);opacity:.85;line-height:1.6;margin:14px 0;font-size:15px}
+.sizepick{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 20px}
+.sizepick button{background:#000;color:var(--bone);border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:14px;min-width:46px}
+.sizepick button.sel{border-color:var(--gold);color:var(--gold-hi);background:#1a1503}
+.pd .x{position:absolute;top:12px;right:14px;background:rgba(0,0,0,.6);border:1px solid var(--line);color:var(--bone);width:40px;height:40px;border-radius:50%;font-size:17px;z-index:2}
+.buybtn{display:inline-block;text-align:center;width:100%}
+.pd .note{margin-top:12px;font-size:12.5px;color:var(--mute);line-height:1.5}
+
+/* ---------- ASSISTANT ---------- */
+.assistant-fab{position:fixed;right:18px;bottom:18px;z-index:70;background:linear-gradient(120deg,var(--gold-dim),var(--gold) 50%,var(--gold-hi));color:#141005;border:none;border-radius:999px;padding:14px 22px;font-weight:700;font-size:14px;letter-spacing:.08em;box-shadow:0 10px 34px rgba(212,175,55,.35)}
+.chat{position:fixed;right:18px;bottom:84px;z-index:70;width:min(380px,calc(100vw - 30px));background:var(--coal);border:1px solid var(--gold-dim);border-radius:18px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.7)}
+.chat.open{display:flex}
+.chat header{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.chat header b{font-family:var(--serif);color:var(--gold-hi);font-size:17px}
+.chat header button{background:none;border:none;color:var(--mute);font-size:18px}
+.chat .log{padding:16px;overflow-y:auto;max-height:46vh;display:flex;flex-direction:column;gap:10px}
+.msg{padding:11px 14px;border-radius:14px;font-size:14.5px;line-height:1.55;max-width:88%}
+.msg.bot{background:#1a1708;border:1px solid var(--line);align-self:flex-start}
+.msg.me{background:#222;color:var(--bone);align-self:flex-end}
+.msg b{color:var(--gold-hi)}
+.chat form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.chat input{flex:1;background:#000;border:1px solid var(--line);border-radius:999px;color:var(--bone);padding:11px 16px;font-size:14.5px;outline:none}
+.chat input:focus{border-color:var(--gold)}
+.chat form button{background:var(--gold);border:none;color:#141005;border-radius:999px;padding:0 18px;font-weight:700}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--line);padding:52px 20px 60px;background:var(--coal)}
+.foot{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px}
+footer h4{font-family:var(--serif);color:var(--gold);font-size:16px;letter-spacing:.12em;margin-bottom:12px}
+footer p,footer a{color:var(--mute);font-size:14px;line-height:1.8;display:block}
+footer a:hover{color:var(--gold-hi)}
+.footbase{max-width:1100px;margin:34px auto 0;padding-top:20px;border-top:1px solid var(--line);color:var(--mute);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wordmark">16:3 <b>FAITH</b> SHOP</div>
+  <div class="navlinks">
+    <a href="#shop">Shop</a>
+    <a href="#film">The Film</a>
+    <a href="#story">The Story</a>
+    <button class="navbtn" onclick="document.getElementById('ask').scrollIntoView({behavior:'smooth'})">✦ Ask the Shop</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <img class="poster" src="assets/hero-gold.webp" alt="163 Faith gold on black campaign">
+  <div class="shade"></div>
+  <div class="hero-in">
+    <div class="kicker">The Clothing Line of 16:3 Faith</div>
+    <h1>COMMIT<br>THE WORK.</h1>
+    <p class="verse"><em>“Commit thy works unto the LORD, and thy thoughts shall be established.”</em> — Proverbs 16:3. Six launch pieces, gold on black, made to be worn like you mean it.</p>
+    <div class="hero-cta">
+      <button class="btn-gold" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">Shop the Launch Six</button>
+      <button class="btn-ghost" onclick="toggleChat(true)">Ask the Assistant</button>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-track" id="mq"></div></div>
+
+<section id="ask" class="reveal">
+  <div class="aisearch">
+    <h3>✦ Ask the Shop</h3>
+    <p class="sub">AI search that answers — sizing, gifts, prices, and the right piece for the moment. Try one:</p>
+    <div class="searchrow">
+      <input id="q" type="search" placeholder="What’s warm for winter? A gift under $50? Something in 3XL?" aria-label="Ask the shop">
+      <button class="btn-gold" onclick="askSearch()">Answer</button>
+    </div>
+    <div class="chips">
+      <button class="chip" onclick="chip(this)">A gift under $50</button>
+      <button class="chip" onclick="chip(this)">What’s warmest?</button>
+      <button class="chip" onclick="chip(this)">What comes in 5XL?</button>
+      <button class="chip" onclick="chip(this)">Show me the hoodies</button>
+      <button class="chip" onclick="chip(this)">A gift for my dad</button>
+    </div>
+    <div class="answer" id="answer"></div>
+    <div class="minirow" id="minirow"></div>
+  </div>
+</section>
+
+<section id="shop">
+  <div class="sec-head reveal">
+    <h2>SHOP <span class="g">BY TYPE</span></h2>
+    <p>Real pieces · Printed when you order · Fulfilled by Printful</p>
+  </div>
+  <div class="catnav" id="catnav"></div>
+  <div class="audnav" id="audnav"></div>
+  <div id="grid"></div>
+</section>
+
+<section id="film">
+  <div class="sec-head reveal">
+    <h2>THE <span class="g">FILM</span></h2>
+    <p>Gold on black — the launch campaign</p>
+  </div>
+  <div class="filmwrap reveal">
+    <video autoplay muted loop playsinline poster="assets/hero-gold.webp">
+      <source src="assets/hero-film.mp4" type="video/mp4">
+    </video>
+  </div>
+</section>
+
+<section id="story">
+  <div class="story reveal">
+    <img src="assets/hero-gold.webp" alt="Gold on black — the 163 Faith look">
+    <div>
+      <p class="big">This isn’t merch. It’s a uniform for people who put God first and do the work.</p>
+      <p>Every piece starts from one verse — Proverbs 16:3 — and one standard: gold on black, nothing watered down. Designed under the 16:3 Faith banner, printed one at a time when you order, and shipped to your door.</p>
+      <p>Wear it to church. Wear it to work. Wear it like a commitment.</p>
+      <p class="founder">Founded by Pastor Jeremy “Chico” Mills</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <div>
+      <h4>163 FAITH SHOP</h4>
+      <p>The clothing line of 16:3 Faith.<br>Gold on black. Wear the work.</p>
+    </div>
+    <div>
+      <h4>CONTACT</h4>
+      <a href="mailto:shop@163faithshop.com">shop@163faithshop.com</a>
+      <a href="https://163faith.com">163faith.com — the community</a>
+    </div>
+    <div>
+      <h4>THE FINE PRINT</h4>
+      <p>Printed when you order and fulfilled by Printful. US shipping. Prices in USD. Checkout runs on Printful’s secure store.</p>
+    </div>
+  </div>
+  <div class="footbase">
+    <span>© 2026 16:3 Faith LLC. All rights reserved.</span>
+    <span>Proverbs 16:3 — Commit thy works unto the LORD.</span>
+  </div>
+</footer>
+
+<dialog id="dlg"></dialog>
+
+<button class="assistant-fab" onclick="toggleChat()">✦ Shop Assistant</button>
+<div class="chat" id="chat">
+  <header><b>✦ 163 Assistant</b><button onclick="toggleChat(false)" aria-label="Close assistant">✕</button></header>
+  <div class="log" id="log"></div>
+  <form onsubmit="return sendChat(event)">
+    <input id="chatin" placeholder="Sizing, gifts, prices…" autocomplete="off">
+    <button type="submit">Ask</button>
+  </form>
+</div>
+
+...[truncated 15851 chars]
+<script>
+/* ============ CONFIG — set the Quick Store base when the store is created ============ */
+const QUICK_STORE_BASE = "https://163faith.printful.me"; // Quick Store — buy buttons link here (set 2026-11-15)
+
+/* ============ REAL CATALOG — Printful store data, pulled 2026-11-14 ============ */
+const CDN = "https://files.cdn.printful.com/files/";
+const PRODUCTS = [
+ {slug:"crowned-tee", name:"CROWNED Tee", tag:"The Signature", price:40, garment:"Comfort Colors 1717 heavyweight tee",
+  sizes:["S","M","L","XL","2XL","3XL","4XL"], printful:475476702,
+  blurb:"The crown piece. A gold crown over FAITH on a heavyweight black tee — the one that started the line.",
+  facts:"heavyweight garment-dyed cotton, relaxed fit",
+  img:CDN+"a35/a35d9589d949cac243e0834024acae5d_preview.png",
+  views:[CDN+"a35/a35d9589d949cac243e0834024acae5d_preview.png", CDN+"507/5070843b288704cebf66bae1f21ddcf5_preview.png"]},
+ {slug:"after-the-1-tee", name:"AFTER THE 1 Tee", tag:"Front + Back", price:40, garment:"Comfort Colors 1717 heavyweight tee",
+  sizes:["S","M","L","XL","2XL","3XL","4XL"], printful:475477102,
+  blurb:"Named for the one sheep the Shepherd goes after. Statement on the front, the story on the back.",
+  facts:"heavyweight garment-dyed cotton, front and back print",
+  img:CDN+"88d/88d35521a43092c6cb64486834353e52_preview.png",
+  views:[CDN+"88d/88d35521a43092c6cb64486834353e52_preview.png", CDN+"fcf/fcfbfbba40e0cbd365c75d27eded40af_preview.png", "https://files.cdn.printful.com/printfile-preview/1112929024/28800b8884673dd0aef52c979b52fae3_preview.png"]},
+ {slug:"narrow-is-the-way-hoodie", name:"NARROW IS THE WAY Hoodie", tag:"Front + Back", price:68, garment:"Gildan 18500 heavy blend hoodie",
+  sizes:["S","M","L","XL","2XL","3XL","4XL","5XL"], printful:475477157,
+  blurb:"Matthew 7:14 on heavyweight fleece. The warmest piece in the line, built for cold nights and straight paths.",
+  facts:"heavy blend fleece hoodie, front and back print, the warmest piece in the line",
+  img:CDN+"275/2757e03d2707e46080ec8dc976fdb970_preview.png",
+  views:[CDN+"275/2757e03d2707e46080ec8dc976fdb970_preview.png", "https://files.cdn.printful.com/printfile-preview/1112937468/c8ee79002f82def4532103476b8f1f29_preview.png", CDN+"f17/f178455931244c11bbc1d62bc89cdf3e_preview.png"]},
+ {slug:"faith-over-fear-crewneck", name:"FAITH OVER FEAR Crewneck", tag:"Printed Sleeves", price:58, garment:"Gildan 18000 heavy blend crewneck",
+  sizes:["S","M","L","XL","2XL","3XL","4XL","5XL"], printful:475477179,
+  blurb:"The declaration on the chest, the reminder down both sleeves. For the days fear talks loud.",
+  facts:"heavy blend crewneck sweatshirt, print on front and both sleeves",
+  img:CDN+"56b/56be535ef221d313c62caa398836ea84_preview.png",
+  views:[CDN+"56b/56be535ef221d313c62caa398836ea84_preview.png", "https://files.cdn.printful.com/printfile-preview/1112943114/ca8470011b8d84181ff05612120422b1_preview.png", CDN+"af8/af84b9f39eef7aef28c26c3232035ef4_preview.png", CDN+"14c/14c2d05cbab46c4e0bb5b1b2f62d2d54_preview.png"]},
+ {slug:"163-legacy-joggers", name:"16:3 LEGACY Joggers", tag:"Both Legs", price:56, garment:"Jerzees 975MPR fleece joggers",
+  sizes:["S","M","L","XL","2XL"], printful:475477191,
+  blurb:"The verse on one leg, the legacy on the other. Fleece joggers for the work and the rest after it.",
+  facts:"fleece joggers, print on both legs",
+  img:CDN+"422/42266d9cb8161fcbe6e5d0b21d41fe39_preview.png",
+  views:[CDN+"422/42266d9cb8161fcbe6e5d0b21d41fe39_preview.png", "https://files.cdn.printful.com/printfile-preview/1112951029/48cfc9b79cb422ca503cd049c364db35_preview.png", CDN+"66b/66b55cac08f18830eaa8a0c22fb0605b_preview.png"]},
+ {slug:"crowned-snapback", name:"CROWNED Snapback", tag:"Embroidered", price:34, garment:"Otto Cap snapback",
+  sizes:["One size"], printful:475477379,
+  blurb:"The crown, embroidered — not printed. One size, structured fit, the finishing piece of the uniform.",
+  facts:"structured snapback, embroidered crown, one size fits most",
+  img:CDN+"0bf/0bf30b1bad3bf6ac39d0a08209815784_preview.png",
+  views:[CDN+"0bf/0bf30b1bad3bf6ac39d0a08209815784_preview.png", CDN+"aaf/aaf0124480169c6afa4cf213f4868f4f_preview.png", CDN+"baf/baf6973d9ed7e77c4f5a28473f41a791_preview.png"]},
+ {slug:"jesus-aop-hoodie-black", name:"JESUS AOP 16:3 FAITH Hoodie — Black", tag:"Front + Back", price:92, garment:"All-over print recycled unisex hoodie",
+  sizes:["XS","S","M","L","XL","2XL","3XL"], printful:496019644,
+  blurb:"The portrait in engraved gold across the back, rays running the sleeves and hood, the mark on the chest. The signature piece — gold doing the talking on black.",
+  facts:"all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+  img:CDN+"f15/f15e67ddb9f55a74eb5e235a08ec844f_preview.png",
+  views:[CDN+"f15/f15e67ddb9f55a74eb5e235a08ec844f_preview.png"]},
+ {slug:"jesus-aop-hoodie-crimson", name:"JESUS AOP 16:3 FAITH Hoodie — Crimson Red", tag:"Front + Back", price:92, garment:"All-over print recycled unisex hoodie",
+  sizes:["XS","S","M","L","XL","2XL","3XL"], printful:496019717,
+  blurb:"Deep crimson under engraved gold — the portrait rides the back, rays wrap the sleeves and hood, the mark sits on the chest. The back preaches before you say a word.",
+  facts:"all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+  img:CDN+"a8d/a8daeb0bca04269edf07b90f4f342730_preview.png",
+  views:[CDN+"a8d/a8daeb0bca04269edf07b90f4f342730_preview.png"]},
+ {slug:"jesus-aop-hoodie-orange", name:"JESUS AOP 16:3 FAITH Hoodie — Burnt Orange", tag:"Front + Back", price:92, garment:"All-over print recycled unisex hoodie",
+  sizes:["XS","S","M","L","XL","2XL","3XL"], printful:496019727,
+  blurb:"Burnt orange with the gold portrait across the back and rays down the sleeves and hood. Built to be seen from across the street — and remembered.",
+  facts:"all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+  img:CDN+"e9d/e9d7d74aa30df6af95bc8bf482a0af7c_preview.png",
+  views:[CDN+"e9d/e9d7d74aa30df6af95bc8bf482a0af7c_preview.png"]},
+ {slug:"jesus-aop-hoodie-emerald", name:"JESUS AOP 16:3 FAITH Hoodie — Emerald Green", tag:"Front + Back", price:92, garment:"All-over print recycled unisex hoodie",
+  sizes:["XS","S","M","L","XL","2XL","3XL"], printful:496019770,
+  blurb:"Emerald green, antique gold. The portrait on the back, rays across the sleeves and hood, the mark on the chest. Quiet color, loud message.",
+  facts:"all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+  img:CDN+"5da/5da1216da1f3e2fb1a20ac2f2749064b_preview.png",
+  views:[CDN+"5da/5da1216da1f3e2fb1a20ac2f2749064b_preview.png"]},
+ {slug:"jesus-aop-hoodie-purple", name:"JESUS AOP 16:3 FAITH Hoodie — Royal Purple", tag:"Front + Back", price:92, garment:"All-over print recycled unisex hoodie",
+  sizes:["XS","S","M","L","XL","2XL","3XL"], printful:496019814,
+  blurb:"Royal purple with the portrait in antique gold across the back, rays wrapping the hood and sleeves. Royal colors, worn for the King.",
+  facts:"all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+  img:CDN+"402/402d68284fe8a588bbc95ff4322f0cef_preview.png",
+  views:[CDN+"402/402d68284fe8a588bbc95ff4322f0cef_preview.png"]}
+];
+const CATS = [["hoodies","HOODIES"],["shirts","SHIRTS"],["crewnecks","CREWNECKS"],["joggers","JOGGERS"],["headwear","HEADWEAR"]];
+const AUDOF = {"crowned-tee":"unisex","after-the-1-tee":"unisex","narrow-is-the-way-hoodie":"unisex","faith-over-fear-crewneck":"unisex","163-legacy-joggers":"unisex","crowned-snapback":"unisex","jesus-aop-hoodie-black":"unisex","jesus-aop-hoodie-crimson":"unisex","jesus-aop-hoodie-orange":"unisex","jesus-aop-hoodie-emerald":"unisex","jesus-aop-hoodie-purple":"unisex"};
+const CATOF = {"crowned-tee":"shirts","after-the-1-tee":"shirts","narrow-is-the-way-hoodie":"hoodies","faith-over-fear-crewneck":"crewnecks","163-legacy-joggers":"joggers","crowned-snapback":"headwear","jesus-aop-hoodie-black":"hoodies","jesus-aop-hoodie-crimson":"hoodies","jesus-aop-hoodie-orange":"hoodies","jesus-aop-hoodie-emerald":"hoodies","jesus-aop-hoodie-purple":"hoodies"};
+const bySlug = s => PRODUCTS.find(p=>p.slug===s);
+const money = n => "$" + n.toFixed(2).replace(/\.00$/,"");
+
+/* ============ MARQUEE ============ */
+const words = ["CROWNED","FAITH OVER FEAR","NARROW IS THE WAY","AFTER THE 1","16:3 LEGACY","PROVERBS 16:3","GOLD ON BLACK"];
+document.getElementById('mq').innerHTML = (words.concat(words)).map(w=>`<span>${w} ✦</span>`).join("");
+
+/* ============ GRID ============ */
+const grid = document.getElementById('grid');
+const cardHTML = p=>`
+ <button class="card reveal" data-aud="${AUDOF[p.slug]||"unisex"}" onclick="openProduct('${p.slug}')">
+   <div class="imgwrap"><img loading="lazy" src="${p.img}" alt="${p.name} — black with gold artwork"></div>
+   <div class="body">
+     <div class="tag">${p.tag}</div>
+     <h3>${p.name}</h3>
+     <p class="blurb">${p.blurb}</p>
+     <div class="row"><span class="price">${money(p.price)}</span><span class="sizes">${p.sizes.length>1 ? p.sizes[0]+" – "+p.sizes[p.sizes.length-1] : p.sizes[0]}</span></div>
+   </div>
+ </button>`;
+document.getElementById('catnav').innerHTML = CATS.filter(([c])=>PRODUCTS.some(p=>CATOF[p.slug]===c)).map(([c,label])=>`<a href="#cat-${c}">${label}</a>`).join("");
+grid.innerHTML = CATS.map(([c,label])=>{
+  const items = PRODUCTS.filter(p=>CATOF[p.slug]===c);
+  if(!items.length) return "";
+  return `<div class="catblock" id="cat-${c}"><div class="cathead"><h3>${label}</h3><div class="rule"></div><div class="cnt">${items.length} ${items.length===1?"PIECE":"PIECES"}</div></div><div class="grid">${items.map(cardHTML).join("")}</div></div>`;
+}).join("");
+const audnav = document.getElementById('audnav');
+audnav.innerHTML = [["all","ALL"],["mens","MENS"],["womens","WOMENS"]].map(([f,l])=>`<button data-f="${f}" class="${f==="all"?"on":""}" onclick="setAud('${f}',this)">${l}</button>`).join("");
+function setAud(f,btn){
+  audnav.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b===btn));
+  document.querySelectorAll('#grid .card').forEach(card=>{
+    const a = card.getAttribute('data-aud');
+    card.style.display = (f==="all" || a===f || a==="unisex") ? "" : "none";
+  });
+  document.querySelectorAll('#grid .catblock').forEach(block=>{
+    const any = [...block.querySelectorAll('.card')].some(c=>c.style.display!=="none");
+    block.style.display = any ? "" : "none";
+  });
+}
+
+/* ============ PRODUCT DIALOG ============ */
+const dlg = document.getElementById('dlg');
+let curSize = null;
+function openProduct(slug){
+  const p = bySlug(slug); curSize = p.sizes[Math.min(1,p.sizes.length-1)];
+  dlg.innerHTML = `
+   <div class="pd" style="position:relative">
+    <button class="x" onclick="dlg.close()" aria-label="Close">✕</button>
+    <div class="gal">
+      <img class="main" id="pdmain" src="${p.views[0]}" alt="${p.name}">
+      <div class="thumbs">${p.views.map((v,i)=>`<img src="${v}" class="${i===0?'sel':''}" onclick="pdView(this,'${v}')" alt="View ${i+1} of ${p.name}">`).join("")}</div>
+    </div>
+    <div class="info">
+      <div class="tag" style="font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase">${p.tag}</div>
+      <h3>${p.name}</h3>
+      <div class="garment">${p.garment}</div>
+      <p class="desc">${p.blurb}</p>
+      <div class="price" style="font-size:26px">${money(p.price)}</div>
+      <div style="margin-top:14px;font-size:12px;letter-spacing:.22em;color:var(--mute)">SIZE</div>
+      <div class="sizepick">${p.sizes.map(s=>`<button class="${s===curSize?'sel':''}" onclick="pickSize(this,'${s}')">${s}</button>`).join("")}</div>
+      ${QUICK_STORE_BASE
+        ? `<a class="btn-gold buybtn" href="${QUICK_STORE_BASE}" target="_blank" rel="noopener">Buy on Printful — ${money(p.price)}</a>`
+        : `<button class="btn-gold buybtn" onclick="buySoon('${p.name}')">Buy — ${money(p.price)}</button>`}
+      <p class="note">Printed when you order and fulfilled by Printful. Checkout runs on Printful’s secure store; US shipping, prices in USD. Questions: shop@163faithshop.com</p>
+    </div>
+   </div>`;
+  dlg.showModal();
+}
+function pdView(el,src){ document.getElementById('pdmain').src = src; el.parentElement.querySelectorAll('img').forEach(i=>i.classList.remove('sel')); el.classList.add('sel'); }
+function pickSize(el,s){ curSize = s; el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel')); el.classList.add('sel'); }
+function buySoon(name){ alert(name + " — the store opens the moment the launch prices are confirmed. Email shop@163faithshop.com and we’ll take your order personally."); }
+dlg.addEventListener('click', e=>{ if(e.target===dlg) dlg.close(); });
+</script>
+
+<script>
+/* ============ AI SEARCH — answers from the real catalog ============ */
+function matchProducts(q){
+  q = q.toLowerCase(); const hits = new Set();
+  const add = fn => PRODUCTS.forEach(p=>{ if(fn(p)) hits.add(p); });
+  const num = (q.match(/\$?\s?(\d{2,3})/)||[])[1];
+  if(/under|below|less than|cheap/.test(q) && num) add(p=>p.price <= +num);
+  if(/hoodie|warm|winter|cold/.test(q)) add(p=>/hoodie/i.test(p.name));
+  if(/warmest/.test(q)) add(p=>p.slug==="narrow-is-the-way-hoodie");
+  if(/crew|sweatshirt/.test(q)) add(p=>/crewneck/i.test(p.name));
+  if(/tee|t-shirt|shirt/.test(q)) add(p=>/tee/i.test(p.name));
+  if(/jogger|pants|legs/.test(q)) add(p=>/joggers/i.test(p.name));
+  if(/hat|cap|snapback/.test(q)) add(p=>/snapback/i.test(p.name));
+  if(/crown/.test(q)) add(p=>/crowned/i.test(p.name));
+  if(/fear/.test(q)) add(p=>/fear/i.test(p.name));
+  if(/narrow/.test(q)) add(p=>/narrow/i.test(p.name));
+  if(/legacy|16:3|163/.test(q)) add(p=>/legacy/i.test(p.name));
+  if(/after the 1|sheep/.test(q)) add(p=>/after/i.test(p.name));
+  const sz = (q.toUpperCase().match(/\b(2XL|3XL|4XL|5XL|XL|S|M|L)\b/)||[])[1];
+  if(sz && /size|come|fit|in /.test(q)) add(p=>p.sizes.includes(sz));
+  if(/gift|dad|father|him|husband|brother/.test(q)) add(p=>["narrow-is-the-way-hoodie","faith-over-fear-crewneck","crowned-snapback"].includes(p.slug));
+  if(/gift|mom|mother|her|wife|sister/.test(q)) add(p=>["faith-over-fear-crewneck","crowned-tee","narrow-is-the-way-hoodie"].includes(p.slug));
+  return [...hits];
+}
+function answerFor(q){
+  const hits = matchProducts(q); const ql = q.toLowerCase();
+  if(/warmest|warm for winter/.test(ql)){
+    const h = bySlug("narrow-is-the-way-hoodie");
+    return {html:`The warmest piece in the line is the <b>${h.name}</b> — heavy blend fleece at <b>${money(h.price)}</b>, sizes ${h.sizes[0]}–${h.sizes[h.sizes.length-1]}. The <b>FAITH OVER FEAR Crewneck</b> at ${money(58)} is the layer under it.`, hits:[h, bySlug("faith-over-fear-crewneck")]};
+  }
+  if(/ship|deliver|arrive/.test(ql)) return {html:`Every piece is <b>printed when you order</b> and fulfilled by Printful, shipping to US addresses. Allow a few days for printing, then standard delivery.`, hits:[]};
+  if(/return|exchange|wrong size/.test(ql)) return {html:`Wrong size? Email <b>shop@163faithshop.com</b> and we’ll make it right — exchanges for size are handled personally.`, hits:[]};
+  if(/price|cost|how much/.test(ql) && !hits.length) return {html:`The launch six run <b>$34 to $68</b>: snapback $34, both tees $40, joggers $56, crewneck $58, hoodie $68.`, hits:PRODUCTS};
+  if(hits.length){
+    const names = hits.map(p=>`<b>${p.name}</b> (${money(p.price)})`).join(", ");
+    return {html:`Here’s what fits: ${names}. Tap any piece to see sizes and artwork.`, hits};
+  }
+  return {html:`I can answer about the launch six — sizing, gifts, prices, warmth. Try “a gift under $50” or “what comes in 5XL?” — or tap a piece below to see it up close.`, hits:PRODUCTS};
+}
+function renderAnswer(q){
+  const a = answerFor(q); const box = document.getElementById('answer');
+  box.innerHTML = a.html; box.classList.add('show');
+  document.getElementById('minirow').innerHTML = a.hits.map(p=>`
+    <button class="minicard" onclick="openProduct('${p.slug}')">
+      <img loading="lazy" src="${p.img}" alt="${p.name}"><div class="mc"><b>${p.name}</b><span>${money(p.price)}</span></div>
+    </button>`).join("");
+}
+function askSearch(){ const q = document.getElementById('q').value.trim(); if(q) renderAnswer(q); }
+function chip(el){ document.getElementById('q').value = el.textContent.trim(); renderAnswer(el.textContent.trim()); }
+document.getElementById('q').addEventListener('keydown', e=>{ if(e.key==='Enter') askSearch(); });
+
+/* ============ AI ASSISTANT ============ */
+const chat = document.getElementById('chat'), log = document.getElementById('log');
+let greeted = false;
+function toggleChat(force){
+  const open = force !== undefined ? force : !chat.classList.contains('open');
+  chat.classList.toggle('open', open);
+  if(open && !greeted){ greeted = true;
+    botSay(`Welcome to the <b>163 Faith Shop</b>. I’m the shop assistant — I can help with <b>sizing</b>, <b>gift picks</b>, and the story behind each piece. What are you looking for?`);
+  }
+  if(open) document.getElementById('chatin').focus();
+}
+function botSay(html){ const d = document.createElement('div'); d.className = 'msg bot'; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; }
+function meSay(t){ const d = document.createElement('div'); d.className = 'msg me'; d.textContent = t; log.appendChild(d); log.scrollTop = log.scrollHeight; }
+function sendChat(e){
+  e.preventDefault(); const inp = document.getElementById('chatin'); const t = inp.value.trim(); if(!t) return;
+  meSay(t); inp.value = "";
+  const q = t.toLowerCase();
+  setTimeout(()=>{
+    if(/size|fit|tall|big|xl/.test(q)){
+      const sz = (t.toUpperCase().match(/\b(2XL|3XL|4XL|5XL|XL)\b/)||[])[1];
+      if(sz==="5XL") botSay(`Only two pieces run to <b>5XL</b>: the <b>NARROW IS THE WAY Hoodie</b> (${money(68)}) and the <b>FAITH OVER FEAR Crewneck</b> (${money(58)}). Both are heavy blend — size up if you like a relaxed fit.`);
+      else if(sz) botSay(`In <b>${sz}</b>: both tees run to 4XL, the hoodie and crewneck to 5XL. The tees are a relaxed garment-dyed fit — your normal size is the right call.`);
+      else botSay(`Quick sizing map: tees <b>S–4XL</b> (relaxed fit), hoodie and crewneck <b>S–5XL</b>, joggers <b>S–2XL</b>, snapback is one size. Tell me your size and I’ll point you at the exact pieces.`);
+    }
+    else if(/gift|dad|father|mom|mother|wife|husband|friend/.test(q)){
+      const a = answerFor(t);
+      botSay(a.html + ` Every piece is printed when you order, so order a few days ahead of the day you need it.`);
+    }
+    else if(/verse|163|16:3|meaning|why/.test(q)){
+      botSay(`<b>16:3</b> is Proverbs 16:3 — <i>“Commit thy works unto the LORD, and thy thoughts shall be established.”</i> It’s the foundation of 163 Faith and the reason every piece carries the crown: the work is His first.`);
+    }
+    else if(/ship|deliver|long/.test(q)) botSay(`Printed when you order, fulfilled by <b>Printful</b>, US shipping. Printing takes a few days, then it’s on a truck to you.`);
+    else if(/contact|email|human|help/.test(q)) botSay(`You can reach a human any time at <b>shop@163faithshop.com</b> — that inbox is watched daily.`);
+    else { const a = answerFor(t); botSay(a.html); }
+  }, 350);
+  return false;
+}
+
+/* ============ REVEAL ON SCROLL ============ */
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); }),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
