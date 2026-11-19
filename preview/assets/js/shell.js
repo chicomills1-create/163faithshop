@@ -31,10 +31,31 @@ const Player = {
   titleEl: $('player-title'),
   subEl: $('player-sub'),
   coverEl: $('player-cover'),
+  provEl: $('player-prov'),
   playBtn: $('btn-play'),
+  prevBtn: $('btn-prev'),
+  nextBtn: $('btn-next'),
+  closeBtn: $('btn-close'),
   seekEl: $('player-seek'),
   elapsedEl: $('player-elapsed'),
   totalEl: $('player-total'),
+  stageEl: $('stage'),
+  stageCoverEl: $('stage-cover'),
+  stageTitleEl: $('stage-title'),
+  stageSubEl: $('stage-sub'),
+  stageProvEl: $('stage-prov'),
+  stageEndedEl: $('stage-ended'),
+  stageEndedLineEl: $('stage-ended-line'),
+  stageSeekEl: $('stage-seek'),
+  stageElapsedEl: $('stage-elapsed'),
+  stageTotalEl: $('stage-total'),
+  play2Btn: $('btn-play2'),
+  prev2Btn: $('btn-prev2'),
+  next2Btn: $('btn-next2'),
+  repeatBtn: $('btn-repeat'),
+  stageQueueEl: $('stage-queue'),
+  stageQueueLabelEl: $('stage-queue-label'),
+  stageQueueRowsEl: $('stage-queue-rows'),
   engine: null,          // 'yt' | 'audio' | null
   current: null,         // { title, sub, cover, youtubeId? , src? }
   queue: [],             // [{ youtubeId, title, sub, cover }]
@@ -44,16 +65,135 @@ const Player = {
   ytReady: false,
   ytPending: null,       // videoId requested before the API was ready
   seeking: false,
+  repeatOne: false,      // G-03: repeat-one toggle (Kairo K9)
+  ended: false,          // G-06: the ended state is a designed place
+  buffering: false,      // G-05: loading shows on the play control only
+  stageOpen: false,      // G-01: Stage (expanded now-playing) mode
 
   /* ---------- face ---------- */
+  emit() { window.dispatchEvent(new CustomEvent('faithplayer', { detail: this.state() })); },
   setFace(track) {
     this.current = track;
-    this.titleEl.textContent = track.title || 'Untitled';
+    this.ended = false;
+    const title = track.title || 'Untitled';
+    this.titleEl.textContent = title;
     this.subEl.textContent = track.sub || '';
-    this.coverEl.innerHTML = (track.cover ? `<img src="${track.cover}" alt="" onerror="this.remove()">` : '') + '<span>16:3</span>';
-    window.dispatchEvent(new CustomEvent('faithplayer', { detail: this.state() }));
+    const coverHtml = (track.cover ? `<img src="${track.cover}" alt="" onerror="this.remove()">` : '') + '<span>16:3</span>';
+    this.coverEl.innerHTML = coverHtml;
+    /* Stage face mirrors the bar: same exact cover, full identity (G-01). */
+    this.stageTitleEl.textContent = title;
+    this.stageSubEl.textContent = track.sub || '';
+    this.stageCoverEl.innerHTML = coverHtml;
+    /* G-07 provenance: the source fact rides the face. Wording is Faith's
+       (full songs, YouTube source) — shown only for the YouTube engine. */
+    const prov = this.engine === 'yt' ? 'Full song · YouTube' : '';
+    this.provEl.hidden = !prov;
+    this.stageProvEl.hidden = !prov;
+    if (prov) this.stageProvEl.textContent = prov;
+    this.coverEl.disabled = false;
+    this.titleEl.disabled = false;
+    this.coverEl.setAttribute('aria-label', `Open now playing: ${title}`);
+    this.titleEl.setAttribute('aria-label', `Open now playing: ${title}`);
+    this.stageEndedEl.hidden = true;
+    this.syncTransport(false);
+    this.renderQueue();
+    this.emit();
   },
-  setPlayingUI(playing) { this.playBtn.textContent = playing ? '⏸' : '▶'; },
+  setPlayingUI(playing) {
+    const glyph = playing ? '⏸' : '▶';
+    this.playBtn.textContent = glyph;
+    this.play2Btn.textContent = glyph;
+    this.syncTransport(playing);
+  },
+  /* G-05: buffering shows on the play control only — no fake percentages. */
+  setBuffering(on) {
+    this.buffering = !!on;
+    this.playBtn.classList.toggle('buffering', this.buffering);
+    this.play2Btn.classList.toggle('buffering', this.buffering);
+  },
+  /* G-04 (no dead controls) + G-08 (accessible names carry the claim):
+     prev/next/play/close render only when they can act, and their names
+     name the track they act on. */
+  syncTransport(playing) {
+    const has = !!this.current;
+    const title = has ? (this.current.title || 'Untitled') : '';
+    const isPlaying = typeof playing === 'boolean' ? playing
+      : (this.engine === 'yt' && this.ytReady ? this.yt.getPlayerState() === 1
+        : this.engine === 'audio' ? !this.audio.paused : false);
+    for (const b of [this.playBtn, this.play2Btn]) {
+      b.hidden = !has;
+      b.setAttribute('aria-label', !has ? 'Play'
+        : this.ended ? `Replay ${title}`
+        : isPlaying ? `Pause ${title}` : `Play ${title}`);
+    }
+    this.closeBtn.hidden = !has;
+    const prevTitle = this.qIndex > 0 ? this.queue[this.qIndex - 1].title : null;
+    const nextT = this.qIndex + 1 < this.queue.length ? this.queue[this.qIndex + 1] : null;
+    /* Prev is a real control when a previous track exists, or — on the
+       YouTube engine — as restart-current (X-2, Spotify parity). */
+    const prevOk = has && (prevTitle !== null || this.engine === 'yt');
+    for (const b of [this.prevBtn, this.prev2Btn]) {
+      b.hidden = !prevOk;
+      b.setAttribute('aria-label', prevTitle !== null ? `Previous: ${prevTitle}` : `Restart ${title}`);
+    }
+    for (const b of [this.nextBtn, this.next2Btn]) {
+      b.hidden = !nextT;
+      b.setAttribute('aria-label', nextT ? `Next: ${nextT.title}` : 'Next track');
+    }
+    this.repeatBtn.setAttribute('aria-pressed', String(this.repeatOne));
+    this.repeatBtn.classList.toggle('on', this.repeatOne);
+  },
+  /* G-02: the visible queue — current track first, then up next, labeled
+     from the queue's own source (queueLabel: artist or door today, album
+     when the album view lands). Rows are playable tracks only — the queue
+     holds nothing else by construction — and tapping a row jumps. */
+  renderQueue() {
+    const show = this.stageOpen && this.queue.length > 0 && this.qIndex >= 0;
+    this.stageQueueEl.hidden = !show;
+    if (!show) { this.stageQueueRowsEl.innerHTML = ''; return; }
+    const from = this.queueLabel || (this.current && this.current.sub) || '';
+    this.stageQueueLabelEl.textContent = from ? `Up next — from ${from}` : 'Up next';
+    this.stageQueueRowsEl.innerHTML = '';
+    for (let i = this.qIndex; i < this.queue.length; i++) {
+      const t = this.queue[i];
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'trow' + (i === this.qIndex ? ' playing' : '');
+      row.dataset.qindex = String(i);
+      const num = document.createElement('span');
+      num.className = 'tnum'; num.textContent = String(i + 1);
+      const tt = document.createElement('span');
+      tt.className = 'ttitle'; tt.textContent = t.title || 'Untitled';
+      row.append(num, tt);
+      if (t.sub && t.sub !== from) {
+        const sb = document.createElement('span');
+        sb.className = 'tsub'; sb.textContent = t.sub;
+        row.append(sb);
+      }
+      if (i === this.qIndex) {
+        const now = document.createElement('span');
+        now.className = 'tnow'; now.textContent = 'Now playing';
+        row.append(now);
+      }
+      row.addEventListener('click', () => this.playAt(i));
+      this.stageQueueRowsEl.append(row);
+    }
+  },
+  /* ---------- Stage (G-01) ---------- */
+  openStage() {
+    if (!this.current) return;
+    this.stageOpen = true;
+    this.stageEl.hidden = false;
+    document.body.classList.add('stage-open');
+    this.renderQueue();
+    this.emit();
+  },
+  closeStage() {
+    this.stageOpen = false;
+    this.stageEl.hidden = true;
+    document.body.classList.remove('stage-open');
+    this.emit();
+  },
 
   /* ---------- YouTube engine ---------- */
   ensureYT() {
@@ -74,9 +214,12 @@ const Player = {
             if (this.ytPending) { const id = this.ytPending; this.ytPending = null; this._ytLoad(id); }
           },
           onStateChange: (e) => {
-            if (e.data === window.YT.PlayerState.ENDED) this.next();
-            if (e.data === window.YT.PlayerState.PLAYING) this.setPlayingUI(true);
-            if (e.data === window.YT.PlayerState.PAUSED) this.setPlayingUI(false);
+            const S = window.YT.PlayerState;
+            if (e.data === S.ENDED) this.onEnded();
+            if (e.data === S.PLAYING) { this.setBuffering(false); this.setPlayingUI(true); }
+            if (e.data === S.PAUSED) { this.setBuffering(false); this.setPlayingUI(false); }
+            if (e.data === S.BUFFERING) this.setBuffering(true);
+            if (e.data === S.CUED) this.setBuffering(false);
           },
         },
       });
@@ -93,10 +236,15 @@ const Player = {
     if (this.yt && this.ytReady) this.yt.stopVideo();
     this.engine = 'audio';
     this.queue = []; this.qIndex = -1;
+    this.ended = false;
+    this.stageEndedEl.hidden = true;
+    if (this.current && this.subEl.textContent === 'Ended') this.subEl.textContent = this.current.sub || '';
     if (!this.current || this.current.src !== track.src) {
       this.audio.src = track.src;
       this.setFace(track);
     }
+    this.syncTransport();
+    this.renderQueue();
     this.audio.play();
   },
   playQueue(tracks, index = 0, label = '') {
@@ -117,10 +265,11 @@ const Player = {
       cover: t.cover || null,
     });
     this._ytLoad(t.youtubeId);
-    window.dispatchEvent(new CustomEvent('faithplayer', { detail: this.state() }));
+    this.emit();
   },
   toggle() {
     if (!this.current) return;
+    if (this.ended) { this.replay(); return; }
     if (this.engine === 'yt') {
       if (!this.ytReady) return;
       const st = this.yt.getPlayerState();
@@ -138,17 +287,73 @@ const Player = {
     if (this.engine === 'yt' && this.ytReady) this.yt.seekTo(sec, true);
     else if (this.engine === 'audio') this.audio.currentTime = sec;
   },
+  /* G-03: repeat-one — on track end the same track restarts. */
+  toggleRepeat() {
+    this.repeatOne = !this.repeatOne;
+    this.syncTransport();
+    this.emit();
+  },
+  /* Track-end routing, both engines: repeat-one restarts the same track;
+     a next track auto-advances (F8); otherwise the ended state (G-06). */
+  onEnded() {
+    this.setBuffering(false);
+    if (this.repeatOne && this.current) { this.replay(); return; }
+    if (this.qIndex + 1 < this.queue.length) { this.playAt(this.qIndex + 1); return; }
+    this.enterEnded();
+  },
+  /* G-06: the ended state is a place — cover held, replay offered, and
+     the next title named whenever one exists. Never a cold stop. */
+  enterEnded() {
+    this.ended = true;
+    this.setPlayingUI(false);
+    const nextT = this.qIndex + 1 < this.queue.length ? this.queue[this.qIndex + 1] : null;
+    const title = this.current ? (this.current.title || 'Untitled') : '';
+    this.subEl.textContent = nextT ? `Ended — next: ${nextT.title}` : 'Ended';
+    this.stageEndedLineEl.textContent = nextT
+      ? `“${title}” ended — next: ${nextT.title}` : `“${title}” ended`;
+    this.stageEndedEl.hidden = false;
+    this.syncTransport(false);
+    this.emit();
+  },
+  replay() {
+    if (!this.current) return;
+    this.ended = false;
+    this.stageEndedEl.hidden = true;
+    this.subEl.textContent = this.current.sub || '';
+    if (this.engine === 'yt' && this.qIndex >= 0) { this.playAt(this.qIndex); return; }
+    if (this.engine === 'yt' && this.current.youtubeId) {
+      this.setFace(this.current);
+      this._ytLoad(this.current.youtubeId);
+      return;
+    }
+    if (this.engine === 'audio') { this.audio.currentTime = 0; this.audio.play(); }
+  },
   close() {
     if (this.yt && this.ytReady) this.yt.stopVideo();
     this.audio.pause(); this.audio.removeAttribute('src'); this.audio.load();
     this.engine = null; this.queue = []; this.qIndex = -1; this.queueLabel = '';
     this.current = null;
+    this.repeatOne = false; this.ended = false;
+    this.setBuffering(false);
+    this.closeStage();
     this.titleEl.textContent = 'Nothing playing';
     this.subEl.textContent = 'Pick a song in the Listen hub';
     this.coverEl.innerHTML = '<span>16:3</span>';
-    this.seekEl.value = 0; this.elapsedEl.textContent = '0:00'; this.totalEl.textContent = '0:00';
+    this.stageTitleEl.textContent = 'Nothing playing';
+    this.stageSubEl.textContent = '';
+    this.stageCoverEl.innerHTML = '<span>16:3</span>';
+    this.provEl.hidden = true;
+    this.stageProvEl.hidden = true;
+    this.stageEndedEl.hidden = true;
+    this.coverEl.disabled = true;
+    this.titleEl.disabled = true;
+    for (const el of [this.seekEl, this.stageSeekEl]) { el.value = 0; el.disabled = true; }
+    this.elapsedEl.textContent = '0:00'; this.totalEl.textContent = '';
+    this.stageElapsedEl.textContent = '0:00'; this.stageTotalEl.textContent = '';
     this.setPlayingUI(false);
-    window.dispatchEvent(new CustomEvent('faithplayer', { detail: this.state() }));
+    this.syncTransport(false);
+    this.renderQueue();
+    this.emit();
   },
   position() {
     if (this.engine === 'yt' && this.ytReady) {
@@ -163,31 +368,62 @@ const Player = {
       engine: this.engine,
       youtubeId: this.current ? (this.current.youtubeId || null) : null,
       title: this.current ? this.current.title : null,
-      queueLength: this.queue.length, qIndex: this.qIndex,
+      queueLength: this.queue.length, qIndex: this.qIndex, queueLabel: this.queueLabel,
       currentTime: p.t, duration: p.d,
       paused: this.engine === 'yt' ? (this.ytReady ? this.yt.getPlayerState() !== 1 : null)
         : this.engine === 'audio' ? this.audio.paused : null,
       ytState: this.engine === 'yt' && this.ytReady ? this.yt.getPlayerState() : null,
+      repeatOne: this.repeatOne, ended: this.ended,
+      buffering: this.buffering, stageOpen: this.stageOpen,
     };
   },
 };
 Player.audio.addEventListener('play', () => Player.setPlayingUI(true));
 Player.audio.addEventListener('pause', () => Player.setPlayingUI(false));
-Player.audio.addEventListener('ended', () => Player.next());
+Player.audio.addEventListener('ended', () => Player.onEnded());
+Player.audio.addEventListener('waiting', () => Player.setBuffering(true));
+Player.audio.addEventListener('playing', () => Player.setBuffering(false));
+Player.audio.addEventListener('canplay', () => Player.setBuffering(false));
 $('btn-play').addEventListener('click', () => Player.toggle());
 $('btn-next').addEventListener('click', () => Player.next());
 $('btn-prev').addEventListener('click', () => Player.prev());
 $('btn-close').addEventListener('click', () => Player.close());
-Player.seekEl.addEventListener('input', () => {
-  const { d } = Player.position();
-  if (d > 0) Player.seekTo((Player.seekEl.value / 1000) * d);
-});
+$('btn-play2').addEventListener('click', () => Player.toggle());
+$('btn-next2').addEventListener('click', () => Player.next());
+$('btn-prev2').addEventListener('click', () => Player.prev());
+$('btn-repeat').addEventListener('click', () => Player.toggleRepeat());
+$('btn-replay').addEventListener('click', () => Player.replay());
+$('player-cover').addEventListener('click', () => Player.openStage());
+$('player-title').addEventListener('click', () => Player.openStage());
+$('btn-stage-collapse').addEventListener('click', () => Player.closeStage());
+$('stage-backdrop').addEventListener('click', () => Player.closeStage());
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && Player.stageOpen) Player.closeStage(); });
+/* Seek wiring, both faces. G-09: a seek control is only live once the
+   engine reports a real duration — until then the row shows elapsed
+   only and offers no false total. */
+for (const el of [Player.seekEl, Player.stageSeekEl]) {
+  el.addEventListener('input', () => {
+    const { d } = Player.position();
+    if (d > 0) Player.seekTo((el.value / 1000) * d);
+  });
+  el.addEventListener('pointerdown', () => { Player.seeking = true; });
+  el.addEventListener('keydown', () => { Player.seeking = true; });
+  el.addEventListener('change', () => { Player.seeking = false; });
+}
 setInterval(() => {
-  if (!Player.current || Player.seeking) return;
+  if (!Player.current) return;
   const { t, d } = Player.position();
-  Player.elapsedEl.textContent = fmt(t);
-  Player.totalEl.textContent = fmt(d);
-  Player.seekEl.value = d > 0 ? Math.round((t / d) * 1000) : 0;
+  const elapsed = fmt(t);
+  Player.elapsedEl.textContent = elapsed;
+  Player.stageElapsedEl.textContent = elapsed;
+  const known = d > 0;
+  for (const [seek, total] of [[Player.seekEl, Player.totalEl], [Player.stageSeekEl, Player.stageTotalEl]]) {
+    total.textContent = known ? fmt(d) : '';
+    seek.disabled = !known;
+    seek.classList.toggle('seek-static', !known);
+    if (known && !Player.seeking) seek.value = Math.round((t / d) * 1000);
+    if (!known) seek.value = 0;
+  }
 }, 500);
 window.FaithPlayer = Player;
 
