@@ -1,0 +1,382 @@
+{
+  "source": {
+    "file": "../shop-build/site/index.html",
+    "note": "Extracted verbatim from the live shop page source (PRODUCTS + CATOF + AUDOF + QUICK_STORE_BASE), source commit 87351be per brief. img is the graded FRONT image; views[0]===img for every product.",
+    "quickStore": "https://163faith.printful.me",
+    "contact": "shop@163faithshop.com",
+    "extractedAt": "2026-11-19"
+  },
+  "categories": [
+    [
+      "hoodies",
+      "Hoodies"
+    ],
+    [
+      "shirts",
+      "Shirts"
+    ],
+    [
+      "crewnecks",
+      "Crewnecks"
+    ],
+    [
+      "joggers",
+      "Joggers"
+    ],
+    [
+      "headwear",
+      "Headwear"
+    ]
+  ],
+  "audiences": [
+    [
+      "all",
+      "All"
+    ],
+    [
+      "mens",
+      "Mens"
+    ],
+    [
+      "womens",
+      "Womens"
+    ]
+  ],
+  "products": [
+    {
+      "slug": "crowned-tee",
+      "name": "CROWNED Tee",
+      "tag": "The Signature",
+      "price": 40,
+      "garment": "Comfort Colors 1717 heavyweight tee",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL",
+        "4XL"
+      ],
+      "printful": 475476702,
+      "blurb": "The crown piece. A gold crown over FAITH on a heavyweight black tee — the one that started the line.",
+      "facts": "heavyweight garment-dyed cotton, relaxed fit",
+      "img": "https://files.cdn.printful.com/files/a35/a35d9589d949cac243e0834024acae5d_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/a35/a35d9589d949cac243e0834024acae5d_preview.png",
+        "https://files.cdn.printful.com/files/507/5070843b288704cebf66bae1f21ddcf5_preview.png"
+      ],
+      "category": "shirts",
+      "audience": "unisex"
+    },
+    {
+      "slug": "after-the-1-tee",
+      "name": "AFTER THE 1 Tee",
+      "tag": "Front + Back",
+      "price": 40,
+      "garment": "Comfort Colors 1717 heavyweight tee",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL",
+        "4XL"
+      ],
+      "printful": 475477102,
+      "blurb": "Named for the one sheep the Shepherd goes after. Statement on the front, the story on the back.",
+      "facts": "heavyweight garment-dyed cotton, front and back print",
+      "img": "https://files.cdn.printful.com/files/88d/88d35521a43092c6cb64486834353e52_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/88d/88d35521a43092c6cb64486834353e52_preview.png",
+        "https://files.cdn.printful.com/files/fcf/fcfbfbba40e0cbd365c75d27eded40af_preview.png",
+        "https://files.cdn.printful.com/printfile-preview/1112929024/28800b8884673dd0aef52c979b52fae3_preview.png"
+      ],
+      "category": "shirts",
+      "audience": "unisex"
+    },
+    {
+      "slug": "narrow-is-the-way-hoodie",
+      "name": "NARROW IS THE WAY Hoodie",
+      "tag": "Front + Back",
+      "price": 68,
+      "garment": "Gildan 18500 heavy blend hoodie",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL",
+        "4XL",
+        "5XL"
+      ],
+      "printful": 475477157,
+      "blurb": "Matthew 7:14 on heavyweight fleece. The warmest piece in the line, built for cold nights and straight paths.",
+      "facts": "heavy blend fleece hoodie, front and back print, the warmest piece in the line",
+      "img": "https://files.cdn.printful.com/files/275/2757e03d2707e46080ec8dc976fdb970_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/275/2757e03d2707e46080ec8dc976fdb970_preview.png",
+        "https://files.cdn.printful.com/printfile-preview/1112937468/c8ee79002f82def4532103476b8f1f29_preview.png",
+        "https://files.cdn.printful.com/files/f17/f178455931244c11bbc1d62bc89cdf3e_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    },
+    {
+      "slug": "faith-over-fear-crewneck",
+      "name": "FAITH OVER FEAR Crewneck",
+      "tag": "Printed Sleeves",
+      "price": 58,
+      "garment": "Gildan 18000 heavy blend crewneck",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL",
+        "4XL",
+        "5XL"
+      ],
+      "printful": 475477179,
+      "blurb": "The declaration on the chest, the reminder down both sleeves. For the days fear talks loud.",
+      "facts": "heavy blend crewneck sweatshirt, print on front and both sleeves",
+      "img": "https://files.cdn.printful.com/files/951/95124b5faeff9c8dbb689fb2c60a730d_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/951/95124b5faeff9c8dbb689fb2c60a730d_preview.png",
+        "https://files.cdn.printful.com/files/39d/39de7c93d790f75b219211bfc3a106ea_preview.png",
+        "https://files.cdn.printful.com/files/a23/a23a6ff878569e78ae3c64b131cbacf3_preview.png",
+        "https://files.cdn.printful.com/files/af8/af84b9f39eef7aef28c26c3232035ef4_preview.png",
+        "https://files.cdn.printful.com/files/14c/14c2d05cbab46c4e0bb5b1b2f62d2d54_preview.png"
+      ],
+      "category": "crewnecks",
+      "audience": "unisex"
+    },
+    {
+      "slug": "163-legacy-joggers",
+      "name": "16:3 LEGACY Joggers",
+      "tag": "Both Legs",
+      "price": 56,
+      "garment": "Jerzees 975MPR fleece joggers",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL"
+      ],
+      "printful": 475477191,
+      "blurb": "The verse on one leg, the legacy on the other. Fleece joggers for the work and the rest after it.",
+      "facts": "fleece joggers, print on both legs",
+      "img": "https://files.cdn.printful.com/files/04e/04ee71d2f9aa23f8f28fa152e8134a1e_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/04e/04ee71d2f9aa23f8f28fa152e8134a1e_preview.png",
+        "https://files.cdn.printful.com/files/745/7453cc3fd3bea6724c8566db4f3b6842_preview.png",
+        "https://files.cdn.printful.com/files/a6d/a6d1050f17258b2d82c2a0a203fe0adb_preview.png"
+      ],
+      "category": "joggers",
+      "audience": "unisex"
+    },
+    {
+      "slug": "crowned-snapback",
+      "name": "CROWNED Snapback",
+      "tag": "Embroidered",
+      "price": 34,
+      "garment": "Otto Cap snapback",
+      "sizes": [
+        "One size"
+      ],
+      "printful": 475477379,
+      "blurb": "The crown, embroidered — not printed. One size, structured fit, the finishing piece of the uniform.",
+      "facts": "structured snapback, embroidered crown, one size fits most",
+      "img": "https://files.cdn.printful.com/files/0bf/0bf30b1bad3bf6ac39d0a08209815784_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/0bf/0bf30b1bad3bf6ac39d0a08209815784_preview.png",
+        "https://files.cdn.printful.com/files/aaf/aaf0124480169c6afa4cf213f4868f4f_preview.png",
+        "https://files.cdn.printful.com/files/baf/baf6973d9ed7e77c4f5a28473f41a791_preview.png"
+      ],
+      "category": "headwear",
+      "audience": "unisex"
+    },
+    {
+      "slug": "jesus-aop-hoodie-black",
+      "name": "JESUS AOP 16:3 FAITH Hoodie — Black",
+      "tag": "Front + Back",
+      "price": 92,
+      "garment": "All-over print recycled unisex hoodie",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "printful": 496019644,
+      "blurb": "The portrait in engraved gold across the back, rays running the sleeves and hood, the mark on the chest. The signature piece — gold doing the talking on black.",
+      "facts": "all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+      "img": "https://files.cdn.printful.com/files/f15/f15e67ddb9f55a74eb5e235a08ec844f_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/f15/f15e67ddb9f55a74eb5e235a08ec844f_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    },
+    {
+      "slug": "jesus-aop-hoodie-crimson",
+      "name": "JESUS AOP 16:3 FAITH Hoodie — Crimson Red",
+      "tag": "Front + Back",
+      "price": 92,
+      "garment": "All-over print recycled unisex hoodie",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "printful": 496019717,
+      "blurb": "Deep crimson under engraved gold — the portrait rides the back, rays wrap the sleeves and hood, the mark sits on the chest. The back preaches before you say a word.",
+      "facts": "all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+      "img": "https://files.cdn.printful.com/files/a8d/a8daeb0bca04269edf07b90f4f342730_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/a8d/a8daeb0bca04269edf07b90f4f342730_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    },
+    {
+      "slug": "jesus-aop-hoodie-orange",
+      "name": "JESUS AOP 16:3 FAITH Hoodie — Burnt Orange",
+      "tag": "Front + Back",
+      "price": 92,
+      "garment": "All-over print recycled unisex hoodie",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "printful": 496019727,
+      "blurb": "Burnt orange with the gold portrait across the back and rays down the sleeves and hood. Built to be seen from across the street — and remembered.",
+      "facts": "all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+      "img": "https://files.cdn.printful.com/files/e9d/e9d7d74aa30df6af95bc8bf482a0af7c_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/e9d/e9d7d74aa30df6af95bc8bf482a0af7c_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    },
+    {
+      "slug": "jesus-aop-hoodie-emerald",
+      "name": "JESUS AOP 16:3 FAITH Hoodie — Emerald Green",
+      "tag": "Front + Back",
+      "price": 92,
+      "garment": "All-over print recycled unisex hoodie",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "printful": 496019770,
+      "blurb": "Emerald green, antique gold. The portrait on the back, rays across the sleeves and hood, the mark on the chest. Quiet color, loud message.",
+      "facts": "all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+      "img": "https://files.cdn.printful.com/files/5da/5da1216da1f3e2fb1a20ac2f2749064b_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/5da/5da1216da1f3e2fb1a20ac2f2749064b_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    },
+    {
+      "slug": "jesus-aop-hoodie-purple",
+      "name": "JESUS AOP 16:3 FAITH Hoodie — Royal Purple",
+      "tag": "Front + Back",
+      "price": 92,
+      "garment": "All-over print recycled unisex hoodie",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "printful": 496019814,
+      "blurb": "Royal purple with the portrait in antique gold across the back, rays wrapping the hood and sleeves. Royal colors, worn for the King.",
+      "facts": "all-over print recycled hoodie, portrait back print, rays on sleeves and hood, chest wordmark",
+      "img": "https://files.cdn.printful.com/files/402/402d68284fe8a588bbc95ff4322f0cef_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/402/402d68284fe8a588bbc95ff4322f0cef_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    },
+    {
+      "slug": "kingdom-block-oversized-tee",
+      "name": "Kingdom Block Oversized Tee",
+      "tag": "Front + Back",
+      "price": 48,
+      "garment": "Bella+Canvas 3010 Unisex Oversized Boxy Tee — Black",
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL"
+      ],
+      "printful": 496054097,
+      "blurb": "Heavyweight boxy tee with the block set loud — crown over 16:3 FAITH up front, CROWNED wall across the back. Clean mark, mixtape grit around the edges.",
+      "facts": "heavyweight oversized boxy tee, front and back print",
+      "img": "https://files.cdn.printful.com/files/890/890d47aedc94f5ff43f91c382c107806_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/890/890d47aedc94f5ff43f91c382c107806_preview.png",
+        "https://files.cdn.printful.com/files/b25/b25188873105d61b05b16e23210f92b4_preview.png"
+      ],
+      "category": "shirts",
+      "audience": "unisex"
+    },
+    {
+      "slug": "crowned-heavy-hoodie",
+      "name": "Crowned Heavy Hoodie",
+      "tag": "Front + Back",
+      "price": 78,
+      "garment": "Gildan 18500 Unisex Heavy Blend Hoodie — Black",
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "2XL",
+        "3XL",
+        "4XL",
+        "5XL"
+      ],
+      "printful": 496054764,
+      "blurb": "The heavyweight hoodie of the line — crowned chest, barcode strip, MIXTAPE VOL. 1 — SIDE A, and CROWNED across the back. Street weight, kingdom mark.",
+      "facts": "heavy blend hoodie, front and back print",
+      "img": "https://files.cdn.printful.com/files/165/16596b1e990f2038c70450d8a836d73b_preview.png",
+      "views": [
+        "https://files.cdn.printful.com/files/165/16596b1e990f2038c70450d8a836d73b_preview.png",
+        "https://files.cdn.printful.com/files/42f/42f516d9506f507b49bae6f64e92e725_preview.png"
+      ],
+      "category": "hoodies",
+      "audience": "unisex"
+    }
+  ]
+}
