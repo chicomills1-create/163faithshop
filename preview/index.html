@@ -35,27 +35,65 @@
 <!-- ===== PERSISTENT PLAYER — mounted once, OUTSIDE the hub root.
      Hub switches never touch this node, so playback never interrupts (§4 gate). ===== -->
 <section id="player" aria-label="Music player">
-  <div class="player-cover" id="player-cover" aria-hidden="true">16:3</div>
+  <button type="button" class="player-cover" id="player-cover" aria-label="Open now playing" disabled><span>16:3</span></button>
   <div class="player-meta">
-    <div class="player-title" id="player-title">Nothing playing</div>
+    <div class="player-title-row">
+      <button type="button" class="player-title" id="player-title" disabled>Nothing playing</button>
+      <span class="prov-chip" id="player-prov" hidden>Full song · YouTube</span>
+    </div>
     <div class="player-sub" id="player-sub">Pick a song in the Listen hub</div>
     <div class="player-seekrow">
       <span id="player-elapsed">0:00</span>
-      <input type="range" id="player-seek" min="0" max="1000" value="0" step="1" aria-label="Seek">
-      <span id="player-total">0:00</span>
+      <input type="range" id="player-seek" min="0" max="1000" value="0" step="1" aria-label="Seek" disabled>
+      <span id="player-total"></span>
     </div>
   </div>
   <div class="player-controls">
-    <button type="button" id="btn-prev" aria-label="Previous track">⏮</button>
-    <button type="button" id="btn-play" aria-label="Play or pause">▶</button>
-    <button type="button" id="btn-next" aria-label="Next track">⏭</button>
-    <button type="button" id="btn-close" aria-label="Stop and clear the player">✕</button>
+    <button type="button" id="btn-prev" aria-label="Previous track" hidden>⏮</button>
+    <button type="button" id="btn-play" aria-label="Play" hidden>▶</button>
+    <button type="button" id="btn-next" aria-label="Next track" hidden>⏭</button>
+    <button type="button" id="btn-close" aria-label="Stop and clear the player" hidden>✕</button>
   </div>
   <!-- YouTube engine (PLAYER LAW: source = YouTube, face = cover + our
        transport, NO video surface). The iframe is a 1px offscreen holder —
        never a visible video element. -->
   <div id="yt-holder" aria-hidden="true"><div id="yt-player"></div></div>
   <audio id="player-audio" preload="none"></audio>
+</section>
+
+<!-- ===== STAGE — expanded now-playing (Kairo parity G-01/G-02/G-03).
+     Mounted once, OUTSIDE the hub root like the bar; opening it never
+     touches the engines, so playback never interrupts. The face is the
+     track's exact album cover at hero scale + Faith's own transport —
+     NO video surface ever (PLAYER LAW). ===== -->
+<section id="stage" aria-label="Now playing" hidden>
+  <div class="stage-backdrop" id="stage-backdrop"></div>
+  <div class="stage-plate">
+    <button type="button" class="stage-collapse" id="btn-stage-collapse" aria-label="Collapse now playing">⌄</button>
+    <div class="stage-cover" id="stage-cover"><span>16:3</span></div>
+    <div class="stage-title" id="stage-title">Nothing playing</div>
+    <div class="stage-sub" id="stage-sub"></div>
+    <div class="stage-prov" id="stage-prov" hidden>Full song · YouTube</div>
+    <div class="stage-ended" id="stage-ended" hidden>
+      <span id="stage-ended-line">Song ended</span>
+      <button type="button" class="btn-gold" id="btn-replay">↻ Replay</button>
+    </div>
+    <div class="player-seekrow stage-seekrow">
+      <span id="stage-elapsed">0:00</span>
+      <input type="range" id="stage-seek" min="0" max="1000" value="0" step="1" aria-label="Seek" disabled>
+      <span id="stage-total"></span>
+    </div>
+    <div class="player-controls stage-controls">
+      <button type="button" id="btn-prev2" aria-label="Previous track" hidden>⏮</button>
+      <button type="button" id="btn-play2" aria-label="Play">▶</button>
+      <button type="button" id="btn-next2" aria-label="Next track" hidden>⏭</button>
+      <button type="button" id="btn-repeat" aria-label="Repeat this song" aria-pressed="false">↻<sup class="rep-one">1</sup></button>
+    </div>
+    <div class="stage-queue" id="stage-queue" hidden>
+      <h3 id="stage-queue-label">Up next</h3>
+      <div class="trows stage-queue-rows" id="stage-queue-rows"></div>
+    </div>
+  </div>
 </section>
 
 <!-- ===== BOTTOM BAR (mobile persistent hub nav) ===== -->
