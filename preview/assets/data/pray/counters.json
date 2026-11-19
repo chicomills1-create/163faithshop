@@ -1,0 +1,8 @@
+{
+  "provenance": "Fallback counters. Live source: GET /api/community/pulse on the production API (fields members / testimonies / prayerRequests / prayersLifted — shape proven by production captures, e.g. 2026-10-22 probe pulse.1.json {members:111, testimonies:177, prayerRequests:74, prayersLifted:4}). Values below are the DATA-CENSUS-2026-11-18 §2 rendered confirmation (2026-11-18 ~18:56 MST, two independent rounds; home + Prayer Room agreed). A fresher live read was attempted from the build sandbox on 2026-11-19: shell egress timed out on every host (VM proxy signature) and headless fetches never received a response, so the census values stand until a network that can reach the API re-reads pulse.",
+  "asOf": "2026-11-18",
+  "requests": 84,
+  "lifted": 19,
+  "members": 126,
+  "testimonies": 50
+}
