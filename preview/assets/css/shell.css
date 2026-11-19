@@ -143,6 +143,62 @@ h2 .g{color:var(--gold)}
 #btn-close{font-size:13px;color:var(--mute)}
 #yt-holder{position:fixed;left:-4px;top:-4px;width:1px;height:1px;overflow:hidden;opacity:.01;pointer-events:none;z-index:-1}
 
+/* ---------- PLAYER PARITY (Kairo spec, 2026-11-19) ----------
+   G-04: controls render only when they can act — [hidden] always wins.
+   G-07: provenance chip on the bar face. G-05: buffering ring on the
+   play control only. G-09: a seek row with no known duration is static. */
+#player [hidden],#stage [hidden]{display:none!important}
+.player-cover{cursor:pointer;font-family:var(--serif);padding:0}
+.player-cover:disabled{cursor:default}
+.player-title-row{display:flex;align-items:center;gap:8px;min-width:0}
+.player-title{background:none;border:none;padding:0;text-align:left;flex:0 1 auto;min-width:0;
+  font-size:14.5px;font-weight:600;color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-title:disabled{cursor:default}
+.prov-chip{flex:none;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--gold-dim);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.player-controls button{position:relative}
+#player-seek:disabled,.stage-seekrow input:disabled{cursor:default;opacity:.45}
+#btn-play.buffering,#btn-play2.buffering{color:transparent}
+#btn-play.buffering::after,#btn-play2.buffering::after{content:'';position:absolute;inset:6px;border-radius:50%;
+  border:2px solid rgba(212,175,55,.25);border-top-color:var(--gold);animation:pspin .8s linear infinite}
+@keyframes pspin{to{transform:rotate(360deg)}}
+
+/* ---------- STAGE — expanded now-playing (G-01/G-02/G-03/G-06) ----------
+   Gold on black (D-7). The cover is the track's exact album cover at
+   hero scale; the transport is Faith's own; no video surface exists. */
+#stage{position:fixed;inset:0;z-index:70}
+.stage-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(3px)}
+.stage-plate{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100vw - 24px));
+  max-height:calc(100vh - 24px);overflow-y:auto;text-align:center;padding:28px 24px 22px;border-radius:22px;
+  background:linear-gradient(170deg,#171204,#0a0a0a 55%);border:1px solid var(--gold-dim);box-shadow:0 24px 60px rgba(0,0,0,.85)}
+@media(max-width:860px){.stage-plate{left:8px;right:8px;top:auto;bottom:8px;transform:none;width:auto;max-height:calc(100vh - 70px)}}
+body.stage-open{overflow:hidden}
+.stage-collapse{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--gold-hi);
+  font-size:20px;width:38px;height:38px;border-radius:50%;z-index:1}
+.stage-collapse:hover{background:rgba(212,175,55,.12)}
+.stage-cover{position:relative;width:min(300px,66vw);aspect-ratio:1;margin:4px auto 16px;border-radius:16px;overflow:hidden;
+  background:#000;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);color:var(--gold);font-size:34px}
+.stage-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.stage-title{font-family:var(--serif);font-size:24px;line-height:1.2;color:var(--bone)}
+.stage-sub{margin-top:5px;font-size:14px;color:var(--mute)}
+.stage-prov{margin-top:9px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.stage-ended{margin-top:14px;border:1px dashed var(--gold-dim);border-radius:14px;padding:12px 14px;color:var(--bone);font-size:14px}
+.stage-ended .btn-gold{margin-left:10px;padding:9px 18px;font-size:11.5px}
+.stage-seekrow{margin-top:18px}
+.stage-seekrow input{flex:1;accent-color:var(--gold);height:14px;cursor:pointer;background:transparent}
+.stage-controls{justify-content:center;margin-top:12px;gap:10px}
+.stage-controls button{width:48px;height:48px;font-size:23px}
+#btn-play2{width:58px;height:58px;border:1px solid var(--gold-dim);font-size:24px}
+#btn-repeat{font-size:21px;opacity:.45}
+#btn-repeat .rep-one{font-size:11px;margin-left:1px}
+#btn-repeat.on,#btn-repeat[aria-pressed="true"]{opacity:1;background:rgba(212,175,55,.16);color:var(--gold-hi)}
+.stage-queue{margin-top:22px;text-align:left}
+.stage-queue h3{font-family:var(--serif);font-size:16.5px;color:var(--bone);margin-bottom:10px}
+.stage-queue-rows{max-height:290px;overflow-y:auto;margin-top:0}
+.trow .tsub{color:var(--mute);font-size:12px;white-space:nowrap}
+.trow .tnow{color:var(--gold);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+
 /* ---------- LISTEN (Sanctuary v1) ---------- */
 .shelf-count{font-family:var(--sans);font-size:12px;color:var(--mute);letter-spacing:.08em}
 .door-card{text-align:left;width:100%;font-family:var(--sans)}
