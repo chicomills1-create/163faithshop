@@ -692,7 +692,7 @@ if (new URLSearchParams(location.search).has('selftest')) {
         ok('LISTEN roster shelf renders artist cards', root.querySelectorAll('[data-artist]').length > 0, `${root.querySelectorAll('[data-artist]').length} cards on doors view`);
         /* CORS probe — evidence for the runtime-fd route from this origin. */
         try {
-          const r = await fetch('https://faith-hub-api.onrender.com/api/sanctuary/full-discography?artist=Lecrae');
+          const r = await fetch('https://faith-hub-api-railway-production.up.railway.app/api/sanctuary/full-discography?artist=Lecrae');
           const j = await r.json();
           report.corsFd = { ok: true, status: r.status, releases: (j.releases || []).length };
         } catch (e) { report.corsFd = { ok: false, error: String(e) }; }
