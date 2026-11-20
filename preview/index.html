@@ -96,6 +96,62 @@
   </div>
 </section>
 
+<!-- ===== NOW PLAYING — the dedicated player page (founder directive
+     2026-11-19 18:35 MST, after Kairo's separate player page). Picking a
+     song in LISTEN opens this full-screen view of the SAME engine: the
+     song's face stays its exact album cover; behind it, ambience only —
+     a cinematic film of a crowd at a 16:3 Faith concert, dimmed and
+     softened. The film lazy-loads on first open (never in the LISTEN
+     entry payload) and a poster frame stands in for reduced motion.
+     Header wording is the founder's exactly: "16:3 Faith Presents". ===== -->
+<section id="nowplaying" aria-label="Now playing" hidden>
+  <div class="np-scene" aria-hidden="true">
+    <div class="np-poster"></div>
+    <video id="np-film" muted loop playsinline preload="none"
+           poster="assets/video/concert-crowd-poster.webp"
+           data-src="assets/video/concert-crowd.mp4"></video>
+    <div class="np-dim"></div>
+  </div>
+  <div class="np-inner">
+    <header class="np-head">
+      <button type="button" class="np-back" id="btn-np-back">← Back to <span id="np-back-label">Listen</span></button>
+      <div class="np-brand">16:3 Faith Presents</div>
+      <div class="np-now">NOW PLAYING</div>
+    </header>
+    <div class="np-cover" id="np-cover"><span>16:3</span></div>
+    <div class="np-card">
+      <div class="np-prov" id="np-prov" hidden>Full song · YouTube</div>
+      <div class="np-title" id="np-title">Nothing playing</div>
+      <div class="np-sub" id="np-sub"></div>
+      <div class="np-ended" id="np-ended" hidden>
+        <span id="np-ended-line">Song ended</span>
+        <button type="button" class="btn-gold" id="btn-np-replay">↻ Replay</button>
+      </div>
+      <div class="player-seekrow np-seekrow">
+        <button type="button" id="btn-np-play" aria-label="Play">▶</button>
+        <span id="np-elapsed">0:00</span>
+        <input type="range" id="np-seek" min="0" max="1000" value="0" step="1" aria-label="Seek" disabled>
+        <span id="np-total"></span>
+      </div>
+      <div class="np-transport">
+        <button type="button" id="btn-np-back10" aria-label="Skip back 10 seconds">⟲<sup class="skip-n">10</sup></button>
+        <button type="button" id="btn-np-prev" aria-label="Previous track" hidden>⏮</button>
+        <button type="button" id="btn-np-next" aria-label="Next track" hidden>⏭</button>
+        <button type="button" id="btn-np-fwd10" aria-label="Skip forward 10 seconds"><sup class="skip-n">10</sup>⟳</button>
+        <button type="button" id="btn-np-repeat" aria-label="Repeat this song" aria-pressed="false">↻<sup class="rep-one">1</sup></button>
+      </div>
+      <div class="np-volume">
+        <svg class="np-vol-ico" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
+        <input type="range" id="np-volume" min="0" max="100" value="100" step="1" aria-label="Volume">
+      </div>
+      <button type="button" class="np-queue-toggle" id="btn-np-queue" aria-expanded="false" hidden>Up next</button>
+      <div class="np-queue" id="np-queue" hidden>
+        <div class="trows stage-queue-rows" id="np-queue-rows"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== BOTTOM BAR (mobile persistent hub nav) ===== -->
 <nav class="bottombar" aria-label="Hubs">
   <a href="#/watch" data-nav="watch"><span class="bn-ico">▶</span>Watch</a>
