@@ -284,7 +284,7 @@ const S = {
   view: 'doors', root: null, navigate: null,
   mode: 'snapshot',            // 'live' once the API answers from this browser
   posts: [], testimonies: [], groups: [], members: [], bakedMembers: [],
-  counters: null, feedPage: 1, feedTotal: null, feedBusy: false,
+  counters: null, loaded: false, feedPage: 1, feedTotal: null, feedBusy: false,
   feedFilter: 'all', feedShown: PAGE,
   composeType: 'post', gateOpen: false,
   profileId: null, profileCache: new Map(),
@@ -325,7 +325,10 @@ async function fetchJson(url, ms = 9000) {
   try { const r = await fetch(url, { signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); }
   finally { clearTimeout(to); }
 }
-async function fetchBaked(name) { const r = await fetch(DATA + name); if (!r.ok) throw new Error(name); return r.json(); }
+/* Baked reads ride the same aborting fetch as the live leg: a plain
+   fetch that hangs (a network that accepts and never answers) would
+   strand loadLive forever and freeze the doors on their first paint. */
+async function fetchBaked(name) { return fetchJson(DATA + name); }
 
 function normalizePost(p) {
   return {
@@ -409,6 +412,7 @@ async function loadLive() {
     S.groups = bakedGroups?.groups || [];
     S.counters = bakedMeta.counters?.livePulse20261119 || bakedMeta.counters;
     S.members = buildDirectory();
+    S.loaded = true; // real data backs the door counts from here on
   } catch { /* baked data unavailable: live leg below still runs */ }
   try {
     const pages = await Promise.all([1, 2, 3].map((n) => fetchJson(`${API_BASE}/api/community/posts?page=${n}&limit=25`)));
@@ -418,13 +422,14 @@ async function loadLive() {
       const liveTest = live.filter((p) => p.type === 'testimony');
       if (liveTest.length) S.testimonies = liveTest;
       S.feedTotal = pages[0].total ?? null; S.mode = 'live';
+      S.loaded = true;
     }
     const [pulse, groups] = await Promise.all([
       fetchJson(`${API_BASE}/api/community/pulse`).catch(() => null),
       fetchJson(`${API_BASE}/api/community/groups`).catch(() => null),
     ]);
     if (pulse) S.counters = { members: pulse.members, testimonies: pulse.testimonies, prayerRequests: pulse.prayerRequests, prayersLifted: pulse.prayersLifted };
-    if (groups?.groups?.length) S.groups = groups.groups;
+    if (groups?.groups?.length) { S.groups = groups.groups; S.loaded = true; }
     S.members = buildDirectory();
   } catch { /* snapshot mode stands, labeled in the UI */ }
 }
@@ -532,6 +537,18 @@ function frame(mainHtml) {
 /* ---------------- doors ---------------- */
 function viewDoors() {
   const c = S.counters || {};
+  /* Door counts (2026-11-19 cure): the doors paint before loadLive
+     settles, and the count lines used to be computed straight off the
+     empty state — "0 POSTS CARRIED · 0 TESTIMONIES · 0 GROUPS LIVE"
+     rendered as if they were real totals until the repaint landed
+     (and forever, if a baked fetch hung). A count now renders only
+     when real data backs it: the pulse/counters object, or the loaded
+     carried lists. Unloaded renders the loading glyph — never a
+     false 0. */
+  const postsCnt = S.loaded ? `${S.posts.length + S.testimonies.length} POSTS CARRIED` : '… POSTS CARRIED';
+  const testCnt = c.testimonies != null ? `${c.testimonies} TESTIMONIES` : (S.loaded ? `${S.testimonies.length} TESTIMONIES` : '… TESTIMONIES');
+  const membCnt = c.members != null ? `${c.members} MEMBERS` : '… MEMBERS';
+  const grpCnt = S.loaded ? `${S.groups.length} GROUPS LIVE` : '… GROUPS LIVE';
   const door = (view, art, no, title, text, cnt) => `
     <button type="button" class="bk-door" data-view="${view}" data-t0>
       <img class="art" src="assets/img/community/${art}" alt="" aria-hidden="true"><span class="shade"></span>
@@ -541,10 +558,10 @@ function viewDoors() {
       <div><span class="eyebrow">COMMUNITY · THE SANCTUARY</span><h1>The family <em>talks here.</em></h1>
       <p>The Sanctuary — the 16:3 Faith wall. Real posts, real people, real testimonies: read everything, get to know the family, and when member sign-in joins this house, post like home.</p></div></div>
     <div class="bk-doors">
-      ${door('feed', 'poster-community.svg', 'DOOR 01', 'The Feed', 'The family wall — every post in the order it was shared.', `${S.posts.length + S.testimonies.length} POSTS CARRIED`)}
-      ${door('testimonies', 'poster-testimony.svg', 'DOOR 02', 'Testimonies', 'What God has done, in the family\'s own words — its own tape.', `${c.testimonies ?? S.testimonies.length} TESTIMONIES`)}
-      ${door('members', 'poster-community.svg', 'DOOR 03', 'Find Your People', 'The family directory — real members, real profiles.', `${c.members ?? ''} MEMBERS`)}
-      ${door('groups', 'poster-prayer.svg', 'DOOR 04', 'Groups & Circles', 'The small circles of the house — the real, live group list.', `${S.groups.length} GROUPS LIVE`)}
+      ${door('feed', 'poster-community.svg', 'DOOR 01', 'The Feed', 'The family wall — every post in the order it was shared.', postsCnt)}
+      ${door('testimonies', 'poster-testimony.svg', 'DOOR 02', 'Testimonies', 'What God has done, in the family\'s own words — its own tape.', testCnt)}
+      ${door('members', 'poster-community.svg', 'DOOR 03', 'Find Your People', 'The family directory — real members, real profiles.', membCnt)}
+      ${door('groups', 'poster-prayer.svg', 'DOOR 04', 'Groups & Circles', 'The small circles of the house — the real, live group list.', grpCnt)}
       <button type="button" class="bk-door gated" data-view="messages"><span class="shade"></span><span class="in"><span class="no">DOOR 05</span><h3>Messages</h3><p>Member to member. The message routes are live on the API and gated to accounts — honestly closed to guests, never simulated.</p><span class="cnt">SIGN-IN OPENS THIS DOOR</span></span></button>
       <button type="button" class="bk-door gated" data-view="saved"><span class="shade"></span><span class="in"><span class="no">DOOR 06</span><h3>Saved Posts</h3><p>Your bookmarks live in your member account — nothing is saved on this device or faked here.</p><span class="cnt">SIGN-IN OPENS THIS DOOR</span></span></button>
     </div>`;
@@ -630,7 +647,9 @@ function viewFeed() {
       <button type="button" data-feedfilter="prayer" class="${S.feedFilter === 'prayer' ? 'on' : ''}">PRAYER WALL</button>
       <button type="button" data-feedfilter="testimony" class="${S.feedFilter === 'testimony' ? 'on' : ''}">TESTIMONIES</button>
     </div>
-    <div data-feedlist>${shown.map((p) => postCard(p)).join('') || '<div class="bk-ctx"><h3>Quiet in here.</h3><p>No posts of this kind are in the carried wall. The other doors hold the rest of the family.</p></div>'}</div>
+    <div data-feedlist>${shown.map((p) => postCard(p)).join('') || (S.loaded
+      ? '<div class="bk-ctx"><h3>Quiet in here.</h3><p>No posts of this kind are in the carried wall. The other doors hold the rest of the family.</p></div>'
+      : '<div class="bk-ctx"><h3>Loading the wall…</h3><p>The family\'s posts are on their way — an unloaded wall never reads as an empty one.</p></div>')}</div>
     ${list.length > S.feedShown
       ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE · ${list.length - S.feedShown} MORE</button>`
       : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : '')}
@@ -642,7 +661,9 @@ function viewTestimonies() {
   return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
   <div class="bk-feedhead"><div><span class="eyebrow">STORIES OF GRACE</span><h2>The <em>testimony tape.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.</p>
-  ${list.map((p) => postCard(p)).join('') || '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts every testimony on the wall; this view lists the ones in the carried pages.</p></div>'}`;
+  ${list.map((p) => postCard(p)).join('') || (S.loaded
+    ? '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts every testimony on the wall; this view lists the ones in the carried pages.</p></div>'
+    : '<div class="bk-ctx"><h3>Loading the testimony tape…</h3><p>The stories are on their way — an unloaded tape never reads as an empty one.</p></div>')}`;
 }
 function peopleStripHtml() {
   const rows = S.peopleResults != null

@@ -26,14 +26,63 @@ const TILES = [
   { hub: 'give',      num: '06', name: 'GIVE',      blurb: 'Offerings & partnership',      img: 'assets/img/home/tile-give.webp',      alt: 'A young man handing a bag of groceries to a young woman at a produce table' },
   { hub: 'shop',      num: '07', name: 'SHOP',      blurb: 'Wear the work — gold on black', img: SHOP_TILE_IMG, wide: true,            alt: 'The Crowned Heavy Hoodie — a real 16:3 Faith product photo from the shop' },
 ];
-/* Counter values carried from the data census (2026-11-18 rendered reads);
-   at M2 these bind to the counters API (one source, SPEC §2 D4). */
-const COUNTERS = [
-  { n: '126', label: 'Members' },
-  { n: '50',  label: 'Testimonies' },
-  { n: '84',  label: 'Prayer requests' },
-  { n: '19',  label: 'Prayers lifted' },
+/* Counters — ONE SOURCE for every surface in the house (SPEC §2 D4): the
+   live pulse, GET /api/community/pulse on the production API (members /
+   testimonies / prayerRequests / prayersLifted), with the baked fallback
+   assets/data/pray/counters.json — the SAME fallback file the PRAY hub
+   reads, refreshed 2026-11-19 from two agreeing live reads (126 · 50 ·
+   84 · 21). This strip used to hardcode the 2026-11-18 census values;
+   when the pulse moved (prayersLifted 19 → 21) the literal did not, and
+   the home strip disagreed with the Prayer Room on the 2026-11-19
+   preview walk. No counter literal lives in this file anymore: the
+   strip paints a loading glyph and fills from the one source, the same
+   lazy-fill discipline as Today's Word below. */
+const API = 'https://faith-hub-api-railway-production.up.railway.app';
+const COUNTER_LABELS = [
+  ['members', 'Members'],
+  ['testimonies', 'Testimonies'],
+  ['requests', 'Prayer requests'],
+  ['lifted', 'Prayers lifted'],
 ];
+
+async function fetchJSON(url, timeoutMs = 6000) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, { signal: ctl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+
+/* Fill the counters strip from the one source: live pulse first, the
+   shared baked counters file second (its values carry their own
+   provenance in the file). If neither answers, the strip keeps its
+   loading glyphs and the note points at the hubs that carry the
+   totals — an unloaded counter never renders as a number it does
+   not know, and never as 0. */
+async function fillCounters(box, note) {
+  const paint = (c, source) => {
+    if (!box.isConnected) return;
+    box.innerHTML = COUNTER_LABELS.map(([k, label]) => `<div class="counter"><b>${c[k]}</b><span>${label}</span></div>`).join('');
+    if (note) note.textContent = `Totals · one source: ${source}`;
+  };
+  try {
+    const p = await fetchJSON(`${API}/api/community/pulse`);
+    const c = { members: p.members, testimonies: p.testimonies, requests: p.prayerRequests, lifted: p.prayersLifted };
+    if (!Object.values(c).every((n) => Number.isFinite(n))) throw new Error('unexpected pulse payload');
+    paint(c, 'live production API · GET /api/community/pulse');
+  } catch {
+    try {
+      const d = await fetchJSON('assets/data/pray/counters.json');
+      const c = { members: d.members, testimonies: d.testimonies, requests: d.requests, lifted: d.lifted };
+      if (!Object.values(c).every((n) => Number.isFinite(n))) throw new Error('unexpected counters payload');
+      paint(c, `snapshot ${d.asOf} (production API unreachable from this network)`);
+    } catch {
+      if (note && note.isConnected) note.textContent = 'The house totals live in the Prayer Room and The Sanctuary — one tap away.';
+    }
+  }
+}
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
@@ -46,6 +95,7 @@ const HW_STYLE = `<style>
 .hw-note{color:var(--mute);line-height:1.6;font-size:15px}
 .hw-btn{margin-top:18px;background:transparent;border:1px solid var(--gold);color:var(--gold-hi);border-radius:999px;padding:9px 18px;font-size:13.5px;cursor:pointer}
 .hw-btn:hover{background:rgba(212,175,55,.08)}
+.counters-note{color:var(--mute);font-size:12.5px;line-height:1.5;margin-top:10px}
 </style>`;
 
 function hwFallback(body) {
@@ -109,7 +159,8 @@ export function render(root, { navigate }) {
       <div data-hw-body><p class="hw-note">Loading today's word…</p></div>
     </section>
 
-    <div class="counters">${COUNTERS.map((c) => `<div class="counter"><b>${c.n}</b><span>${c.label}</span></div>`).join('')}</div>
+    <div class="counters" data-counters>${COUNTER_LABELS.map(([, label]) => `<div class="counter"><b>…</b><span>${label}</span></div>`).join('')}</div>
+    <p class="counters-note" data-counters-note>Loading the house totals…</p>
 
     <section class="pastor" id="meet-the-pastor">
       <div class="pastor-photo">
@@ -128,4 +179,5 @@ export function render(root, { navigate }) {
     el.addEventListener('click', () => { location.hash = `#/${el.dataset.hub}`; });
   });
   fillTodaysWord(root.querySelector('[data-hw-body]'));
+  fillCounters(root.querySelector('[data-counters]'), root.querySelector('[data-counters-note]'));
 }
