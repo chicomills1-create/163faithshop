@@ -53,7 +53,7 @@ const fmtMs = (ms) => {
 };
 const runtimeOf = (t) => fmtMs(t.durationMs) || t.durationLabel || null;
 const byId = (id) => catalog.find((t) => t.id === id);
-const doorTitles = (slug) => catalog.filter((t) => t.door === slug);
+const doorTitles = (slug) => catalog.filter((t) => (t.doors || [t.door]).includes(slug));
 const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
 const myList = () => new Set(lsGet('faith163.watch.mylist', []));
@@ -217,6 +217,13 @@ function ensureStyle() {
   .wcard2-hit{display:block;width:100%;background:none;border:none;padding:0;text-align:left;color:var(--bone);cursor:pointer}
   .w-poster2{display:block;aspect-ratio:16/9;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.09);border-radius:9px;background:linear-gradient(150deg,rgba(212,175,55,.22),rgba(212,175,55,.03) 60%),#101010;box-shadow:0 10px 25px rgba(0,0,0,.25)}
   .w-poster2 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .32s ease}
+  /* wide title graphics (JFP cinematic art runs ~2.13:1, text edge to edge):
+     cover would crop the title's edges off in the 16/9 slot — those letterbox
+     whole instead; standard posters keep cover, nothing is ever distorted */
+  .w-poster2 img.w-fit-contain{object-fit:contain;background:#060606}
+  .w-poster2.w-has-contain{background:#060606}
+  .w-poster2.w-has-contain .w-mono{display:none}
+  .w-poster2.w-has-contain::after{display:none}
   .wcard2:hover .w-poster2 img,.wcard2:focus-within .w-poster2 img{transform:scale(1.05)}
   .w-poster2::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,5,5,.55) 0%,transparent 55%);pointer-events:none}
   .w-poster2 .w-mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:32px;color:var(--gold-dim);padding:10px;text-align:center}
@@ -351,7 +358,23 @@ function gridShelfHtml(key, titles, emptyName) {
       : `<div class="w-empty"><b>${esc(emptyName)} is on its way.</b><br>These titles live in the live Faith catalog and appear here the moment the library connects. Nothing has been invented to fill the shelf.</div>`}
   </div>`;
 }
+/* Art-fit rule: an image clearly wider than the 16/9 card slot (>= 2:1 —
+   the JFP cinematic title graphics) letterboxes whole via contain, so a
+   title is never cropped illegible; everything else keeps cover. */
+function bindArtFit(scope) {
+  scope.querySelectorAll('.w-poster2 img').forEach((img) => {
+    const apply = () => {
+      if (img.naturalWidth > 0 && img.naturalHeight > 0 && img.naturalWidth / img.naturalHeight >= 2) {
+        img.classList.add('w-fit-contain');
+        img.closest('.w-poster2')?.classList.add('w-has-contain');
+      }
+    };
+    if (img.complete && img.naturalWidth > 0) apply();
+    else img.addEventListener('load', apply, { once: true });
+  });
+}
 function bindCards(scope) {
+  bindArtFit(scope);
   scope.querySelectorAll('[data-title-id]').forEach((el) => {
     el.addEventListener('click', () => { view = { name: 'detail', id: el.dataset.titleId }; renderView(); });
   });
@@ -377,7 +400,15 @@ function heroTitleHtml(title) {
   return `${esc(words.join(' '))} <span class="g">${esc(last)}</span>`;
 }
 function renderDoors() {
-  const hero = byId(snapshot.heroId) || catalog[0];
+  /* The hero is the snapshot's CURATED feature entry, resolved from the
+     snapshot itself — never from the merged catalog. A live entry that
+     collides with the hero's id/title would otherwise silently replace
+     it with a normalized film (no episodes, no note, kind 'film') and the
+     graft's eyebrow/facts would fall with it; the curated entry stands in
+     both modes. */
+  const heroRaw = (snapshot.titles || []).find((t) => t.id === snapshot.heroId);
+  const hero = heroRaw ? { ...heroRaw, durationMs: OVERRIDES[heroRaw.id] ?? heroRaw.durationMs }
+    : (byId(snapshot.heroId) || catalog[0]);
   const featured = (snapshot.featuredIds || []).map(byId).filter(Boolean);
   const cont = continueEntries().map((c) => byId(c.id)).filter(Boolean);
   const mine = [...myList()].map(byId).filter(Boolean);
@@ -397,7 +428,7 @@ function renderDoors() {
         <h2>${heroTitleHtml(hero.title)}</h2>
         <div class="w-hero-facts">
           ${hero.badge ? `<span class="w-fact-chip">${esc(hero.badge)}</span>` : ''}
-          <span>${hero.kind === 'series' ? 'Series' : 'Film'}</span>
+          ${!hero.badge || hero.badge.toLowerCase() !== (hero.kind === 'series' ? 'series' : 'film') ? `<span>${hero.kind === 'series' ? 'Series' : 'Film'}</span>` : ''}
           ${runtimeOf(hero) ? `<span>•</span><span>${esc(runtimeOf(hero))}</span>` : ''}
           ${heroDoor.name && heroDoor.name.toLowerCase() !== hero.kind ? `<span>•</span><span>${esc(heroDoor.name)}</span>` : ''}
         </div>
@@ -647,6 +678,13 @@ async function openPlayer(t, episode) {
 }
 
 /* ---------- live catalog ---------- */
+/* Door membership is a SET, never a single assignment (live-path cure,
+   2026-11-19): the live catalog cross-lists works across rows (Book of
+   Acts rides both Featured and Bible Stories) and files works the
+   snapshot curates under one door inside another door's row (the archive
+   Bible epics ride Classics & Archival). A title therefore carries EVERY
+   door that lists it — a live connect can add doors to a title, never
+   take one away, and door counts equal shelf contents by construction. */
 function normalizeLiveFilm(raw) {
   if (!raw || typeof raw !== 'object') return null;
   const title = String(raw.title || '').trim();
@@ -672,28 +710,36 @@ async function tryLive() {
     clearTimeout(to);
     if (!r.ok) return;
     const j = await r.json();
-    const seenIds = new Set(); const seenTitles = new Set(); const live = [];
+    /* Accumulate live entries across ALL rows first: one entry per work
+       (dedupe law: stable ID, then normalized title + year), gathering
+       every door whose row lists it. The first row seen sets the entry's
+       primary door (detail back-nav), the rest join its membership. */
+    const keyOf = (t) => `${normTitle(t.title)}|${t.year ?? ''}`;
+    const liveById = new Map(); const liveByKey = new Map();
     for (const row of Array.isArray(j.rows) ? j.rows : []) {
       const door = ROW_DOOR[row.slug] || 'faith';
       for (const rawFilm of Array.isArray(row.films) ? row.films : []) {
         const f = normalizeLiveFilm(rawFilm);
         if (!f) continue;
-        const nt = `${normTitle(f.title)}|${f.year ?? ''}`;
-        if (seenIds.has(f.id) || seenTitles.has(nt)) continue;
-        seenIds.add(f.id); seenTitles.add(nt);
-        f.door = door; f.kind = 'film';
-        live.push(f);
+        const existing = liveById.get(f.id) || liveByKey.get(keyOf(f));
+        if (existing) {
+          if (!existing.doors.includes(door)) existing.doors.push(door);
+          continue;
+        }
+        f.door = door; f.kind = 'film'; f.doors = [door];
+        liveById.set(f.id, f); liveByKey.set(keyOf(f), f);
       }
     }
+    const live = [...liveById.values()];
     if (!live.length) return;
-    /* Dedupe key = stable ID, then normalized title + year: the same work
-       arriving from two sources collapses, while distinct works that share
-       a title (The King of Kings 1927 vs King of Kings 1961) both survive. */
-    const keyOf = (t) => `${normTitle(t.title)}|${t.year ?? ''}`;
-    const liveIds = new Set(live.map((t) => t.id));
-    const liveTitles = new Set(live.map(keyOf));
-    const kept = catalog.filter((t) => !liveIds.has(t.id) && !liveTitles.has(keyOf(t)));
-    catalog = [...live, ...kept];
+    /* Merge over the snapshot with UNION door semantics: live content wins
+       for a colliding work (poster, play, facts), but the snapshot's door
+       membership is never lost — the work keeps every door it had. */
+    for (const t of catalog) {
+      const hit = liveById.get(t.id) || liveByKey.get(keyOf(t));
+      if (hit) for (const d of t.doors || [t.door]) if (!hit.doors.includes(d)) hit.doors.push(d);
+    }
+    catalog = [...live, ...catalog.filter((t) => !(liveById.get(t.id) || liveByKey.get(keyOf(t))))];
     liveState = 'live';
     if (playerEl) pendingLiveRender = true; else renderView();
   } catch { /* snapshot stands — honest state already rendered */ }
@@ -708,7 +754,7 @@ export async function render(root) {
     try { snapshot = await (await fetch(DATA_URL)).json(); }
     catch { snapshot = { heroId: null, featuredIds: [], doors: [], titles: [], apiBase: '', cinemaHubPath: '' }; }
     doorsMeta = snapshot.doors || [];
-    catalog = (snapshot.titles || []).map((t) => ({ ...t, durationMs: OVERRIDES[t.id] ?? t.durationMs }));
+    catalog = (snapshot.titles || []).map((t) => ({ ...t, durationMs: OVERRIDES[t.id] ?? t.durationMs, doors: [t.door] }));
   }
   renderView();
   void tryLive();
