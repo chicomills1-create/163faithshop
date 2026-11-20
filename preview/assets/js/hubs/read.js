@@ -18,7 +18,21 @@
    trimmed at the ends only); #48 every view renders exactly once (single
    mount per navigation, guarded); #30 narration controls report true state;
    #31 Continue Reading tracks the reader's real position (production
-   localStorage key 163_bible_reading_context); #52 /books → the one book. */
+   localStorage key 163_bible_reading_context); #52 /books → the one book.
+
+   VISUAL LAYER (2026-11-19 graft): ChatGPT's Read design package
+   (design-sources/read-chatgpt-package — founder-supplied) supplies the
+   look: "THE WORD STILL SPEAKS." hero with the package's read-hero.svg
+   (house-branding art only), tape break, numbered quick-card doors,
+   section-head geometry, the reading-desk tools (font size + copy over
+   the real loaded text), the Today's Word vinyl disc. The graft is
+   presentation only — the data layer above is the v1 hub's, unchanged
+   in behavior. Package elements that do NOT ship (record:
+   fresh-build/records/READ-GRAFT-RECORD-2026-11-19.md): the four
+   concept book covers, the eight drafted sample devotionals + mood
+   filters, the sample Today's Word rotation, the seven-day plan,
+   demo highlights/bookmarks/notes (localStorage demo state), the
+   pastor draft section, and the package's own chrome/player stub. */
 
 const API = 'https://faith-hub-api-railway-production.up.railway.app';
 const DATA = 'assets/data/read/';
@@ -47,6 +61,7 @@ function freshState() {
     search: null, // {q, results, source}
     dev: null, devPage: 0, devEntry: null,
     narr: { playing: false, paused: false, verseIdx: -1, timer: null, utter: null },
+    fontScale: 1, // reading-desk presentation only — session state, never stored
     mountSeq: 0,
   };
 }
@@ -144,36 +159,127 @@ async function runSearch(q) {
 
 /* ---------------- rendering ---------------------------------------------- */
 const STYLE = `<style>
-.rd-doors{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:22px}
-.rd-door{border:1px solid var(--line);border-radius:14px;background:var(--coal);padding:16px;min-height:118px;text-align:left;color:var(--bone);width:100%}
-.rd-door:hover{border-color:var(--gold-dim)}
-.rd-door .rd-art{height:46px;border-radius:9px;background:linear-gradient(140deg,rgba(212,175,55,.25),rgba(212,175,55,.04));margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--gold)}
-.rd-door b{font-size:15px;display:block}.rd-door span{font-size:12px;color:var(--mute)}
+/* ---------- READ GRAFT — ChatGPT Read package visual layer ----------
+   Tokens mapped onto the shell's (--gold/--gold-hi/--gold-dim/--bone/
+   --coal/--line/--mute/--serif); the package scarlet is #d03935.
+   Every rule is .rd-* scoped inside this module — no shell.css change. */
+.rd-pretag{font-size:11px;letter-spacing:2.8px;font-weight:900;color:var(--gold);text-transform:uppercase}
+.rd-pretag .rd-star,.rd-pretag .rd-red{color:#d03935}
+.rd-vinyl{font-size:10px;color:#aa9570;font-weight:800;letter-spacing:4px;margin:22px 0 10px}
+.rd-vinyl span{color:#d03935;margin:0 6px}
+/* hero */
+.rd-hero{display:grid;grid-template-columns:1.04fr .96fr;gap:44px;align-items:center;margin-top:10px}
+.rd-h1{font-family:Impact,'Arial Narrow',var(--sans);font-size:clamp(52px,7.2vw,96px);letter-spacing:-2px;line-height:.9;margin:0 0 22px;font-weight:1000;text-transform:uppercase;color:var(--bone)}
+.rd-h1 em{font-style:normal;-webkit-text-stroke:1.3px var(--bone);color:transparent}
+.rd-h1 span{color:var(--gold)}
+.rd-herodesc{font-size:15.5px;line-height:1.7;color:#c1b9aa;max-width:500px}
+.rd-cta{display:flex;align-items:center;gap:24px;margin:26px 0 30px;flex-wrap:wrap}
+.rd-goldbtn{border:0;color:#171006;background:linear-gradient(120deg,#ffe184,#d3a63d);font-weight:1000;letter-spacing:.7px;font-size:12.5px;border-radius:6px;padding:16px 22px;display:inline-flex;align-items:center;gap:22px;box-shadow:0 12px 28px rgba(0,0,0,.35);cursor:pointer}
+.rd-goldbtn:hover{filter:brightness(1.09)}
+.rd-ghost{background:none;border:none;color:var(--bone);font-size:11.5px;font-weight:850;letter-spacing:1.5px;cursor:pointer;padding:6px 0}
+.rd-ghost:hover{color:var(--gold)}
+.rd-herfoot{color:#9c896d;font-size:11px;font-weight:850;letter-spacing:1.4px;display:flex;align-items:center;gap:12px}
+.rd-pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d03935;box-shadow:0 0 15px rgba(208,57,53,.6);flex:none}
+.rd-heroart{position:relative;max-width:430px;justify-self:end;width:100%}
+.rd-heroart img{border:1px solid #3d321d;border-radius:14px;width:100%;display:block;box-shadow:0 25px 44px rgba(0,0,0,.45)}
+.rd-stamp{position:absolute;right:-10px;top:24px;border:3px solid var(--gold);transform:rotate(9deg);color:var(--gold);font-size:9.5px;line-height:1.5;font-weight:900;letter-spacing:2px;text-align:center;padding:10px;background:#15100c}
+.rd-artcorner{position:absolute;bottom:13px;right:16px;font-size:9px;color:#d1ae55;font-weight:850;letter-spacing:2px}
+/* tape break */
+.rd-tape{border-top:1px solid #483819;border-bottom:1px solid #483819;background:#1b160c;color:#d6b148;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;font-weight:900;letter-spacing:1.7px;padding:10px 14px;margin:34px 0 6px;border-radius:4px}
+.rd-tape b{font-size:20px;color:#d03935}
+/* doors = package quick cards */
+.rd-qcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:13px;margin-top:22px}
+.rd-qcard{position:relative;text-align:left;min-height:178px;background:linear-gradient(148deg,#211c12,#10100e 65%);border:1px solid #393125;color:var(--bone);border-radius:12px;padding:18px 20px 20px;display:flex;flex-direction:column;gap:9px;overflow:hidden;cursor:pointer;width:100%;transition:transform .2s,border-color .2s}
+.rd-qcard:hover{transform:translateY(-4px);border-color:var(--gold)}
+.rd-qnum{font-size:9px;font-weight:850;letter-spacing:2px;color:#b4a17c}
+.rd-qicon{font-size:32px;color:var(--gold);line-height:1.1}
+.rd-qcard strong{font-size:21px;font-weight:1000;letter-spacing:-.5px;font-family:Impact,'Arial Narrow',var(--sans);text-transform:uppercase}
+.rd-qcard small{font-size:12px;line-height:1.5;color:#b9afa0}
+.rd-qarrow{position:absolute;right:18px;bottom:16px;font-size:19px;color:var(--gold)}
+/* section heads */
+.rd-sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;margin:6px 0 20px;flex-wrap:wrap}
+.rd-sech2{font-family:Impact,'Arial Narrow',var(--sans);font-size:clamp(36px,4.8vw,58px);line-height:.98;letter-spacing:-1.6px;font-weight:1000;text-transform:uppercase;margin:14px 0 10px;color:var(--bone)}
+.rd-sech2 em{color:var(--gold);font-style:normal}
+.rd-secsub{color:#b7b1a4;font-size:14px;line-height:1.65;max-width:560px}
+.rd-headart{font-size:10px;font-weight:900;letter-spacing:2px;color:#bdaa80;padding:11px 14px;border:1px solid #403621;border-radius:50px;white-space:nowrap}
+.rd-headart span{color:#d03935}
+/* standing v1 components, package palette */
 .rd-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0}
-.rd-btn{background:none;border:1px solid var(--gold-dim);color:var(--gold-hi);border-radius:999px;padding:9px 16px;font-size:12.5px;letter-spacing:.08em}
+.rd-btn{background:none;border:1px solid var(--gold-dim);color:var(--gold-hi);border-radius:999px;padding:9px 16px;font-size:12.5px;letter-spacing:.08em;cursor:pointer}
 .rd-btn[disabled]{opacity:.38;cursor:not-allowed}
 .rd-btn.goldb{background:linear-gradient(120deg,var(--gold-dim),var(--gold) 45%,var(--gold-hi));color:#141005;font-weight:700;border:none}
-.rd-books{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;margin-top:10px}
-.rd-books button{background:var(--coal);border:1px solid var(--line);color:var(--bone);border-radius:10px;padding:10px;font-size:13.5px;text-align:left}
-.rd-books button:hover{border-color:var(--gold-dim)}
+.rd-books{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.rd-books button{background:#100e0b;border:1px solid #362e22;color:var(--bone);border-radius:8px;padding:11px 12px;font-size:13.5px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.rd-books button:hover{border-color:var(--gold);background:#262015}
+.rd-books button .rd-meta{flex:none}
+.rd-bookfilter{width:100%;background:#17150f;border:1px solid #443923;color:var(--bone);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:14px;outline:none}
+.rd-bookfilter:focus{border-color:var(--gold)}
 .rd-chaps{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.rd-chaps button{width:44px;height:44px;border-radius:10px;background:var(--coal);border:1px solid var(--line);color:var(--bone);font-size:14px}
+.rd-chaps button{width:44px;height:44px;border-radius:10px;background:var(--coal);border:1px solid var(--line);color:var(--bone);font-size:14px;cursor:pointer}
 .rd-chaps button:hover{border-color:var(--gold)}
-.rd-verse{padding:7px 10px;border-radius:8px;line-height:1.65;font-size:16.5px;color:var(--bone)}
-.rd-verse .vn{color:var(--gold);font-size:11px;vertical-align:super;margin-right:5px}
+.rd-testament{margin-top:20px;font-family:var(--serif);font-size:19px;color:var(--bone)}
+/* reader */
+.rd-micro{font-size:9px;letter-spacing:2.2px;color:#b9a581;font-weight:900;text-transform:uppercase}
+.rd-readerhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #383126;padding-bottom:18px;margin-top:4px}
+.rd-readerhead h2{font-size:clamp(30px,4.4vw,40px);margin:6px 0 4px}
+.rd-badge{border:1px solid rgba(212,175,55,.4);font-size:10px;padding:9px 11px;color:var(--gold);font-weight:900;letter-spacing:1px;white-space:nowrap;border-radius:4px}
+.rd-badge b{color:#d03935}
+.rd-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#211d16;border:1px solid #3b3224;border-radius:7px;padding:8px 12px;margin:16px 0 4px;flex-wrap:wrap}
+.rd-tools-label{font-size:9px;color:#b8a780;font-weight:900;letter-spacing:1.4px}
+.rd-tools-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.rd-tools button{border:1px solid #42372a;background:#201c15;color:#dccb9d;padding:8px 11px;border-radius:6px;font-weight:800;font-size:11.5px;cursor:pointer}
+.rd-tools button[disabled]{opacity:.38;cursor:not-allowed}
+.rd-tools button.goldb{background:#352913;border-color:#a17e2b;color:#f7d878}
+.rd-fontdisplay{font-size:10.5px;color:#b1a68e;min-width:38px;text-align:center}
+.rd-verse{padding:7px 10px;border-radius:8px;line-height:1.75;font-size:calc(16.5px * var(--rdf,1));color:var(--bone);font-family:var(--serif)}
+.rd-verse .vn{color:var(--gold);font-size:11px;vertical-align:super;margin-right:5px;font-family:var(--sans)}
 .rd-verse.hl{background:rgba(212,175,55,.16);outline:1px solid var(--gold-dim)}
+.rd-readingrule{padding-top:14px;border-top:1px solid #383126;margin-top:18px;font-size:11.5px;color:#a39b8d;line-height:1.6}
+.rd-readingrule b{color:var(--gold);letter-spacing:.06em}
 .rd-card{border:1px solid var(--line);border-radius:14px;background:var(--coal);padding:18px;margin-top:14px}
 .rd-card h3{font-family:var(--serif);font-size:20px;margin-bottom:6px}
 .rd-meta{font-size:12px;color:var(--mute);letter-spacing:.06em}
 .rd-body p{line-height:1.7;color:var(--bone);margin-top:12px;font-size:15.5px}
-.rd-quote{border-left:2px solid var(--gold);padding:6px 0 6px 16px;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.6;margin-top:14px}
+.rd-quote{border-left:3px solid #d03935;padding:6px 0 6px 16px;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.6;margin-top:14px;color:#f6d58c}
 .rd-note{font-size:12.5px;color:var(--mute);margin-top:14px;line-height:1.55}
 .rd-err{border:1px dashed #a33;border-radius:14px;padding:16px;color:#e8a0a0;margin-top:14px;line-height:1.55;font-size:14px}
 .rd-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.rd-item{border:1px solid var(--line);border-radius:12px;background:var(--coal);padding:14px 16px;text-align:left;color:var(--bone);width:100%}
-.rd-item:hover{border-color:var(--gold-dim)} .rd-item b{font-family:var(--serif);font-size:16.5px;display:block}
+.rd-item{border:1px solid #403320;border-radius:8px;background:#1a1711;padding:13px 15px;text-align:left;color:var(--bone);width:100%;cursor:pointer;display:flex;gap:13px;align-items:baseline}
+.rd-item:hover{border-color:#b18b36;background:#221c11}
+.rd-item .rd-itemnum{font-family:var(--serif);color:var(--gold);font-size:21px;min-width:34px;flex:none}
+.rd-item .rd-itemmain{flex:1;min-width:0}
+.rd-item b{font-family:var(--serif);font-size:16.5px;display:block}
+.rd-item span{font-size:12.5px;color:var(--mute)}
 .rd-status{font-size:12.5px;color:var(--gold-hi);letter-spacing:.05em;min-height:18px}
 select.rd-sel{background:#000;color:var(--bone);border:1px solid var(--gold-dim);border-radius:999px;padding:10px 14px;font-size:14px}
+/* books door */
+.rd-bookcard{border:1px solid #393024;border-radius:12px;background:#0d0d0b;padding:20px;margin-top:14px}
+.rd-bookcard h3{font-family:var(--serif);font-size:21px;margin-bottom:6px}
+.rd-bookmeta{font-size:9.5px;color:var(--gold);letter-spacing:1.8px;font-weight:900;text-transform:uppercase}
+/* today's word */
+.rd-today{display:grid;grid-template-columns:1.24fr .76fr;gap:48px;align-items:center;margin-top:8px}
+.rd-today-label{font-size:10px;color:#b49c6a;letter-spacing:2px;font-weight:900;margin:30px 0 12px}
+.rd-today h2{font-size:clamp(34px,5vw,54px);margin-top:6px}
+.rd-today-ref{color:var(--gold);font-weight:950;letter-spacing:2.2px;font-size:11.5px;margin-top:10px;text-transform:uppercase}
+.rd-today-art{position:relative;display:grid;place-items:center;min-height:300px}
+.rd-disc{width:300px;height:300px;border-radius:50%;background:repeating-radial-gradient(circle at 50% 50%,#24201a 0px,#090909 2px,#181715 4px,#080808 6px);box-shadow:0 30px 40px rgba(0,0,0,.38),0 0 0 1px #4b3d29;display:grid;place-items:center;transform:rotate(-15deg);animation:rd-spin 50s linear infinite}
+.rd-disc-center{width:132px;height:132px;border-radius:50%;background:radial-gradient(circle,#f8d36a,#8b611c);color:#171109;display:flex;flex-direction:column;align-items:center;justify-content:center;border:7px solid #111;text-align:center}
+.rd-disc-center span{font-family:var(--serif);font-weight:900;font-size:35px;letter-spacing:-2px;line-height:1}
+.rd-disc-center b{font-weight:950;font-size:11.5px;letter-spacing:2px;margin-top:3px}
+.rd-disc-center small{font-size:7.5px;letter-spacing:1px;margin-top:5px}
+.rd-sticker{position:absolute;right:2px;bottom:26px;transform:rotate(10deg);background:#d03935;color:#fff;padding:13px 14px;font-size:16px;font-weight:950;line-height:1.1;letter-spacing:1px}
+@keyframes rd-spin{to{transform:rotate(345deg)}}
+@media (prefers-reduced-motion:reduce){.rd-disc{animation:none}}
+@media (max-width:760px){
+  .rd-hero{grid-template-columns:1fr;gap:26px}
+  .rd-heroart{justify-self:center;max-width:360px}
+  .rd-tape span:nth-of-type(n+3),.rd-tape b:nth-of-type(n+3){display:none}
+  .rd-today{grid-template-columns:1fr;gap:22px}
+  .rd-disc{width:230px;height:230px}
+  .rd-disc-center{width:104px;height:104px}
+  .rd-disc-center span{font-size:28px}
+  .rd-cta{gap:14px}
+}
 </style>`;
 
 function shellHTML(inner) { return STYLE + `<p class="kicker">Read</p>` + inner; }
@@ -185,15 +291,25 @@ function doorsHTML() {
     if (pos && pos.bookName) cont = `<div class="rd-card" data-testid="continue-reading"><span class="rd-meta">CONTINUE READING</span><h3>${esc(pos.bookName)} ${pos.chapter}${pos.verse ? ':' + pos.verse : ''}</h3><p class="rd-note">Pick up right where you left off.</p><div class="rd-bar"><button class="rd-btn goldb" data-act="continue">Continue reading</button></div></div>`;
   } catch { /* no saved position */ }
   return shellHTML(`
-    <h1>The Word, <span class="g">wide open.</span></h1>
-    <p class="lede">Four doors: the full Bible with read-aloud narration, the one book, 209+ daily devotionals, and today's word.</p>
+    <section class="rd-hero">
+      <div>
+        <p class="rd-pretag"><span class="rd-star">✳</span> 16:3 FAITH / READING SESSION 001</p>
+        <p class="rd-vinyl">SIDE A <span>///</span> THE WORD</p>
+        <h1 class="rd-h1">THE WORD<br><em>STILL</em> <span>SPEAKS.</span></h1>
+        <p class="rd-herodesc">Life gets loud. The Word doesn't have to. Scripture for the mornings you can barely get up. Words for the nights you can't sleep. A seat at the table for the ones still figuring faith out.</p>
+        <div class="rd-cta"><button class="rd-goldbtn" data-act="open-bible">OPEN THE BIBLE <span>↗</span></button><button class="rd-ghost" data-act="open-word">TODAY'S WORD <span>↗</span></button></div>
+        <p class="rd-herfoot"><span class="rd-pulse"></span> NOT JUST VERSES TO POST. WORDS TO LIVE BY.</p>
+      </div>
+      <div class="rd-heroart"><img src="assets/img/read/read-hero.svg" alt="Original black and gold illustrated scripture book and cassette tape, The Word Still Speaks"><div class="rd-stamp">SIDE A<br>NO SKIPS<br>VOL. 0163</div><div class="rd-artcorner">✦ ORIGINAL READING SESSION</div></div>
+    </section>
+    <div class="rd-tape"><span>FAITH FOR THE REAL WORLD</span><b>✶</b><span>THE WORD STILL SPEAKS</span><b>✶</b><span>READ IT. FEEL IT. LIVE IT.</span><b>✶</b><span>16:3 FAITH</span></div>
     <form class="hub-search" data-form="search"><input type="search" name="q" placeholder="Search the Bible — try “John 3:16”" aria-label="Search the Bible"><button class="rd-btn goldb" type="submit">Search</button></form>
     <p class="rd-status" data-role="status"></p>
-    <div class="rd-doors">
-      <button class="rd-door" data-door="bible"><div class="rd-art">✦</div><b>Bible</b><span>66 books · KJV · read-aloud</span></button>
-      <button class="rd-door" data-door="books"><div class="rd-art">❧</div><b>Books</b><span>God Over Everything — the book & free sample</span></button>
-      <button class="rd-door" data-door="devotionals"><div class="rd-art">☀</div><b>Devotionals</b><span>daily archive · reflection & prayer</span></button>
-      <button class="rd-door" data-door="word"><div class="rd-art">✚</div><b>Today's Word</b><span>today's verse & word for the day</span></button>
+    <div class="rd-qcards">
+      <button class="rd-qcard" data-door="bible"><span class="rd-qnum">01 / OPEN THE WORD</span><span class="rd-qicon">✝</span><strong>THE BIBLE.</strong><small>All 66 books · the full KJV text · read-aloud narration</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="books"><span class="rd-qnum">02 / THE LIBRARY</span><span class="rd-qicon">▤</span><strong>THE BOOKS.</strong><small>God Over Everything — the one book, both volumes, and a free 5-day sample</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="devotionals"><span class="rd-qnum">03 / DAILY FUEL</span><span class="rd-qicon">✦</span><strong>DEVOTIONALS.</strong><small>The daily archive — every entry with reflection &amp; prayer</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="word"><span class="rd-qnum">04 / RIGHT NOW</span><span class="rd-qicon">◷</span><strong>TODAY'S WORD.</strong><small>One verse, one thought, one way to carry it forward</small><span class="rd-qarrow">↗</span></button>
     </div>${cont}`);
 }
 
@@ -213,15 +329,23 @@ async function showBible(root, bookNr = null, chapter = null) {
   mount(root, shellHTML(`<h2>Choose a <span class="g">book</span></h2><p class="rd-note">Loading the 66 books…</p>`));
   const books = await loadBooks();
   const ot = books.filter((b) => b.testament === 'OT'), nt = books.filter((b) => b.testament === 'NT');
-  const grid = (arr) => `<div class="rd-books">${arr.map((b) => `<button data-book="${b.nr}">${esc(b.name)} <span class="rd-meta">${b.chapters} ch</span></button>`).join('')}</div>`;
+  const grid = (arr) => `<div class="rd-books">${arr.map((b) => `<button data-book="${b.nr}"><span>${esc(b.name)}</span> <span class="rd-meta">${b.chapters} ch</span></button>`).join('')}</div>`;
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="doors">← All doors</button></div>
-    <h2>The Bible — <span class="g">King James Version</span></h2>
+    <div class="rd-sechead"><div><p class="rd-pretag">01 / THE BIBLE DECK</p><h2 class="rd-sech2">66 BOOKS.<br><em>ONE LIVING WORD.</em></h2><p class="rd-secsub">Flip the pages, take in a chapter, or hear the Word spoken aloud — the full King James text, book by book.</p></div><div class="rd-headart">KJV <span>✦</span> THE WORD / READING DESK</div></div>
     <p class="rd-note">66 books · book list source: ${esc(S.booksSource)}</p>
     <form class="hub-search" data-form="search"><input type="search" name="q" placeholder="Reference or phrase — spaces welcome, e.g. John 3:16" aria-label="Search the Bible"><button class="rd-btn goldb" type="submit">Search</button></form>
-    <h3 style="margin-top:18px;font-family:var(--serif)">Old Testament</h3>${grid(ot)}
-    <h3 style="margin-top:22px;font-family:var(--serif)">New Testament</h3>${grid(nt)}`));
+    <input class="rd-bookfilter" type="search" data-role="book-filter" placeholder="Find a book…" aria-label="Find a book by name">
+    <h3 class="rd-testament">Old Testament</h3>${grid(ot)}
+    <h3 class="rd-testament">New Testament</h3>${grid(nt)}`));
   root.querySelectorAll('[data-book]').forEach((btn) => btn.addEventListener('click', () => showChapters(root, parseInt(btn.dataset.book, 10))));
+  const filter = root.querySelector('[data-role="book-filter"]');
+  if (filter) filter.addEventListener('input', () => {
+    const needle = filter.value.trim().toLowerCase();
+    root.querySelectorAll('[data-book]').forEach((btn) => {
+      btn.style.display = !needle || btn.textContent.toLowerCase().includes(needle) ? '' : 'none';
+    });
+  });
   wireSearch(root);
   root.querySelector('[data-act="doors"]').addEventListener('click', () => showDoors(root));
   if (bookNr) showChapters(root, bookNr, chapter);
@@ -234,7 +358,8 @@ async function showChapters(root, bookNr, chapter = null) {
   S.view = 'bible';
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="books">← All books</button><button class="rd-btn" data-act="doors">All doors</button></div>
-    <h2>${esc(book.name)}</h2><p class="rd-note">${book.chapters} chapters · KJV</p>
+    <p class="rd-pretag">THE BIBLE DECK / CHAPTER SELECT</p>
+    <h2 style="margin-top:10px">${esc(book.name)}</h2><p class="rd-note">${book.chapters} chapters · KJV</p>
     <div class="rd-chaps">${Array.from({ length: book.chapters }, (_, i) => `<button data-ch="${i + 1}">${i + 1}</button>`).join('')}</div>`));
   root.querySelectorAll('[data-ch]').forEach((btn) => btn.addEventListener('click', () => showChapter(root, bookNr, parseInt(btn.dataset.ch, 10))));
   root.querySelector('[data-act="books"]').addEventListener('click', () => showBible(root));
@@ -268,26 +393,61 @@ async function showChapter(root, bookNr, chapter, focusVerse = null) {
   const next = chapter < d.chapterCount ? { nr: bookNr, ch: chapter + 1 } : (bookNr < 66 ? { nr: bookNr + 1, ch: 1 } : null);
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="chapters">← Chapters</button><button class="rd-btn" data-act="doors">All doors</button></div>
-    <h2 data-testid="chapter-title">${esc(d.book)} ${chapter}</h2>
-    <p class="rd-note">KJV · ${d.verses.length} verses · text source: ${esc(loaded.source)}</p>
-    <div class="rd-card" data-testid="narrator">
-      <span class="rd-meta">READ ALOUD</span>
-      <div class="rd-bar">
-        <button class="rd-btn goldb" data-narr="play">▶ Listen</button>
-        <button class="rd-btn" data-narr="pause" disabled>⏸ Pause</button>
-        <button class="rd-btn" data-narr="stop" disabled>■ Stop</button>
-        <span class="rd-status" data-role="narr-status">Not started</span>
-      </div>
-    </div>
-    <div data-testid="verses">${d.verses.map((v) => `<p class="rd-verse" data-verse="${v.verse}" id="v${v.verse}"><span class="vn">${v.verse}</span>${esc(v.text)}</p>`).join('')}</div>
-    <div class="rd-bar">
+    <div class="rd-readerhead"><div><p class="rd-micro">SCRIPTURE SESSION / KJV</p><h2 data-testid="chapter-title">${esc(d.book)} ${chapter}</h2><p class="rd-note" style="margin-top:2px">King James Version · ${d.verses.length} verses · text source: ${esc(loaded.source)}</p></div><div class="rd-badge">THE WORD <b>✦</b></div></div>
+    <div class="rd-bar" style="margin:14px 0 0">
       <button class="rd-btn" data-nav-ch="${prev ? prev.nr + ':' + prev.ch : ''}" ${prev ? '' : 'disabled'}>← Previous chapter</button>
       <button class="rd-btn" data-nav-ch="${next ? next.nr + ':' + next.ch : ''}" ${next ? '' : 'disabled'}>Next chapter →</button>
-    </div>`));
+    </div>
+    <div class="rd-tools" data-testid="narrator">
+      <span class="rd-tools-label">READING DESK</span>
+      <div class="rd-tools-group">
+        <button class="goldb" data-narr="play">▶ Listen</button>
+        <button data-narr="pause" disabled>⏸ Pause</button>
+        <button data-narr="stop" disabled>■ Stop</button>
+        <span class="rd-status" data-role="narr-status">Not started</span>
+      </div>
+      <div class="rd-tools-group">
+        <button data-font="-1" aria-label="Decrease reading font size">A−</button>
+        <span class="rd-fontdisplay" data-role="font-display">100%</span>
+        <button data-font="1" aria-label="Increase reading font size">A+</button>
+        <button data-act="copy">COPY ↗</button>
+        <span class="rd-status" data-role="copy-status"></span>
+      </div>
+    </div>
+    <div data-testid="verses" style="--rdf:${S.fontScale}">${d.verses.map((v) => `<p class="rd-verse" data-verse="${v.verse}" id="v${v.verse}"><span class="vn">${v.verse}</span>${esc(v.text)}</p>`).join('')}</div>
+    <p class="rd-readingrule"><b>THE READING RULE:</b> No race, no score. Sometimes one verse is enough for the whole day.</p>`));
   root.querySelector('[data-act="chapters"]').addEventListener('click', () => showChapters(root, bookNr));
   root.querySelector('[data-act="doors"]').addEventListener('click', () => showDoors(root));
   root.querySelectorAll('[data-nav-ch]').forEach((btn) => { if (btn.dataset.navCh) btn.addEventListener('click', () => { const [n, c] = btn.dataset.navCh.split(':').map(Number); showChapter(root, n, c); }); });
   wireNarration(root, d);
+  /* Reading-desk presentation tools (package): font size is session-only
+     state over the rendered text; copy writes the REAL loaded chapter —
+     neither touches storage or the data layer. */
+  const versesBox = root.querySelector('[data-testid="verses"]');
+  const fontDisplay = root.querySelector('[data-role="font-display"]');
+  const syncFont = () => { if (versesBox) versesBox.style.setProperty('--rdf', S.fontScale); if (fontDisplay) fontDisplay.textContent = Math.round(S.fontScale * 100) + '%'; };
+  syncFont();
+  root.querySelectorAll('[data-font]').forEach((btn) => btn.addEventListener('click', () => {
+    S.fontScale = Math.min(1.5, Math.max(0.8, Math.round((S.fontScale + 0.1 * parseInt(btn.dataset.font, 10)) * 10) / 10));
+    syncFont();
+  }));
+  const copyBtn = root.querySelector('[data-act="copy"]');
+  if (copyBtn) copyBtn.addEventListener('click', async () => {
+    const status = root.querySelector('[data-role="copy-status"]');
+    const text = `${d.book} ${chapter} (KJV)\n` + d.verses.map((v) => `${v.verse} ${v.text}`).join('\n');
+    let done = false;
+    try { await navigator.clipboard.writeText(text); done = true; } catch { /* fall through */ }
+    if (!done) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+        document.body.append(ta); ta.select();
+        done = !!document.execCommand('copy');
+        ta.remove();
+      } catch { /* copy unavailable */ }
+    }
+    if (status) status.textContent = done ? `Copied ${d.book} ${chapter} to the clipboard.` : 'Copy is not available in this browser.';
+  });
   if (focusVerse) { const el = root.querySelector(`[data-verse="${focusVerse}"]`); if (el) { el.classList.add('hl'); el.scrollIntoView({ block: 'center' }); } }
 }
 
@@ -378,9 +538,10 @@ function wireSearch(root) {
       S.search = { q, results, source };
       mount(root, shellHTML(`
         <div class="rd-bar"><button class="rd-btn" data-act="doors">← All doors</button><button class="rd-btn" data-act="bible">Bible</button></div>
-        <h2>Results for <span class="g">“${esc(q)}”</span></h2>
+        <p class="rd-pretag">SEARCH THE WORD</p>
+        <h2 style="margin-top:10px">Results for <span class="g">“${esc(q)}”</span></h2>
         <p class="rd-note">${results.length} result${results.length === 1 ? '' : 's'} · route: ${esc(source)} · whitespace preserved</p>
-        <div class="rd-list" data-testid="search-results">${results.slice(0, 50).map((r) => `<button class="rd-item" data-open="${r.bookNr}:${r.chapter}:${r.verse}"><b>${esc(r.book)} ${r.chapter}:${r.verse}</b><span>${esc(r.text)}</span></button>`).join('') || '<p class="rd-note">No matches in the text searched. Try a reference like “John 3:16” or a shorter phrase.</p>'}</div>`));
+        <div class="rd-list" data-testid="search-results">${results.slice(0, 50).map((r) => `<button class="rd-item" data-open="${r.bookNr}:${r.chapter}:${r.verse}"><span class="rd-itemmain"><b>${esc(r.book)} ${r.chapter}:${r.verse}</b><span>${esc(r.text)}</span></span></button>`).join('') || '<p class="rd-note">No matches in the text searched. Try a reference like “John 3:16” or a shorter phrase.</p>'}</div>`));
       root.querySelector('[data-act="doors"]').addEventListener('click', () => showDoors(root));
       root.querySelector('[data-act="bible"]').addEventListener('click', () => showBible(root));
       root.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => { const [n, c, v] = b.dataset.open.split(':').map(Number); showChapter(root, n, c, v); }));
@@ -407,19 +568,20 @@ async function showBooks(root) {
   const day1 = dev.find((e) => e.id === 'god-over-everything');
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="doors">← All doors</button></div>
+    <div class="rd-sechead"><div><p class="rd-pretag">02 / OFF THE SHELF</p><h2 class="rd-sech2">BOOKS WITH<br><em>SCARS &amp; SOUL.</em></h2><p class="rd-secsub">Not everybody finds God in a perfect paragraph. Sometimes the crumpled pages have the realest stories.</p></div><div class="rd-headart">THE SHELF <span>✦</span> ONE REAL BOOK</div></div>
     <p class="rd-meta">16:3 FAITH PRESENTS · THE ONE BOOK</p>
     <h2 style="margin-top:8px">God Over <span class="g">Everything</span></h2>
     <p class="lede">A 365-Day Devotional by Pastor Jeremy “Chico” Mills — one verse, one honest reflection, one prayer, every day for a year. Both paperback volumes now on Amazon. Read the first 5 days free.</p>
-    <div class="rd-card"><h3>Volume One · January – June</h3><p class="rd-meta">Days 1–181 · Paperback · 6×9 · 559 pages · $19.99</p>
+    <div class="rd-bookcard"><p class="rd-bookmeta">VOLUME ONE · JANUARY – JUNE</p><h3>Volume One</h3><p class="rd-meta">Days 1–181 · Paperback · 6×9 · 559 pages · $19.99</p>
       <div class="rd-body"><p>The first half of the year. From the cold start of January to the long light of June — a daily return to putting God first, one verse at a time.</p></div>
       <div class="rd-bar"><a class="rd-btn goldb" href="https://www.amazon.com/dp/B0H41J8C8G?tag=kairobot143-20" target="_blank" rel="noopener noreferrer">Buy Volume One — $19.99</a></div></div>
-    <div class="rd-card"><h3>Volume Two · July – December</h3><p class="rd-meta">Days 182–365 · Paperback · 6×9 · 568 pages · $19.99</p>
+    <div class="rd-bookcard"><p class="rd-bookmeta">VOLUME TWO · JULY – DECEMBER</p><h3>Volume Two</h3><p class="rd-meta">Days 182–365 · Paperback · 6×9 · 568 pages · $19.99</p>
       <div class="rd-body"><p>The back half of the year, all the way to the last day. The same honest rhythm — verse, reflection, prayer, and one line to carry with you.</p></div>
       <div class="rd-bar"><a class="rd-btn goldb" href="https://www.amazon.com/dp/B0H3NV2JLH?tag=kairobot143-20" target="_blank" rel="noopener noreferrer">Buy Volume Two — $19.99</a></div></div>
     <div class="rd-card"><span class="rd-meta">EVERY DAY HOLDS</span>
       <div class="rd-body"><p><b>The Verse</b> — one verse of Scripture to anchor the day.</p><p><b>The Reflection</b> — an honest reflection from the rebuild. No fluff, no performance.</p><p><b>The Prayer</b> — a prayer to pray out loud.</p><p><b>The Line to Carry</b> — one line to take with you into the day.</p></div></div>
     <div class="rd-card" data-testid="book-sample"><span class="rd-meta">FREE 5-DAY SAMPLE</span><h3>Read the first five days free</h3>
-      <div class="rd-list">${days.map((d) => `<button class="rd-item" data-day="${d.day}"><b>Day ${d.day} · ${esc(d.reference)}</b><span>${esc(d.title)}</span></button>`).join('')}</div>
+      <div class="rd-list">${days.map((d) => `<button class="rd-item" data-day="${d.day}"><span class="rd-itemmain"><b>Day ${d.day} · ${esc(d.reference)}</b><span>${esc(d.title)}</span></span></button>`).join('')}</div>
       <div data-role="sample-body">${day1 ? sampleHTML(day1, 1) : '<p class="rd-note">Day 1 sample unavailable in the baked data.</p>'}</div></div>
     <p class="rd-note">“God over everything is not a slogan you print on a shirt. It's a posture you take before your feet hit the floor.” — Pastor Jeremy “Chico” Mills</p>`));
   root.querySelector('[data-act="doors"]').addEventListener('click', () => showDoors(root));
@@ -446,9 +608,9 @@ async function showDevotionals(root, page = 0) {
   const slice = list.slice(page * per, page * per + per);
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="doors">← All doors</button></div>
-    <h2>Devotionals</h2>
+    <div class="rd-sechead"><div><p class="rd-pretag">03 / DAILY FUEL</p><h2 class="rd-sech2">FOR THE DAYS<br><em>YOU FEEL EVERYTHING.</em></h2><p class="rd-secsub">Some days you need a sermon. Other days you need three sentences and somebody to understand.</p></div><div class="rd-headart">THE DAILY TAPES <span>✦</span> SERIES 001</div></div>
     <p class="rd-note" data-testid="dev-count">${list.length} published entries · daily from April 20, 2026 · newest first · page ${page + 1} of ${pages}</p>
-    <div class="rd-list">${slice.map((e) => `<button class="rd-item" data-entry="${esc(e.id)}"><b>${esc(e.title)}</b><span>${esc(e.date)} · ${esc(e.reference)} · ${esc(e.readTime || '2 min read')}</span></button>`).join('')}</div>
+    <div class="rd-list">${slice.map((e, i) => `<button class="rd-item" data-entry="${esc(e.id)}"><span class="rd-itemnum">${String(page * per + i + 1).padStart(2, '0')}</span><span class="rd-itemmain"><b>${esc(e.title)}</b><span>${esc(e.date)} · ${esc(e.reference)} · ${esc(e.readTime || '2 min read')}</span></span></button>`).join('')}</div>
     <div class="rd-bar">
       <button class="rd-btn" data-pg="-1" ${page === 0 ? 'disabled' : ''}>← Newer</button>
       <button class="rd-btn" data-pg="1" ${page >= pages - 1 ? 'disabled' : ''}>Older →</button>
@@ -472,8 +634,8 @@ async function showDevotional(root, id) {
   const newer = list[idx - 1], older = list[idx + 1];
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="archive">← Archive</button><button class="rd-btn" data-act="doors">All doors</button></div>
-    <p class="rd-meta">${esc(e.date)} · ${esc(e.readTime || '2 min read')}</p>
-    <h2 data-testid="dev-title">${esc(e.title)}</h2>
+    <p class="rd-pretag">DAILY FUEL / ${esc(e.date)} · ${esc(e.readTime || '2 min read')}</p>
+    <h2 data-testid="dev-title" style="margin-top:10px">${esc(e.title)}</h2>
     <p class="rd-meta" style="margin-top:6px">SCRIPTURE · ${esc(e.reference)}</p>
     <div class="rd-quote">“${esc(e.verse)}”</div>
     <div class="rd-body" data-testid="dev-body">${e.body.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
@@ -515,13 +677,19 @@ async function showWord(root) {
   const dstr = new Date(e.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   mount(root, shellHTML(`
     <div class="rd-bar"><button class="rd-btn" data-act="doors">← All doors</button></div>
-    <p class="rd-meta">TODAY'S WORD · ${esc(dstr.toUpperCase())}</p>
-    <h2 data-testid="word-title" style="margin-top:8px">${esc(e.title.toUpperCase())}</h2>
-    <p class="rd-meta" style="margin-top:6px">${esc(e.reference)}</p>
-    <div class="rd-quote" data-testid="word-verse">“${esc(e.verse)}”</div>
-    <div class="rd-body"><p>${esc(e.body[0])}</p></div>
-    <div class="rd-bar"><button class="rd-btn goldb" data-act="full">Read the full devotional</button><button class="rd-btn" data-act="open-ref">Open ${esc(e.reference)} in the Bible</button></div>
-    <p class="rd-note">Source: the day's devotional — the same word the production homepage carries (verified Thu Nov 19, 2026: “CROWDED THOUGHTS”, Psalm 94:19). The production API exposes no dedicated daily-word endpoint; its Bible verse-of-day route is a separate surface.</p>`));
+    <div class="rd-today">
+      <div>
+        <p class="rd-pretag">04 / TODAY'S WORD <span class="rd-red">/ SIDE B</span></p>
+        <p class="rd-today-label">A VERSE FOR THE RIGHT NOW · ${esc(dstr.toUpperCase())}</p>
+        <h2 data-testid="word-title">${esc(e.title.toUpperCase())}</h2>
+        <p class="rd-today-ref">${esc(e.reference)} / KJV</p>
+        <div class="rd-quote" data-testid="word-verse">“${esc(e.verse)}”</div>
+        <div class="rd-body"><p>${esc(e.body[0])}</p></div>
+        <div class="rd-bar"><button class="rd-btn goldb" data-act="full">Read the full devotional</button><button class="rd-btn" data-act="open-ref">Open ${esc(e.reference)} in the Bible</button></div>
+        <p class="rd-note">Source: the day's devotional — the same word the production homepage carries (verified Thu Nov 19, 2026: “CROWDED THOUGHTS”, Psalm 94:19). The production API exposes no dedicated daily-word endpoint; its Bible verse-of-day route is a separate surface.</p>
+      </div>
+      <div class="rd-today-art"><div class="rd-disc"><div class="rd-disc-center"><span>16:3</span><b>THE WORD</b><small>RIGHT NOW / SIDE B</small></div></div><div class="rd-sticker">FAITH<br>ON REPEAT.</div></div>
+    </div>`));
   root.querySelector('[data-act="doors"]').addEventListener('click', () => showDoors(root));
   root.querySelector('[data-act="full"]').addEventListener('click', () => showDevotional(root, e.id));
   root.querySelector('[data-act="open-ref"]').addEventListener('click', async () => {
@@ -543,6 +711,10 @@ function showDoors(root) {
     else if (d === 'devotionals') showDevotionals(root);
     else if (d === 'word') showWord(root);
   }));
+  const openBible = root.querySelector('[data-act="open-bible"]');
+  if (openBible) openBible.addEventListener('click', () => showBible(root));
+  const openWord = root.querySelector('[data-act="open-word"]');
+  if (openWord) openWord.addEventListener('click', () => showWord(root));
   const cont = root.querySelector('[data-act="continue"]');
   if (cont) cont.addEventListener('click', () => {
     try { const pos = JSON.parse(localStorage.getItem(LS_POS) || 'null'); if (pos) showChapter(root, pos.bookNr, pos.chapter, pos.verse); } catch { /* noop */ }
