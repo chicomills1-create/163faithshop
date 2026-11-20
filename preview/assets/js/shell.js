@@ -614,11 +614,30 @@ async function loadHub(name) {
 }
 
 let currentHub = null;
+/* HASH-NAV CURE (2026-11-19): two structural guards so a stale render can
+   never win. (1) A monotonic navigation token: navigate() awaits the hub
+   module, and a slow module for an earlier navigation must not commit
+   after a newer navigation has started. (2) A per-navigation view
+   container: each hub renders into its own element inside #hub-root.
+   Hubs hold module-level state and repaint asynchronously when live data
+   lands (community's cursor chain, pray's counters leg) — those paints
+   write into the element they were handed, so once a newer navigation
+   replaces the container, every late paint from the old hub lands in a
+   detached node and can never appear over the hub the user is on.
+   display:contents keeps the wrapper layout-transparent: hub content
+   lays out exactly as if it were a direct child of #hub-root. */
+let navSeq = 0;
 async function navigate(name) {
   if (![...HUB_ORDER, 'home'].includes(name)) name = 'home';
+  const seq = ++navSeq;
   const mod = await loadHub(name);
-  root.innerHTML = '';
-  mod.render(root, { navigate, player: Player });
+  if (seq !== navSeq) return; // superseded while the module loaded
+  const view = document.createElement('div');
+  view.className = 'hub-view';
+  view.dataset.hub = name;
+  view.style.display = 'contents';
+  root.replaceChildren(view);
+  mod.render(view, { navigate, player: Player, isCurrent: () => seq === navSeq });
   currentHub = name;
   setActiveNav(name);
   root.focus({ preventScroll: true });
@@ -630,6 +649,11 @@ function routeFromHash() {
   return m ? m[1] : 'home';
 }
 window.addEventListener('hashchange', () => navigate(routeFromHash()));
+/* A bfcache restore revives the DOM exactly as it was frozen, which can
+   disagree with the hash in the restored URL; reconcile on restore. */
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted && routeFromHash() !== currentHub) navigate(routeFromHash());
+});
 
 /* Account controls (§3.8) — shell-level placeholders at scaffold stage. */
 document.getElementById('btn-signin').addEventListener('click', () => {
