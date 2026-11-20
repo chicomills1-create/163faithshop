@@ -255,7 +255,7 @@ function artistCard(a) {
   return `<button type="button" class="acard" data-artist="${esc(a.slug)}">
     <span class="acard-art">${art}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
     <b>${esc(a.name)}</b>
-    <span class="acard-meta">${a.releases} releases · ${a.songs} songs${a.playable ? ` · ${a.playable} playable` : ''}</span>
+    <span class="acard-meta">${a.releases} releases · ${a.songs} songs${a.playableRows ? ` · ${a.playableRows} playable` : ''}</span>
   </button>`;
 }
 
@@ -315,12 +315,16 @@ export function render(root, { player }) {
 
   /* Queue one album group of one artist — the exact mechanic the artist
      page's album Play uses (album title as the queue label, the album's
-     exact cover on every queued track). */
+     exact cover on every queued track). LISTEN DATA CURE: NO artist-art
+     fallback — a song in an album queue wears that album's cover, or
+     its honest monogram (cover null) when the album has none; another
+     release's art on the player face is a convicted defect (Anomaly
+     plays showed the "Live & Let Live" single art). */
   async function playAlbumFor(slug, group, pos = 0) {
     const a = artistBySlug(slug);
     const p = await loadPlayable(slug);
     if (!p.tracks.length || !group.play.length) return;
-    const q = queueFromTracks(group.play.map((ti) => p.tracks[ti]), a.name, group.cover || a.art);
+    const q = queueFromTracks(group.play.map((ti) => p.tracks[ti]), a.name, group.cover);
     player.playQueue(q, pos, group.title);
   }
 
@@ -393,8 +397,8 @@ export function render(root, { player }) {
     const rot = g ? g.play.slice(0, 8) : [];
     const showArt = g ? g.cover : a.art;
     const meta = g
-      ? [g.year || '', g.kind === 'ep' ? 'EP' : g.kind === 'single' ? 'Single' : 'Album', `${g.n} tracks`, `${g.play.length} playable`].filter(Boolean).join(' · ')
-      : `${a.releases} releases · ${a.songs} songs · ${a.playable} playable`;
+      ? [g.year || '', g.kind === 'ep' ? 'EP' : g.kind === 'single' ? 'Single' : 'Album', `${g.n} tracks`, `${g.pr} playable`].filter(Boolean).join(' · ')
+      : `${a.releases} releases · ${a.songs} songs · ${a.playableRows} playable`;
     host.innerHTML = `
       <div class="lsn-show">
         <div class="lsn-showart">${showArt ? `<img src="${esc(showArt)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g ? g.title : a.name))}</span><span class="lsn-badge"><i></i>THE HOUSE PICK</span></div>
@@ -408,7 +412,7 @@ export function render(root, { player }) {
         </div>
       </div>
       <div class="lsn-rotation">
-        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.play.length} PLAYABLE` : `${esc(a.name)} / ${a.playable} PLAYABLE`}</span></div>
+        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${a.playable} PLAYABLE`}</span></div>
         ${rot.length ? rot.map((ti, k) => `
         <button type="button" class="lsn-ftrow" data-track="${esc(feat.tracks[ti].y)}" data-featrow="${k}">
           <span class="lsn-ftnum">${String(k + 1).padStart(2, '0')}</span>
@@ -523,7 +527,7 @@ export function render(root, { player }) {
           ${g.play.length ? `<button type="button" class="lsn-onplay" data-relplay="${ci}" aria-label="Play ${esc(g.title)}">▶</button>` : ''}
           <h3>${esc(g.title)}</h3>
           <div class="sec2">${esc(a.name)}</div>
-          <div class="foot">${[g.year || '', g.kind === 'ep' ? 'EP' : g.kind === 'single' ? 'Single' : 'Album', `${g.n} tracks`, g.play.length ? `${g.play.length} playable` : ''].filter(Boolean).join(' · ')}</div>
+          <div class="foot">${[g.year || '', g.kind === 'ep' ? 'EP' : g.kind === 'single' ? 'Single' : 'Album', `${g.n} tracks`, g.pr ? `${g.pr} playable` : ''].filter(Boolean).join(' · ')}</div>
         </div>`).join('')}</div>`
     : `<div class="lsn-empty"><strong>NOTHING IN THIS CRATE.</strong><p>No releases match that search yet — try an artist's name.</p></div>`;
     body.querySelectorAll('[data-relopen]').forEach((el) =>
@@ -713,6 +717,12 @@ export function render(root, { player }) {
       slug, groups: groups ? groups.length : 0,
       matched: tracks.length - more.length, more: more.length, playable: tracks.length,
     };
+    /* LISTEN DATA CURE: the header's playable count, paired with the
+       catalog song count, is playable ROWS across the album groups
+       (never the pool size — Cross Worship read "3 songs · 50
+       playable" when none of his 3 catalog songs had a row binding).
+       The flat fallback has no groups; its shelf IS the pool. */
+    const headerPlayable = groups ? groups.reduce((s, g) => s + (g.pr || 0), 0) : tracks.length;
 
     const kindLabel = (k) => (k === 'ep' ? 'EP' : k === 'single' ? 'Single' : 'Album');
     /* Display order (ChatGPT consult chatcmpl-Em8JK5jpNTSdU3crG2gbxSwMNGTjF):
@@ -728,7 +738,11 @@ export function render(root, { player }) {
     if (openIdx < 0) openIdx = ordered.length ? 0 : -1;
 
     function albumCard({ g }, oi) {
-      const playableN = g.play.length;
+      /* LISTEN DATA CURE: the header's "K playable" counts playable
+         ROWS (g.pr, baked) — never bound recordings (g.play.length),
+         which exceeded the track count. The Play button still gates
+         on the queue itself (g.play). */
+      const playableN = g.pr;
       const meta = [g.year || '', kindLabel(g.kind), `${g.n} track${g.n === 1 ? '' : 's'}`,
         playableN && playableN !== g.n ? `${playableN} playable` : ''].filter(Boolean).join(' · ');
       const posInPlay = new Map(g.play.map((ti, pi) => [ti, pi]));
@@ -754,7 +768,7 @@ export function render(root, { player }) {
         <div class="rel-head">
           <span class="alb-cover">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g.title))}</span></span>
           <div class="alb-meta"><b>${esc(g.title)}</b><span>${esc(meta)}</span></div>
-          ${playableN ? `<button type="button" class="btn-gold alb-play" data-albplay="${oi}" aria-label="Play ${esc(g.title)}">▶</button>` : ''}
+          ${g.play.length ? `<button type="button" class="btn-gold alb-play" data-albplay="${oi}" aria-label="Play ${esc(g.title)}">▶</button>` : ''}
           <button type="button" class="btn-ghost alb-toggle" data-albtoggle="${oi}" aria-expanded="${oi === openIdx}">${oi === openIdx ? 'Hide tracks' : 'Tracks'}</button>
         </div>
         <div class="alb-body" data-albbody="${oi}" ${oi === openIdx ? '' : 'hidden'}>
@@ -797,7 +811,7 @@ export function render(root, { player }) {
       <div class="artist-head">
         <span class="acard-art big">${a.art ? `<img src="${esc(a.art)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
         <div><h2>${esc(a.name)}</h2>
-        <p class="lede">${a.releases} releases · ${a.songs} songs in the catalog${tracks.length ? ` · ${tracks.length} playable` : ''}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}</p></div>
+        <p class="lede">${a.releases} releases · ${a.songs} songs in the catalog${headerPlayable ? ` · ${headerPlayable} playable` : ''}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}</p></div>
       </div>
       ${groups ? `
       <div class="shelf"><h3>Albums <span class="shelf-count">${groups.length}</span></h3>
@@ -811,7 +825,9 @@ export function render(root, { player }) {
 
     function playAlbum(oi, pos) {
       const { g } = ordered[oi];
-      const q = queueFromTracks(g.play.map((ti) => tracks[ti]), a.name, g.cover || a.art);
+      /* LISTEN DATA CURE: album cover only — no artist-art fallback
+         (see playAlbumFor). Null cover = the album's honest monogram. */
+      const q = queueFromTracks(g.play.map((ti) => tracks[ti]), a.name, g.cover);
       if (q.length) player.playQueue(q, pos, g.title);
     }
     function playMore(pos) {
