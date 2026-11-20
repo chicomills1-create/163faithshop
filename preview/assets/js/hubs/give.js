@@ -53,10 +53,11 @@
    env is invalid (sk_live_…fT02, Stripe 401 at session creation), and its
    replacement is founder-gated (Stripe authenticator code). HONESTY LAW
    for this hub: live giving does NOT work today and nothing here claims
-   or implies it does — the not-live state renders through ONE function
-   (statusLineHTML, the package's "CHECKOUT IS NOT LIVE YET" strip as its
-   presentation) so the day the key lands, that one function's state
-   flips and the same build goes live with no design change; checkout
+   or implies it does — the live state lives in ONE predicate
+   (checkoutLive(), rendered by statusLineHTML as the package's
+   "CHECKOUT IS NOT LIVE YET" strip, and read by every state-dependent
+   line on the surface) so the day the key lands, that one value flips
+   and the same build goes live with no design change; checkout
    failures land on a composed honest message (never the old face's bare
    red banner, never a fake success), and success is claimed only by the
    browser actually leaving for the checkout URL the API returned.
@@ -339,13 +340,42 @@ function mount(root, html) { S.mountSeq += 1; root.innerHTML = STYLE + STYLE2 + 
 function header(kicker, title, lede) {
   return `<p class="kicker">${kicker}</p><h1>${title}</h1><p class="lede">${lede}</p>`;
 }
-/* §3.6's frontend-visible truth, in the package strip's presentation:
-   this function is the hub's ONE not-live state source — giving and
-   Partner membership revive with the same key, so one status covers
-   both, and when the live key lands this is the single place the state
-   flips (no design change anywhere else). Visitor words only. */
+/* §3.6's frontend-visible truth. checkoutLive() is the hub's ONE
+   live-state source: giving and Partner membership revive with the
+   same key, so one state covers both doors. statusLineHTML() renders
+   the state as the package's "CHECKOUT NOT LIVE YET" strip, and every
+   state-dependent line on the surface (the Give Once under-button
+   note, the Partner note) reads the same predicate — so the day the
+   live key lands and checkout is verified live, flipping this one
+   value flips the strip and the notes together, and the original
+   live-state lines become true and stand. Visitor words only. */
+function checkoutLive() { return false; }
 function statusLineHTML() {
+  if (checkoutLive()) return '';
   return `<div class="gv-status" data-testid="give-status"><span class="gv-dot">●</span><b>CHECKOUT NOT LIVE YET.</b> Giving and monthly partnership open together, and we're completing the final step to switch online checkout on — so gifts can't be completed online just yet. Thank you for your heart for this mission, and please check back soon.</div>`;
+}
+/* The Give Once under-button note, state-aware through checkoutLive()
+   (copy-alignment cure, 2026-11-19): while checkout is not live the
+   note must not imply a finishable checkout exists — the gift
+   completes on the secure checkout page ONCE ONLINE GIVING OPENS.
+   The busy line renders only during a genuine in-flight attempt. */
+function giveNoteText() {
+  if (S.busy) return 'Opening the secure checkout…';
+  return checkoutLive()
+    ? 'You\'ll finish on the secure checkout page — your card details never touch this site.'
+    : 'Your gift completes on the secure checkout page once online giving opens — your card details never touch this site.';
+}
+/* The signed-in Partner note, same single source: the closing clause
+   ("nothing is charged until you complete it there") is a true
+   conditional and stands verbatim in both states; only the lead is
+   framed by the state — while not live it reads as what happens ONCE
+   PARTNER CHECKOUT OPENS (the FAQ's own construction), never as a
+   flow that exists today. */
+function partnerNoteText() {
+  const tail = 'The amount and the monthly plan are set by the checkout itself; nothing is charged until you complete it there.';
+  return checkoutLive()
+    ? `One checkout, then ${PARTNER_MONTHLY} a month — you can manage or cancel it any time from your billing page. ${tail}`
+    : `Once Partner checkout opens, it&rsquo;s one checkout, then ${PARTNER_MONTHLY} a month — you can manage or cancel it any time from your billing page. ${tail}`;
 }
 function errorHTML(door) {
   const e = S.error;
@@ -505,7 +535,7 @@ function showOnce(root) {
             ? 'That amount doesn\'t read as a number — gifts run from $1 to $1,000.'
             : 'Gifts run from $1 to $1,000 — choose or write an amount in that range.'}</p>
         <div class="gv-submitrow"><button class="gv-review" type="button" data-testid="give-submit" data-act="give" ${valid && !S.busy ? '' : 'disabled'}>${S.busy ? 'Opening checkout…' : valid ? `Give ${fmtUSD(cents)}` : 'Give'} <span>&nearr;</span></button></div>
-        <p class="gv-note" data-role="give-note">${S.busy ? 'Opening the secure checkout…' : 'You\'ll finish on the secure checkout page — your card details never touch this site.'}</p>
+        <p class="gv-note" data-role="give-note">${giveNoteText()}</p>
         ${errorHTML('once')}
       </div>
       <div class="gv-buildside">${scriptureCardHTML()}${trustCardHTML()}</div>
@@ -587,7 +617,7 @@ function showPartner(root) {
         ${tabsHTML('partner')}
         <div class="gv-offer" style="margin-top:0"><span>THE 16:3 PARTNERSHIP</span><div><strong class="gv-price" data-testid="partner-price">${PARTNER_MONTHLY}<span> / month</span></strong></div><p>Optional giving. No special access to love, prayer, or belonging.</p></div>
         ${signed ? `
-          <p class="gv-note">One checkout, then ${PARTNER_MONTHLY} a month — you can manage or cancel it any time from your billing page. The amount and the monthly plan are set by the checkout itself; nothing is charged until you complete it there.</p>
+          <p class="gv-note">${partnerNoteText()}</p>
           <div class="gv-submitrow"><button class="gv-review" type="button" data-testid="partner-submit" data-act="partner" ${S.busy ? 'disabled' : ''}>${S.busy ? 'Opening checkout…' : `Become a Partner — ${PARTNER_MONTHLY}/month`} <span>&nearr;</span></button></div>
           ${errorHTML('partner')}`
         : `
