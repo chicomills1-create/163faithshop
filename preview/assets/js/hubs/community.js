@@ -284,7 +284,7 @@ const S = {
   view: 'doors', root: null, navigate: null,
   mode: 'snapshot',            // 'live' once the API answers from this browser
   posts: [], testimonies: [], groups: [], members: [], bakedMembers: [],
-  counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false,
+  counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false, chainSettled: false,
   feedFilter: 'all', feedShown: PAGE,
   composeType: 'post', gateOpen: false,
   profileId: null, profileCache: new Map(),
@@ -362,6 +362,21 @@ const rxTotal = (p) => Object.values(p.reactionCounts || {}).reduce((a, b) => a 
    and the posts array are TOP-LEVEL siblings of it. Reading them off the
    profile object rendered literal "undefined" counts and hid the posts. */
 const uniqPosts = (arr) => { const seen = new Set(); return arr.filter((p) => { if (!p || p.id == null) return true; if (seen.has(p.id)) return false; seen.add(p.id); return true; }); };
+/* M4 cure (2026-11-20): posts excluded at ingestion. The one entry is a
+   founder-era test artifact — body "test test test" (2026-08-16), empty
+   authorName, authored on the founder's own account — that lives in the
+   PRODUCTION database and so arrives on live slices and in the profile
+   payload. It is filtered out of every build surface at ingestion
+   (baked leg, live slices, profile payloads), so it never renders and
+   never counts here. The production row itself is an API-side delete,
+   flagged as a named step in the M4 cure record — not silently skipped. */
+const EXCLUDED_POST_IDS = new Set(['822bb256-418d-48c9-8d9f-c95daeb9f8b0']);
+const ingestPosts = (arr) => uniqPosts((arr || []).map(normalizePost)).filter((p) => !EXCLUDED_POST_IDS.has(p.id));
+/* Counts settle when the held wall is the complete set for the current
+   mode: the snapshot after its baked load, the live wall when the
+   offset chain exits (exhausted or stalled). Until then count surfaces
+   read the loading glyph — never a partial that visibly climbs. */
+const countsSettled = () => S.loaded && (S.mode !== 'live' || S.chainSettled);
 const normName = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
 const numOrNull = (v) => { const n = typeof v === 'string' && v.trim() !== '' ? Number(v) : v; return typeof n === 'number' && isFinite(n) ? n : null; };
 const absMedia = (u) => (u && u.startsWith('/') ? API_BASE + u : (u ?? null));
@@ -381,12 +396,18 @@ function normalizeProfile(j) {
    baked directory and the carried posts' authors. */
 function personIds(id) {
   const ids = new Set([id]);
+  /* Every name this account itself carries — its baked directory name
+     plus the author name on its own carried posts — then every account
+     id standing under any of those names (split accounts). Matching on
+     the full name set keeps profile and directory aggregation over the
+     exact same id set (M4 cure, 2026-11-20). */
+  const names = new Set();
   const self = (S.bakedMembers || []).find((m) => m.id === id);
-  const nm = normName(self?.name || [...S.posts, ...S.testimonies].find((p) => p.authorId === id)?.authorName || '');
-  if (nm) {
-    for (const m of S.bakedMembers || []) if (m.id && normName(m.name) === nm) ids.add(m.id);
-    for (const p of [...S.posts, ...S.testimonies]) if (p.authorId && normName(p.authorName) === nm) ids.add(p.authorId);
-  }
+  if (self?.name) names.add(normName(self.name));
+  for (const p of [...S.posts, ...S.testimonies]) if (p.authorId === id && p.authorName) names.add(normName(p.authorName));
+  if (!names.size) return ids;
+  for (const m of S.bakedMembers || []) if (m.id && names.has(normName(m.name))) ids.add(m.id);
+  for (const p of [...S.posts, ...S.testimonies]) if (p.authorId && names.has(normName(p.authorName))) ids.add(p.authorId);
   return ids;
 }
 /* Profile counts: a count renders only when the payload actually carries
@@ -404,12 +425,12 @@ const profCountsHtml = (prof, fallbackHtml) => {
    overlap), append in API order. Returns the number of new posts. */
 function mergeLiveSlice(j) {
   const seenIds = new Set([...S.posts, ...S.testimonies].map((p) => p.id));
-  const fresh = uniqPosts((j.posts || []).map(normalizePost)).filter((p) => !seenIds.has(p.id));
+  const fresh = ingestPosts(j.posts).filter((p) => !seenIds.has(p.id));
   if (fresh.length) {
     S.posts.push(...fresh.filter((p) => p.type !== 'testimony'));
     S.testimonies.push(...fresh.filter((p) => p.type === 'testimony'));
   }
-  S.feedTotal = S.posts.length + S.testimonies.length;
+  S.feedTotal = S.posts.length;
   return fresh.length;
 }
 function repaintHub() { if (S.root && S.view !== 'profile') paint(); }
@@ -424,7 +445,7 @@ async function loadLive() {
     const [bakedFeed, bakedMembers, bakedMeta, bakedGroups] = await Promise.all([
       fetchBaked('feed.json'), fetchBaked('members.json'), fetchBaked('meta.json'), fetchBaked('groups.json').catch(() => null),
     ]);
-    const b = uniqPosts(bakedFeed.posts.map(normalizePost));
+    const b = ingestPosts(bakedFeed.posts);
     S.posts = b.filter((p) => p.type !== 'testimony');
     S.testimonies = b.filter((p) => p.type === 'testimony');
     S.bakedMembers = bakedMembers.members || [];
@@ -432,17 +453,19 @@ async function loadLive() {
     S.counters = bakedMeta.counters?.livePulse20261119 || bakedMeta.counters;
     S.members = buildDirectory();
     S.loaded = true; // real data backs the door counts from here on
+    S.chainSettled = true; // the snapshot is a settled set: its counts are its own tape's counts
   } catch { /* baked data unavailable: live leg below still runs */ }
   try {
     const first = await fetchJson(`${API_BASE}/api/community/posts?limit=25`);
-    const live = uniqPosts((first.posts || []).map(normalizePost));
+    const live = ingestPosts(first.posts);
     if (live.length) {
       S.posts = live.filter((p) => p.type !== 'testimony');
       const liveTest = live.filter((p) => p.type === 'testimony');
       if (liveTest.length) S.testimonies = liveTest;
       S.feedNextOffset = first.nextOffset ?? null;
       S.feedHasMore = !!first.hasMore && S.feedNextOffset != null;
-      S.feedTotal = S.posts.length + S.testimonies.length;
+      S.feedTotal = S.posts.length;
+      S.chainSettled = false; // the live chain is running: counts settle when it exits
       S.mode = 'live';
       S.loaded = true;
       repaintHub();
@@ -481,6 +504,13 @@ async function loadLive() {
       S.members = buildDirectory();
       repaintHub();
     }
+    /* The chain has exited — exhausted, or stalled on a failed slice
+       with the cursor standing (LOAD MORE resumes it). Either way the
+       held wall is now the settled set the count surfaces read: the
+       Feed door shows the feed's own total, the Testimonies door and
+       the rail show the testimonies actually carried and listed —
+       one stable number each, no climbing partials (M4 cure). */
+    S.chainSettled = true;
   } catch { /* snapshot mode stands, labeled in the UI */ }
 }
 
@@ -539,7 +569,16 @@ function buildDirectory() {
 /* ---------------- frame: rails ---------------- */
 function countersLine() {
   const c = S.counters; if (!c) return '';
-  return `<b>${c.members}</b> members · <b>${c.testimonies}</b> testimonies<br><b>${c.prayerRequests}</b> prayer requests · <b>${c.prayersLifted}</b> prayers lifted`;
+  /* M4 cure (2026-11-20): the testimonies cell counts the testimonies
+     this build carries and lists — the guest wall's served set — once
+     the pull settles. The pulse total counts testimonies the guest
+     wall never serves (50 over a served 47 on the 2026-11-20 chain
+     walk), which is what put 50 over the tape. The pulse definition
+     itself is an API-side fix, flagged as a named step in the cure
+     record. Members and prayer cells stay pulse: no served-set
+     equivalent exists for them. */
+  const t = countsSettled() ? S.testimonies.length : '…';
+  return `<b>${c.members}</b> members · <b>${t}</b> testimonies<br><b>${c.prayerRequests}</b> prayer requests · <b>${c.prayersLifted}</b> prayers lifted`;
 }
 function railHtml() {
   const v = S.view;
@@ -595,8 +634,16 @@ function viewDoors() {
      when real data backs it: the pulse/counters object, or the loaded
      carried lists. Unloaded renders the loading glyph — never a
      false 0. */
-  const postsCnt = S.loaded ? `${S.posts.length + S.testimonies.length} POSTS CARRIED` : '… POSTS CARRIED';
-  const testCnt = c.testimonies != null ? `${c.testimonies} TESTIMONIES` : (S.loaded ? `${S.testimonies.length} TESTIMONIES` : '… TESTIMONIES');
+  /* M4 cure (2026-11-20): the Feed door carries the FEED's own total —
+     the posts the feed holds and counts down through LOAD MORE.
+     Testimonies carry their own door and their own count (the
+     testimonies actually listed on the tape), so the doors no longer
+     disagree with the views behind them (388 door vs 344 feed; 50
+     header vs 44 listed). Both render only once the pull settles:
+     while the live chain runs they read the loading glyph, never a
+     climbing partial. */
+  const postsCnt = countsSettled() ? `${S.posts.length} POSTS CARRIED` : '… POSTS CARRIED';
+  const testCnt = countsSettled() ? `${S.testimonies.length} TESTIMONIES` : '… TESTIMONIES';
   const membCnt = c.members != null ? `${c.members} MEMBERS` : '… MEMBERS';
   const grpCnt = S.loaded ? `${S.groups.length} GROUPS LIVE` : '… GROUPS LIVE';
   const door = (view, art, no, title, text, cnt) => `
@@ -710,10 +757,11 @@ function viewTestimonies() {
   const list = uniqPosts(S.testimonies);
   return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
   <div class="bk-feedhead"><div><span class="eyebrow">STORIES OF GRACE</span><h2>The <em>testimony tape.</em></h2></div></div>
-  <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.</p>
+  <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.${S.mode === 'live' && S.feedHasMore ? ' The wall is still arriving — the LOAD MORE button at the end of the tape pulls the next pages in.' : ''}</p>
   ${list.map((p) => postCard(p)).join('') || (S.loaded
-    ? '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts every testimony on the wall; this view lists the ones in the carried pages.</p></div>'
-    : '<div class="bk-ctx"><h3>Loading the testimony tape…</h3><p>The stories are on their way — an unloaded tape never reads as an empty one.</p></div>')}`;
+    ? '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts the testimonies this build carries — none are in the carried pages yet.</p></div>'
+    : '<div class="bk-ctx"><h3>Loading the testimony tape…</h3><p>The stories are on their way — an unloaded tape never reads as an empty one.</p></div>')}
+  ${S.mode === 'live' && S.feedHasMore ? `<button type="button" class="bk-loadmore" data-loadmore-test>LOAD MORE · MORE ON THE WALL</button>` : ''}`;
 }
 function peopleStripHtml() {
   const rows = S.peopleResults != null
@@ -779,15 +827,26 @@ async function viewProfile(id) {
     try { const j = await fetchJson(`${API_BASE}/api/community/members/${encodeURIComponent(id)}/profile`); prof = normalizeProfile(j); if (prof) S.profileCache.set(id, prof); } catch { /* carried fallback below */ }
   }
   if (S.view !== 'profile' || S.profileId !== id) return;
-  const posts = prof?.posts?.length ? uniqPosts(prof.posts.map(normalizePost)) : carried;
+  /* M4 cure (2026-11-20): ONE post-count definition for directory and
+     profile — the posts this build carries on the wall for this person,
+     over every account id the split-account merge ties to them. In live
+     mode the carried set wins over the profile payload's own totals:
+     the payload counts every post the account ever made (154 against
+     the directory's 42 for the same person), which is what made the
+     surfaces disagree. The payload still backs the profile when the
+     wall isn't live or carries none of the member's posts. */
+  const posts = (S.mode === 'live' && carried.length) ? carried : (prof?.posts?.length ? ingestPosts(prof.posts) : carried);
   const carriedMeta = `<div class="meta" style="margin-top:10px">${posts.length} post${posts.length === 1 ? '' : 's'} in this ${S.mode === 'live' ? 'pull' : 'capture'}</div>`;
+  const countsHtml = (S.mode === 'live' && carried.length && prof)
+    ? profCountsHtml({ ...prof, postCount: carried.length }, carriedMeta)
+    : (prof ? profCountsHtml(prof, carriedMeta) : carriedMeta);
   const name = prof?.displayName || name0;
   const el = S.root.querySelector('[data-prof]'); if (!el) return;
   if (id === HOUSE_ID && prof) {
     el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(prof.coverUrl || '')}')"></div><div class="bk-profbody">
       <span data-profile="${HOUSE_ID}" style="cursor:pointer">${avatarHtml(name, prof.avatarUrl, true)}</span>
       <h2>${esc(name)} <span class="bk-ver">✦</span></h2><div class="meta">${esc(prof.headline || '')}${prof.location ? ' · ' + esc(prof.location) : ''}</div>
-      ${profCountsHtml(prof, carriedMeta)}
+      ${countsHtml}
       ${prof.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:14px 0 0">${linkify(prof.bio)}</p>` : ''}
     </div></div>
     <h3 class="bk-secttl">From the <em>house</em></h3>${posts.map((p) => postCard(p, true)).join('')}`;
@@ -797,7 +856,7 @@ async function viewProfile(id) {
     ${avatarHtml(name, prof?.avatarUrl || first?.authorAvatar || baked?.avatar, false)}
     <h2>${esc(name)}${(prof?.isVerified || first?.authorVerified || baked?.verified) ? ' <span class="bk-ver">✦</span>' : ''}</h2>
     <div class="meta">${esc(prof?.location || first?.authorLocation || baked?.location || '')}${prof?.createdAt ? ' · Member since ' + fmtDate(prof.createdAt) : ''}</div>
-    ${prof ? profCountsHtml(prof, carriedMeta) : carriedMeta}
+    ${countsHtml}
     ${prof?.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:14px 0 0">${linkify(prof.bio)}</p>` : ''}
     ${prof?.testimony ? `<div class="bk-proftest">“${esc(prof.testimony)}”</div>` : ''}
   </div></div>
@@ -878,6 +937,12 @@ function paint() {
     S.feedShown += PAGE; paint();
     if (S.mode === 'live') loadMoreLive();
   }));
+  /* The testimonies tape's own resume (M4 cure): a chain that stalled
+     mid-wall used to leave this view silently short — the feed's LOAD
+     MORE was the only resume path in the hub. Same cursor, same merge. */
+  main.querySelectorAll('[data-loadmore-test]').forEach((n) => n.addEventListener('click', () => {
+    loadMoreLive().then(() => { if (S.view === 'testimonies') paint(); });
+  }));
   main.querySelectorAll('[data-joingate]').forEach((n) => n.addEventListener('click', () => {
     const panel = n.parentElement.querySelector('[data-joingatepanel]'); if (panel) panel.classList.toggle('open');
   }));
@@ -908,7 +973,7 @@ async function loadMoreLive() {
     S.feedNextOffset = j.nextOffset ?? null;
     S.feedHasMore = !!j.hasMore && S.feedNextOffset != null && S.feedNextOffset !== cursor;
     S.members = buildDirectory();
-    if (S.view === 'feed') paint();
+    if (S.view === 'feed' || S.view === 'testimonies' || S.view === 'doors') paint();
   } catch { /* the wall keeps what it has; the cursor stands for the next tap */ }
   S.feedBusy = false;
 }

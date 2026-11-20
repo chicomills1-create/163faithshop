@@ -183,6 +183,8 @@ const STYLE = `<style>
 /* The not-live strip — statusLineHTML() is the hub's ONE state source;
    this is the package's "CHECKOUT IS NOT LIVE YET" strip as its skin. */
 .gv-status{border:1px solid #64501b;border-radius:10px;background:#1b180f;padding:13px 16px;margin-top:22px;font-size:13.5px;line-height:1.6;color:#d4be87}
+.gv-honesty{margin-top:14px;font-size:12.5px;line-height:1.6;color:#b9ad97}
+.gv-card .gv-honesty{margin-top:10px}
 .gv-status b{color:#f8d879;letter-spacing:.4px}
 .gv-status .gv-dot{color:#e3472e;margin-right:6px}
 .gv-sec{margin-top:64px}
@@ -354,6 +356,13 @@ function statusLineHTML() {
   if (checkoutLive()) return '';
   return `<div class="gv-status" data-testid="give-status"><span class="gv-dot">●</span><b>CHECKOUT NOT LIVE YET.</b> Giving and monthly partnership open together, and we're completing the final step to switch online checkout on — so gifts can't be completed online just yet. Thank you for your heart for this mission, and please check back soon.</div>`;
 }
+/* The house honesty line (M4 cure, 2026-11-20): the LLC / not-a-501(c)(3)
+   fact used to sit only inside the collapsed FAQ below and the home
+   footer. It now stands visible on the hub's main views — the landing,
+   Give Once and Monthly Partner — in the home footer's own words. */
+function honestyLineHTML() {
+  return `<p class="gv-honesty" data-testid="give-honesty">16:3 Faith — a for-profit LLC, not a 501(c)(3) nonprofit. Giving is voluntary and is not tax-deductible.</p>`;
+}
 /* The Give Once under-button note, state-aware through checkoutLive()
    (copy-alignment cure, 2026-11-19): while checkout is not live the
    note must not imply a finishable checkout exists — the gift
@@ -453,6 +462,7 @@ function showDoors(root) {
     </section>
     <div class="gv-tape"><span>Give With Purpose</span><strong>✦</strong><span>Love Is the Whole Point</span><strong>✦</strong><span>No One Left at the Door</span></div>
     ${statusLineHTML()}
+    ${honestyLineHTML()}
     <section class="gv-sec" id="gv-offering">
       <p class="gv-eyebrow">01 / The Offering</p>
       <div class="gv-sechead"><div><h2>Make Room<br><em>For More.</em></h2><p>Every gift is a decision to show up. Choose what makes sense for you. Nobody has to give to belong here.</p></div><span class="gv-stamp2">THE GIVING<br>SESSION <b>01/03</b></span></div>
@@ -536,6 +546,7 @@ function showOnce(root) {
             : 'Gifts run from $1 to $1,000 — choose or write an amount in that range.'}</p>
         <div class="gv-submitrow"><button class="gv-review" type="button" data-testid="give-submit" data-act="give" ${valid && !S.busy ? '' : 'disabled'}>${S.busy ? 'Opening checkout…' : valid ? `Give ${fmtUSD(cents)}` : 'Give'} <span>&nearr;</span></button></div>
         <p class="gv-note" data-role="give-note">${giveNoteText()}</p>
+        ${honestyLineHTML()}
         ${errorHTML('once')}
       </div>
       <div class="gv-buildside">${scriptureCardHTML()}${trustCardHTML()}</div>
@@ -616,6 +627,7 @@ function showPartner(root) {
         <div class="gv-cardtop"><div><span class="gv-tiny">The Monthly Partnership / Side B</span><h3>Keep The<br><em>Record Spinning.</em></h3></div><div class="gv-circle">✦</div></div>
         ${tabsHTML('partner')}
         <div class="gv-offer" style="margin-top:0"><span>THE 16:3 PARTNERSHIP</span><div><strong class="gv-price" data-testid="partner-price">${PARTNER_MONTHLY}<span> / month</span></strong></div><p>Optional giving. No special access to love, prayer, or belonging.</p></div>
+        ${honestyLineHTML()}
         ${signed ? `
           <p class="gv-note">${partnerNoteText()}</p>
           <div class="gv-submitrow"><button class="gv-review" type="button" data-testid="partner-submit" data-act="partner" ${S.busy ? 'disabled' : ''}>${S.busy ? 'Opening checkout…' : `Become a Partner — ${PARTNER_MONTHLY}/month`} <span>&nearr;</span></button></div>
