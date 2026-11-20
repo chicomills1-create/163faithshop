@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 960" role="img" aria-label="Gold and black mixtape-inspired artwork of a scripture book and cassette tape">
+<defs>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4a4"/><stop offset=".29" stop-color="#d5ae39"/><stop offset=".65" stop-color="#765518"/><stop offset="1" stop-color="#efcf5c"/></linearGradient>
+  <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#252321"/><stop offset=".4" stop-color="#070808"/><stop offset="1" stop-color="#27201b"/></linearGradient>
+  <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f27c53"/><stop offset="1" stop-color="#8d1b22"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="18"/></filter>
+  <pattern id="grain" width="17" height="17" patternUnits="userSpaceOnUse"><circle cx="3" cy="5" r=".7" fill="#fff" opacity=".12"/><circle cx="13" cy="14" r=".65" fill="#fff" opacity=".1"/></pattern>
+</defs>
+<rect width="900" height="960" rx="38" fill="#090909"/>
+<rect width="900" height="960" rx="38" fill="url(#grain)"/>
+<path d="M0 110L900 0v74L0 185M0 760L900 640v38L0 801" fill="#a9302a" opacity=".72"/>
+<path d="M0 802L900 680" stroke="#e7bd53" stroke-width="5" opacity=".65"/>
+<g opacity=".32" stroke="#d5b453" stroke-width="1"><path d="M0 300h900M0 340h900M0 380h900M0 420h900M0 460h900M0 500h900M0 540h900M0 580h900M0 620h900M0 660h900"/></g>
+<g transform="translate(178 129) rotate(-12 280 340)">
+<rect x="74" y="53" width="564" height="690" rx="20" fill="#060607" stroke="#060606" stroke-width="24" transform="translate(22 30)"/>
+<rect x="57" y="31" width="560" height="690" rx="14" fill="url(#dark)" stroke="#9f7b27" stroke-width="8"/>
+<rect x="74" y="44" width="526" height="663" rx="8" fill="none" stroke="#c5a43e" stroke-width="3"/>
+<rect x="88" y="58" width="499" height="636" fill="url(#grain)"/>
+<text x="331" y="156" text-anchor="middle" fill="#f6e5ac" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="800" letter-spacing="9">THE WORD / VOL 0163</text>
+<path d="M161 195h342" stroke="url(#gold)" stroke-width="4"/><path d="M161 534h342" stroke="url(#gold)" stroke-width="4"/>
+<text x="331" y="330" text-anchor="middle" font-family="Georgia,serif" font-size="173" fill="url(#gold)" font-weight="bold">16:3</text>
+<text x="331" y="413" text-anchor="middle" font-family="Arial,sans-serif" font-size="95" fill="#f6edda" font-weight="900" letter-spacing="-6">FAITH</text>
+<text x="331" y="486" text-anchor="middle" font-family="Arial,sans-serif" font-size="27" fill="#d6b34d" letter-spacing="8">READ / REFLECT / LIVE</text>
+<text x="331" y="615" text-anchor="middle" font-family="Georgia,serif" font-size="28" fill="#fff3d4" font-style="italic">THE WORD STILL SPEAKS.</text>
+<path d="M99 81V679" stroke="#f7d969" stroke-width="15" opacity=".2"/>
+</g>
+<g transform="rotate(15 715 780)"><rect x="565" y="676" width="289" height="180" rx="19" fill="#292928" stroke="#e5c461" stroke-width="7"/><rect x="582" y="698" width="258" height="75" rx="8" fill="#d9bd69"/><text x="711" y="724" text-anchor="middle" font-size="19" font-family="Arial,sans-serif" font-weight="bold" fill="#1a1711">SIDE A / SCRIPTURE</text><text x="711" y="748" text-anchor="middle" font-size="14" font-family="Arial,sans-serif" fill="#1a1711" letter-spacing="3">STILL ON REPEAT</text><circle cx="627" cy="807" r="25" fill="#0a0a0a" stroke="#bea349" stroke-width="5"/><circle cx="792" cy="807" r="25" fill="#0a0a0a" stroke="#bea349" stroke-width="5"/><path d="M627 807h165" stroke="#c9b269" stroke-width="9" opacity=".8"/></g>
+<g transform="rotate(13 168 802)"><rect x="49" y="738" width="256" height="73" rx="8" fill="#b22b2e"/><text x="177" y="785" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="26" font-weight="900" letter-spacing="4">NO SKIPS.</text></g>
+<text x="56" y="908" fill="#c9ab57" font-family="Arial,sans-serif" font-size="14" letter-spacing="5">ORIGINAL 16:3 FAITH / READING SESSION</text>
+</svg>
