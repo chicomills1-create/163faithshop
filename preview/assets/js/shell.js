@@ -56,6 +56,26 @@ const Player = {
   stageQueueEl: $('stage-queue'),
   stageQueueLabelEl: $('stage-queue-label'),
   stageQueueRowsEl: $('stage-queue-rows'),
+  npEl: $('nowplaying'),
+  npCoverEl: $('np-cover'),
+  npTitleEl: $('np-title'),
+  npSubEl: $('np-sub'),
+  npProvEl: $('np-prov'),
+  npEndedEl: $('np-ended'),
+  npEndedLineEl: $('np-ended-line'),
+  npSeekEl: $('np-seek'),
+  npElapsedEl: $('np-elapsed'),
+  npTotalEl: $('np-total'),
+  npPlayBtn: $('btn-np-play'),
+  npPrevBtn: $('btn-np-prev'),
+  npNextBtn: $('btn-np-next'),
+  npRepeatBtn: $('btn-np-repeat'),
+  npBackLabelEl: $('np-back-label'),
+  npQueueToggleEl: $('btn-np-queue'),
+  npQueueEl: $('np-queue'),
+  npQueueRowsEl: $('np-queue-rows'),
+  npFilmEl: $('np-film'),
+  npVolumeEl: $('np-volume'),
   engine: null,          // 'yt' | 'audio' | null
   current: null,         // { title, sub, cover, youtubeId? , src? }
   queue: [],             // [{ youtubeId, title, sub, cover }]
@@ -69,6 +89,10 @@ const Player = {
   ended: false,          // G-06: the ended state is a designed place
   buffering: false,      // G-05: loading shows on the play control only
   stageOpen: false,      // G-01: Stage (expanded now-playing) mode
+  npOpen: false,         // Now Playing page (founder directive 2026-11-19)
+  npContext: '',         // the list context the song was picked from
+  npQueueOpen: false,    // queue panel inside the Now Playing page
+  volume: 100,           // 0–100, applied to whichever engine is live
 
   /* ---------- face ---------- */
   emit() { window.dispatchEvent(new CustomEvent('faithplayer', { detail: this.state() })); },
@@ -84,25 +108,33 @@ const Player = {
     this.stageTitleEl.textContent = title;
     this.stageSubEl.textContent = track.sub || '';
     this.stageCoverEl.innerHTML = coverHtml;
+    /* Now Playing face mirrors too: same exact cover, full identity. */
+    this.npTitleEl.textContent = title;
+    this.npSubEl.textContent = track.sub || '';
+    this.npCoverEl.innerHTML = coverHtml;
     /* G-07 provenance: the source fact rides the face. Wording is Faith's
        (full songs, YouTube source) — shown only for the YouTube engine. */
     const prov = this.engine === 'yt' ? 'Full song · YouTube' : '';
     this.provEl.hidden = !prov;
     this.stageProvEl.hidden = !prov;
+    this.npProvEl.hidden = !prov;
     if (prov) this.stageProvEl.textContent = prov;
     this.coverEl.disabled = false;
     this.titleEl.disabled = false;
     this.coverEl.setAttribute('aria-label', `Open now playing: ${title}`);
     this.titleEl.setAttribute('aria-label', `Open now playing: ${title}`);
     this.stageEndedEl.hidden = true;
+    this.npEndedEl.hidden = true;
     this.syncTransport(false);
     this.renderQueue();
+    this.renderNpQueue();
     this.emit();
   },
   setPlayingUI(playing) {
     const glyph = playing ? '⏸' : '▶';
     this.playBtn.textContent = glyph;
     this.play2Btn.textContent = glyph;
+    this.npPlayBtn.textContent = glyph;
     this.syncTransport(playing);
   },
   /* G-05: buffering shows on the play control only — no fake percentages. */
@@ -110,6 +142,7 @@ const Player = {
     this.buffering = !!on;
     this.playBtn.classList.toggle('buffering', this.buffering);
     this.play2Btn.classList.toggle('buffering', this.buffering);
+    this.npPlayBtn.classList.toggle('buffering', this.buffering);
   },
   /* G-04 (no dead controls) + G-08 (accessible names carry the claim):
      prev/next/play/close render only when they can act, and their names
@@ -120,7 +153,7 @@ const Player = {
     const isPlaying = typeof playing === 'boolean' ? playing
       : (this.engine === 'yt' && this.ytReady ? this.yt.getPlayerState() === 1
         : this.engine === 'audio' ? !this.audio.paused : false);
-    for (const b of [this.playBtn, this.play2Btn]) {
+    for (const b of [this.playBtn, this.play2Btn, this.npPlayBtn]) {
       b.hidden = !has;
       b.setAttribute('aria-label', !has ? 'Play'
         : this.ended ? `Replay ${title}`
@@ -132,16 +165,18 @@ const Player = {
     /* Prev is a real control when a previous track exists, or — on the
        YouTube engine — as restart-current (X-2, Spotify parity). */
     const prevOk = has && (prevTitle !== null || this.engine === 'yt');
-    for (const b of [this.prevBtn, this.prev2Btn]) {
+    for (const b of [this.prevBtn, this.prev2Btn, this.npPrevBtn]) {
       b.hidden = !prevOk;
       b.setAttribute('aria-label', prevTitle !== null ? `Previous: ${prevTitle}` : `Restart ${title}`);
     }
-    for (const b of [this.nextBtn, this.next2Btn]) {
+    for (const b of [this.nextBtn, this.next2Btn, this.npNextBtn]) {
       b.hidden = !nextT;
       b.setAttribute('aria-label', nextT ? `Next: ${nextT.title}` : 'Next track');
     }
-    this.repeatBtn.setAttribute('aria-pressed', String(this.repeatOne));
-    this.repeatBtn.classList.toggle('on', this.repeatOne);
+    for (const b of [this.repeatBtn, this.npRepeatBtn]) {
+      b.setAttribute('aria-pressed', String(this.repeatOne));
+      b.classList.toggle('on', this.repeatOne);
+    }
   },
   /* G-02: the visible queue — current track first, then up next, labeled
      from the queue's own source (queueLabel: artist or door today, album
@@ -195,6 +230,100 @@ const Player = {
     this.emit();
   },
 
+  /* ---------- Now Playing page (founder directive 2026-11-19) ----------
+     Picking a song opens this dedicated full-screen view of the SAME
+     engine — no reload, no restart; the hub underneath is untouched, so
+     Back lands on the exact list (position included) the song came
+     from. The scene is ambience: a cinematic concert-crowd film that
+     lazy-loads on first open; reduced motion keeps the poster still. */
+  openNowPlaying(context) {
+    if (!this.current) return;
+    this.npContext = context || this.queueLabel
+      || (this.current.sub ? this.current.sub.split(' · ')[0] : '') || 'Listen';
+    this.npBackLabelEl.textContent = this.npContext;
+    this.npOpen = true;
+    this.npEl.hidden = false;
+    document.body.classList.add('np-open');
+    this.startFilm();
+    this.renderNpQueue();
+    this.emit();
+  },
+  closeNowPlaying() {
+    if (!this.npOpen) return;
+    this.npOpen = false;
+    this.npEl.hidden = true;
+    document.body.classList.remove('np-open');
+    if (this.npFilmEl) this.npFilmEl.pause();
+    this.emit();
+  },
+  startFilm() {
+    const film = this.npFilmEl;
+    if (!film) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!film.getAttribute('src') && film.dataset.src) film.src = film.dataset.src;
+    const p = film.play();
+    if (p && p.catch) p.catch(() => { /* poster stays — ambience only */ });
+  },
+  /* The queue inside the page: same rows, same label duty as the Stage
+     panel (G-02) — "Up next — from <source>"; tapping a row jumps and
+     stays in the page. The toggle names the source even while closed. */
+  renderNpQueue() {
+    const hasQ = this.queue.length > 0 && this.qIndex >= 0;
+    const from = this.queueLabel || (this.current && this.current.sub) || '';
+    this.npQueueToggleEl.hidden = !hasQ;
+    this.npQueueToggleEl.textContent = from ? `Up next — from ${from}` : 'Up next';
+    this.npQueueToggleEl.setAttribute('aria-expanded', String(this.npQueueOpen));
+    const show = this.npOpen && this.npQueueOpen && hasQ;
+    this.npQueueEl.hidden = !show;
+    if (!show) { this.npQueueRowsEl.innerHTML = ''; return; }
+    this.npQueueRowsEl.innerHTML = '';
+    for (let i = this.qIndex; i < this.queue.length; i++) {
+      const t = this.queue[i];
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'trow' + (i === this.qIndex ? ' playing' : '');
+      row.dataset.qindex = String(i);
+      const num = document.createElement('span');
+      num.className = 'tnum'; num.textContent = String(i + 1);
+      const tt = document.createElement('span');
+      tt.className = 'ttitle'; tt.textContent = t.title || 'Untitled';
+      row.append(num, tt);
+      if (t.sub && t.sub !== from) {
+        const sb = document.createElement('span');
+        sb.className = 'tsub'; sb.textContent = t.sub;
+        row.append(sb);
+      }
+      if (i === this.qIndex) {
+        const now = document.createElement('span');
+        now.className = 'tnow'; now.textContent = 'Now playing';
+        row.append(now);
+      }
+      row.addEventListener('click', () => this.playAt(i));
+      this.npQueueRowsEl.append(row);
+    }
+  },
+  /* ±10s skips (the founder's Kairo-page spec): seek within the track's
+     own true length, clamped like every seek here (K8). */
+  skipBy(delta) {
+    if (!this.current) return;
+    const { t, d } = this.position();
+    const target = d > 0 ? Math.max(0, Math.min(t + delta, d)) : Math.max(0, t + delta);
+    this.seekTo(target);
+  },
+  /* Volume: the YouTube iframe API and the <audio> element both take a
+     level; the stored value applies to whichever engine is live and is
+     re-applied on engine ready / track load. */
+  setVolume(v) {
+    this.volume = Math.max(0, Math.min(100, Math.round(v) || 0));
+    if (this.npVolumeEl && +this.npVolumeEl.value !== this.volume) this.npVolumeEl.value = this.volume;
+    this.applyVolume();
+    this.emit();
+  },
+  applyVolume() {
+    if (this.engine === 'yt' && this.ytReady && this.yt.setVolume) this.yt.setVolume(this.volume);
+    if (this.engine === 'audio') this.audio.volume = this.volume / 100;
+  },
+
   /* ---------- YouTube engine ---------- */
   ensureYT() {
     if (this.yt || this._ytLoading) return;
@@ -211,6 +340,7 @@ const Player = {
         events: {
           onReady: () => {
             this.ytReady = true;
+            this.applyVolume();
             if (this.ytPending) { const id = this.ytPending; this.ytPending = null; this._ytLoad(id); }
           },
           onStateChange: (e) => {
@@ -238,6 +368,7 @@ const Player = {
     this.queue = []; this.qIndex = -1;
     this.ended = false;
     this.stageEndedEl.hidden = true;
+    this.npEndedEl.hidden = true;
     if (this.current && this.subEl.textContent === 'Ended') this.subEl.textContent = this.current.sub || '';
     if (!this.current || this.current.src !== track.src) {
       this.audio.src = track.src;
@@ -245,13 +376,19 @@ const Player = {
     }
     this.syncTransport();
     this.renderQueue();
+    this.renderNpQueue();
+    this.applyVolume();
     this.audio.play();
+    this.openNowPlaying(track.sub || 'Listen');
   },
   playQueue(tracks, index = 0, label = '') {
     if (!tracks || !tracks.length) return;
     this.queue = tracks.slice();
     this.queueLabel = label || '';
     this.playAt(index);
+    /* Founder directive: picking a song opens the Now Playing page,
+       labeled with the list it was picked from. */
+    this.openNowPlaying(label);
   },
   playAt(i) {
     if (i < 0 || i >= this.queue.length) return;
@@ -265,6 +402,7 @@ const Player = {
       cover: t.cover || null,
     });
     this._ytLoad(t.youtubeId);
+    this.applyVolume();
     this.emit();
   },
   toggle() {
@@ -311,7 +449,9 @@ const Player = {
     this.subEl.textContent = nextT ? `Ended — next: ${nextT.title}` : 'Ended';
     this.stageEndedLineEl.textContent = nextT
       ? `“${title}” ended — next: ${nextT.title}` : `“${title}” ended`;
+    this.npEndedLineEl.textContent = this.stageEndedLineEl.textContent;
     this.stageEndedEl.hidden = false;
+    this.npEndedEl.hidden = false;
     this.syncTransport(false);
     this.emit();
   },
@@ -319,6 +459,7 @@ const Player = {
     if (!this.current) return;
     this.ended = false;
     this.stageEndedEl.hidden = true;
+    this.npEndedEl.hidden = true;
     this.subEl.textContent = this.current.sub || '';
     if (this.engine === 'yt' && this.qIndex >= 0) { this.playAt(this.qIndex); return; }
     if (this.engine === 'yt' && this.current.youtubeId) {
@@ -336,23 +477,32 @@ const Player = {
     this.repeatOne = false; this.ended = false;
     this.setBuffering(false);
     this.closeStage();
+    this.closeNowPlaying();
+    this.npQueueOpen = false;
     this.titleEl.textContent = 'Nothing playing';
     this.subEl.textContent = 'Pick a song in the Listen hub';
     this.coverEl.innerHTML = '<span>16:3</span>';
     this.stageTitleEl.textContent = 'Nothing playing';
     this.stageSubEl.textContent = '';
     this.stageCoverEl.innerHTML = '<span>16:3</span>';
+    this.npTitleEl.textContent = 'Nothing playing';
+    this.npSubEl.textContent = '';
+    this.npCoverEl.innerHTML = '<span>16:3</span>';
     this.provEl.hidden = true;
     this.stageProvEl.hidden = true;
+    this.npProvEl.hidden = true;
     this.stageEndedEl.hidden = true;
+    this.npEndedEl.hidden = true;
     this.coverEl.disabled = true;
     this.titleEl.disabled = true;
-    for (const el of [this.seekEl, this.stageSeekEl]) { el.value = 0; el.disabled = true; }
+    for (const el of [this.seekEl, this.stageSeekEl, this.npSeekEl]) { el.value = 0; el.disabled = true; }
     this.elapsedEl.textContent = '0:00'; this.totalEl.textContent = '';
     this.stageElapsedEl.textContent = '0:00'; this.stageTotalEl.textContent = '';
+    this.npElapsedEl.textContent = '0:00'; this.npTotalEl.textContent = '';
     this.setPlayingUI(false);
     this.syncTransport(false);
     this.renderQueue();
+    this.renderNpQueue();
     this.emit();
   },
   position() {
@@ -375,6 +525,7 @@ const Player = {
       ytState: this.engine === 'yt' && this.ytReady ? this.yt.getPlayerState() : null,
       repeatOne: this.repeatOne, ended: this.ended,
       buffering: this.buffering, stageOpen: this.stageOpen,
+      npOpen: this.npOpen, npContext: this.npContext, volume: this.volume,
     };
   },
 };
@@ -397,11 +548,30 @@ $('player-cover').addEventListener('click', () => Player.openStage());
 $('player-title').addEventListener('click', () => Player.openStage());
 $('btn-stage-collapse').addEventListener('click', () => Player.closeStage());
 $('stage-backdrop').addEventListener('click', () => Player.closeStage());
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && Player.stageOpen) Player.closeStage(); });
-/* Seek wiring, both faces. G-09: a seek control is only live once the
-   engine reports a real duration — until then the row shows elapsed
+/* Now Playing page controls — same engine, same transport functions. */
+$('btn-np-play').addEventListener('click', () => Player.toggle());
+$('btn-np-next').addEventListener('click', () => Player.next());
+$('btn-np-prev').addEventListener('click', () => Player.prev());
+$('btn-np-repeat').addEventListener('click', () => Player.toggleRepeat());
+$('btn-np-replay').addEventListener('click', () => Player.replay());
+$('btn-np-back10').addEventListener('click', () => Player.skipBy(-10));
+$('btn-np-fwd10').addEventListener('click', () => Player.skipBy(10));
+$('btn-np-back').addEventListener('click', () => Player.closeNowPlaying());
+$('np-volume').addEventListener('input', (e) => Player.setVolume(+e.target.value));
+$('btn-np-queue').addEventListener('click', () => {
+  Player.npQueueOpen = !Player.npQueueOpen;
+  Player.renderNpQueue();
+});
+$('np-film').addEventListener('playing', () => $('nowplaying').classList.add('film-on'));
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (Player.npOpen) Player.closeNowPlaying();
+  else if (Player.stageOpen) Player.closeStage();
+});
+/* Seek wiring, all three faces. G-09: a seek control is only live once
+   the engine reports a real duration — until then the row shows elapsed
    only and offers no false total. */
-for (const el of [Player.seekEl, Player.stageSeekEl]) {
+for (const el of [Player.seekEl, Player.stageSeekEl, Player.npSeekEl]) {
   el.addEventListener('input', () => {
     const { d } = Player.position();
     if (d > 0) Player.seekTo((el.value / 1000) * d);
@@ -416,8 +586,9 @@ setInterval(() => {
   const elapsed = fmt(t);
   Player.elapsedEl.textContent = elapsed;
   Player.stageElapsedEl.textContent = elapsed;
+  Player.npElapsedEl.textContent = elapsed;
   const known = d > 0;
-  for (const [seek, total] of [[Player.seekEl, Player.totalEl], [Player.stageSeekEl, Player.stageTotalEl]]) {
+  for (const [seek, total] of [[Player.seekEl, Player.totalEl], [Player.stageSeekEl, Player.stageTotalEl], [Player.npSeekEl, Player.npTotalEl]]) {
     total.textContent = known ? fmt(d) : '';
     seek.disabled = !known;
     seek.classList.toggle('seek-static', !known);
