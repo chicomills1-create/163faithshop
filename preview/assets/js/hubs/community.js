@@ -20,7 +20,7 @@ const PAGE = 10;
 const HOUSE_ID = 'official_163faith';
 
 const CSS = `
-#hub-root:has(> .bk){max-width:1460px}
+#hub-root:has(.bk){max-width:1460px}
 .bk{--gold:#f3c34b;--gold2:#b48a26;--cream:#f8f4e7;--mut:#a6a097;--dim:#8a8474;--red:#ec5042;--surf:#151514;--surf2:#1d1c19;--line:#37322a;color:var(--cream);font-size:15px}
 .bk *{box-sizing:border-box}
 .bk h1,.bk h2,.bk h3{margin:0}
@@ -861,7 +861,7 @@ function paint() {
     const t0 = n.dataset.t0 != null ? performance.now() : null;
     S.view = n.dataset.view; S.gateOpen = false;
     paint();
-    if (t0 != null) S.root.dataset.doorMs = String(Math.round((performance.now() - t0) * 10) / 10);
+    if (t0 != null) { const ms = String(Math.round((performance.now() - t0) * 10) / 10); S.root.dataset.doorMs = ms; const hr = S.root.closest('#hub-root'); if (hr && hr !== S.root) hr.dataset.doorMs = ms; }
   }));
   S.root.querySelectorAll('[data-hubgo]').forEach((n) => n.addEventListener('click', () => goHub(n.dataset.hubgo)));
   main.querySelectorAll('[data-story="yours"]').forEach((n) => n.addEventListener('click', () => {
