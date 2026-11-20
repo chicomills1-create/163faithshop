@@ -44,7 +44,7 @@
    Auth signal: window.Clerk.user only (the shell's F-CLERK leg mounts the
    real Clerk instance later) — the same signal PRAY uses. */
 
-const API = 'https://faith-hub-api.onrender.com';
+const API = 'https://faith-hub-api-railway-production.up.railway.app';
 const PARTNER_MONTHLY = '$16.30';
 const PRESETS = [5, 10, 25, 50, 100]; // dollars — all inside the evidenced $1–$1,000 schema range
 

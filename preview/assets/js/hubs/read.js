@@ -20,7 +20,7 @@
    #31 Continue Reading tracks the reader's real position (production
    localStorage key 163_bible_reading_context); #52 /books → the one book. */
 
-const API = 'https://faith-hub-api.onrender.com';
+const API = 'https://faith-hub-api-railway-production.up.railway.app';
 const DATA = 'assets/data/read/';
 const LS_POS = '163_bible_reading_context';
 const LS_DONE = '163-devotional-completions';
@@ -255,7 +255,7 @@ async function showChapter(root, bookNr, chapter, focusVerse = null) {
   try { loaded = await loadChapter(bookNr, chapter); }
   catch (err) {
     if (seq !== S.mountSeq) return;
-    mount(root, shellHTML(`<div class="rd-bar"><button class="rd-btn" data-act="books">← All books</button></div><div class="rd-err" data-testid="chapter-error">${esc(err.message)}<br><span class="rd-note">The reader's live route is the production API (GET /api/bible/KJV/${bookNr}/${chapter}); it answers from any network that can reach faith-hub-api.onrender.com.</span></div>`));
+    mount(root, shellHTML(`<div class="rd-bar"><button class="rd-btn" data-act="books">← All books</button></div><div class="rd-err" data-testid="chapter-error">${esc(err.message)}<br><span class="rd-note">The reader's live route is the production API (GET /api/bible/KJV/${bookNr}/${chapter}); it answers from any network that can reach faith-hub-api-railway-production.up.railway.app.</span></div>`));
     root.querySelector('[data-act="books"]').addEventListener('click', () => showBible(root));
     return;
   }
