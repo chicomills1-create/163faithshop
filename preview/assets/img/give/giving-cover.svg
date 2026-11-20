@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1080" viewBox="0 0 1000 1080" role="img" aria-labelledby="title desc">
+<title id="title">Sow It Forward — 16:3 Faith mixtape cover</title>
+<desc id="desc">An original illustrated black, gold and rust-red street-art mixtape cover featuring city buildings, shining hands, light, and a growing flower.</desc>
+<defs>
+ <radialGradient id="halo"><stop stop-color="#d8aa48" stop-opacity=".62"/><stop offset=".4" stop-color="#8d6227" stop-opacity=".18"/><stop offset="1" stop-color="#080807" stop-opacity="0"/></radialGradient>
+ <linearGradient id="back" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#292016"/><stop offset=".4" stop-color="#0a0a09"/><stop offset=".8" stop-color="#171209"/><stop offset="1" stop-color="#080807"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0ae"/><stop offset=".45" stop-color="#ddb94b"/><stop offset=".87" stop-color="#936517"/><stop offset="1" stop-color="#f0cd67"/></linearGradient>
+ <linearGradient id="hands"><stop stop-color="#d5aa65"/><stop offset=".44" stop-color="#a5773f"/><stop offset="1" stop-color="#533419"/></linearGradient>
+ <filter id="blur"><feGaussianBlur stdDeviation="15"/></filter>
+ <filter id="textShadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity=".8"/></filter>
+ <pattern id="grain" width="38" height="38" patternUnits="userSpaceOnUse"><circle cx="7" cy="19" r="1" fill="#ffd58a" opacity=".22"/><circle cx="26" cy="32" r=".8" fill="#fff" opacity=".17"/><path d="M14 0v7" stroke="#fff" stroke-width=".3" opacity=".1"/></pattern>
+</defs>
+<rect width="1000" height="1080" rx="18" fill="url(#back)"/>
+<rect width="1000" height="1080" fill="url(#grain)"/>
+<path d="M0 820H1000v260H0" fill="#070706"/>
+<g fill="#211b14" stroke="#57421d" stroke-width="2" opacity=".9">
+ <path d="M0 500h95v-94h45v94h51v-196h83v196h29v-122h85v122h36v-230h52v230h61v-163h88v163h33v-112h76v112h48v-250h66v250h47v-90h52v90h70v580H0z"/>
+</g>
+<path d="M0 690L1000 640" stroke="#b78634" stroke-width="2" opacity=".24"/>
+<circle cx="520" cy="482" r="370" fill="url(#halo)"/>
+<circle cx="520" cy="482" r="270" fill="none" stroke="#d5a34e" stroke-opacity=".13" stroke-width="1"/>
+<circle cx="520" cy="482" r="227" fill="none" stroke="#bd872c" stroke-opacity=".2" stroke-width="2" stroke-dasharray="3 10"/>
+<g opacity=".25" stroke="#f2cc7d" stroke-width="2">
+ <path d="M520 120v126M520 710v125M160 482h134M742 482h135M263 226l94 95M704 644l96 91M255 748l98-100M704 318l93-96"/>
+</g>
+<!-- Glowing seed and shoot -->
+<path d="M506 648q-12-98 5-215" stroke="#e6d380" stroke-width="13" stroke-linecap="round" fill="none"/>
+<path d="M511 532q-102-130-159-78 19 96 159 78Z" fill="#c1a445" stroke="#f5d979" stroke-width="5"/>
+<path d="M510 488q59-142 164-120-12 117-164 120Z" fill="#8b9b41" stroke="#e4c365" stroke-width="5"/>
+<circle cx="513" cy="389" r="52" fill="#ffda80" opacity=".38" filter="url(#blur)"/>
+<g fill="url(#gold)" stroke="#f4da88" stroke-width="3"><circle cx="514" cy="380" r="15"/><path d="M511 379q-61-75-13-101 44 6 13 101Z"/><path d="M512 379q30-92 82-67 11 46-82 67Z"/><path d="M511 380q-81 19-72 77 56 19 72-77Z"/></g>
+<!-- Open hands, intentionally illustrative -->
+<path d="M0 810c101-46 199-82 270-96 68-13 98 13 151 41 42 24 107 29 133 7 52-44 102-84 134-103 33-19 61-10 66 9 3 18-10 35-35 54l-100 87 112-62c60-30 97-25 114-7 12 12 2 33-14 46l-158 113c-32 23-73 31-122 41l-181 41H0Z" fill="url(#hands)" stroke="#cba15b" stroke-width="8"/>
+<path d="M1000 808c-93-41-169-66-249-74-72-9-106 15-165 54-42 28-117 32-147 15-35-19-59-36-87-46-36-15-65-7-74 17-9 23 9 39 34 55l134 77-127-33c-73-18-115-8-124 15-7 17 12 33 36 43l174 71c59 23 151 26 215 36l380 42Z" fill="#684221" stroke="#bd8c4c" stroke-width="8"/>
+<path d="M210 781q101-30 210 35m330-44q-80-2-160 43" stroke="#f3c680" opacity=".22" stroke-width="10" fill="none"/>
+<rect x="25" y="24" width="950" height="1032" fill="none" stroke="#efbf61" stroke-opacity=".55" stroke-width="3"/>
+<path d="M31 31h190M779 31h190M31 1046h190M779 1046h190" stroke="#a21a19" stroke-width="9"/>
+<text x="54" y="89" font-family="Arial, Helvetica, sans-serif" font-weight="900" fill="#f7e4aa" font-size="38" letter-spacing="6">16:3 FAITH</text>
+<text x="55" y="123" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#bca36d" font-size="15" letter-spacing="6">THE GIVING SESSIONS</text>
+<g filter="url(#textShadow)"><text x="55" y="956" font-family="Arial, Helvetica, sans-serif" font-weight="900" fill="#f8ebd5" font-size="108" letter-spacing="-4">SOW IT</text><text x="54" y="1041" font-family="Arial, Helvetica, sans-serif" font-weight="900" fill="url(#gold)" font-size="102" letter-spacing="-5">FORWARD.</text></g>
+<g transform="translate(790 62) rotate(10)"><rect x="0" y="0" rx="4" width="142" height="76" fill="#991f18"/><text x="71" y="32" text-anchor="middle" font-family="Arial" font-size="13" fill="#f9e5cf" font-weight="900" letter-spacing="1">SIDE A</text><text x="71" y="58" text-anchor="middle" font-family="Arial" font-size="21" fill="#fff" font-weight="900">01 / 16:3</text></g>
+</svg>
