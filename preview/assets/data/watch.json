@@ -1,7 +1,7 @@
 {
  "generatedAt": "2026-11-19T18:27:37.143Z",
  "provenance": "Baked snapshot of the production cinema catalog (faith-hub-api /api/sanctuary/cinema-hub), assembled from the catalog's own production source records — archive-films.ts (verbatim), jfp.ts VERIFIED_CINEMA_METADATA (cured 2026-11-16), SPEC §3.1 / census #1+#25 verified entries. The hub attempts a live fetch of the endpoint first at runtime and replaces this snapshot when it answers; see records/HUB-WATCH-RECORD.md for the route evidence.",
- "apiBase": "https://faith-hub-api.onrender.com",
+ "apiBase": "https://faith-hub-api-railway-production.up.railway.app",
  "cinemaHubPath": "/api/sanctuary/cinema-hub?lang=en",
  "heroId": "the-chosen",
  "featuredIds": [
