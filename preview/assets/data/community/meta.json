@@ -19,15 +19,23 @@
    "testimonyPostsPublished": 182,
    "commentsTotal": 775,
    "commentsPublished": 765
+  },
+  "livePulse20261119": {
+   "members": 126,
+   "testimonies": 50,
+   "prayerRequests": 84,
+   "prayersLifted": 21,
+   "newMembersThisWeek": 1,
+   "source": "LIVE GET /api/community/pulse, 2026-11-19 ~18:45 MST (Faithbook F-COMMUNITY leg) — prayersLifted moved 19 -> 21 since the 2026-11-17/18 census render; pulse is the production counter source (PRAY hub's one-source rule). The hub renders live pulse when the API answers, census counters otherwise."
   }
  },
  "flags": {
-  "prayers": "UNPROVEN",
-  "messages": "UNPROVEN",
-  "conversations": "UNPROVEN",
-  "groups": "UNPROVEN",
-  "prayer_chain_links": "UNPROVEN",
-  "lastKnown": "All five disabled 2026-10-10 with reason \"Data restoration pending\" (BATCH1-EVIDENCE-REPORT, Item 7). No later record reads their state."
+  "prayers": "READ SURFACE LIVE — GET /api/community/posts?type=prayer serves real prayer posts to guests (live read 2026-11-19). The flag's stored value is not exposed on any guest route, so the flag itself remains a direct-read UNPROVEN; the surface it gates demonstrably serves.",
+  "messages": "UNPROVEN — routes exist; guest reads return 401 {\"error\":\"Please sign in.\"} (live read 2026-11-19). Sign-in enforcement is proven; the flag's stored value is not guest-readable.",
+  "conversations": "UNPROVEN — GET /api/community/conversations as guest returns 401 \"Please sign in.\" (live read 2026-11-19). Same posture as messages.",
+  "groups": "READ SURFACE LIVE — GET /api/community/groups serves 7 real named public groups to guests (live read 2026-11-19; payload baked in groups.json). The flag's stored value is not guest-readable; the surface it gates demonstrably serves.",
+  "prayer_chain_links": "UNPROVEN — no guest-readable surface for this feature was found in the live reads of 2026-11-19; no record reads its rows.",
+  "lastKnown": "All five disabled 2026-10-10 with reason \"Data restoration pending\" (BATCH1-EVIDENCE-REPORT, Item 7); API-level 503 enforcement was deferred at creation (chatgpt-5min-updates 2026-10-10) — the flags gated UI empty states, which is consistent with read surfaces serving today. First live reads since 2026-10-26 landed 2026-11-19 (Faithbook F-COMMUNITY leg, this file's sibling record FAITHBOOK-RECORD-2026-11-19.md)."
  },
  "house": [
   {
@@ -44,12 +52,13 @@
    "bio": "The official account of 16:3 Faith. Every day we share the devotional and verse from 163faith.com — real, honest words for the walk.",
    "avatar": "https://faith-hub-api.onrender.com/images/community/ministry-avatar.webp",
    "followerCount": 86,
-   "postCount": 99,
-   "source": "Production /api/community/pages capture, 2026-10-21/22"
+   "postCount": 141,
+   "source": "Production /api/community/pages capture, 2026-10-21/22",
+   "postCountSource": "LIVE GET /api/community/pages, 2026-11-19 (was 99 in the 2026-10-21/22 capture — the ministry posts daily)"
   }
  ],
  "groups": {
-  "state": "UNPROVEN flag; guest API returned an empty list for signed-out visitors in two captures (2026-10-21/22); rendered walks counted 7 starter groups (2026-11-15 Leg-5, 2026-11-17). Group names/counts are not in verified records (the 2026-10-22 interim names were formally withdrawn), so none are listed.",
+  "state": "LIVE read surface — 7 public groups serve to guests (live read 2026-11-19). Names ARE in verified records now (this live read supersedes the withdrawn 2026-10-22 interim names): Women of Faith · Men of Faith · Testimonies & Encouragement · New to the Faith · Worship & New Music · Bible Study & Discussion · Prayer Warriors — each memberCount 1, owner official_163faith. Full verbatim payload: groups.json.",
   "starterCount": 7
  }
 }
