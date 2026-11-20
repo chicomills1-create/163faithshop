@@ -284,7 +284,7 @@ const S = {
   view: 'doors', root: null, navigate: null,
   mode: 'snapshot',            // 'live' once the API answers from this browser
   posts: [], testimonies: [], groups: [], members: [], bakedMembers: [],
-  counters: null, loaded: false, feedPage: 1, feedTotal: null, feedBusy: false,
+  counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false,
   feedFilter: 'all', feedShown: PAGE,
   composeType: 'post', gateOpen: false,
   profileId: null, profileCache: new Map(),
@@ -347,9 +347,13 @@ function normalizePost(p) {
 const rxTotal = (p) => Object.values(p.reactionCounts || {}).reduce((a, b) => a + (b || 0), 0);
 
 /* Cure helpers (2026-11-19 live-walk cures):
-   uniqPosts — the posts API paginates by offset, not by the page param the
-   loader sends, so the three page fetches can return the same page three
-   times; every ingestion point dedupes by post id (first occurrence wins).
+   uniqPosts — the posts API paginates by a server cursor (offset =
+   nextOffset, hasMore), NOT by the page param the loader used to send
+   (page=2 returned slice 1 byte-identical, proven on the live API
+   2026-11-19). The cursor windows shift between requests as the wall
+   moves, so slices can overlap (0–10 ids per slice in the live walk of
+   the chain); every ingestion point dedupes by post id (first
+   occurrence wins) and merges guard against already-held ids.
    normName — canonical person key: the same member can stand in the data
    under more than one account id (split accounts across the capture's
    sources); directory + profile matching merge on the normalized name.
@@ -395,6 +399,21 @@ const profCountsHtml = (prof, fallbackHtml) => {
   return cells ? `<div class="bk-profcounts">${cells}</div>` : (fallbackHtml || '');
 };
 
+/* Merge one live posts slice into the held wall: normalize, dedupe
+   within the slice, drop ids already held (cursor windows shift and
+   overlap), append in API order. Returns the number of new posts. */
+function mergeLiveSlice(j) {
+  const seenIds = new Set([...S.posts, ...S.testimonies].map((p) => p.id));
+  const fresh = uniqPosts((j.posts || []).map(normalizePost)).filter((p) => !seenIds.has(p.id));
+  if (fresh.length) {
+    S.posts.push(...fresh.filter((p) => p.type !== 'testimony'));
+    S.testimonies.push(...fresh.filter((p) => p.type === 'testimony'));
+  }
+  S.feedTotal = S.posts.length + S.testimonies.length;
+  return fresh.length;
+}
+function repaintHub() { if (S.root && S.view !== 'profile') paint(); }
+
 /* Live-first load: guest feed pages + testimonies + prayers + groups +
    member search index, all from the community API. Any failure keeps the
    baked capture (labeled as such in the UI). */
@@ -415,14 +434,18 @@ async function loadLive() {
     S.loaded = true; // real data backs the door counts from here on
   } catch { /* baked data unavailable: live leg below still runs */ }
   try {
-    const pages = await Promise.all([1, 2, 3].map((n) => fetchJson(`${API_BASE}/api/community/posts?page=${n}&limit=25`)));
-    const live = uniqPosts(pages.flatMap((j) => (j.posts || []).map(normalizePost)));
+    const first = await fetchJson(`${API_BASE}/api/community/posts?limit=25`);
+    const live = uniqPosts((first.posts || []).map(normalizePost));
     if (live.length) {
       S.posts = live.filter((p) => p.type !== 'testimony');
       const liveTest = live.filter((p) => p.type === 'testimony');
       if (liveTest.length) S.testimonies = liveTest;
-      S.feedTotal = pages[0].total ?? null; S.mode = 'live';
+      S.feedNextOffset = first.nextOffset ?? null;
+      S.feedHasMore = !!first.hasMore && S.feedNextOffset != null;
+      S.feedTotal = S.posts.length + S.testimonies.length;
+      S.mode = 'live';
       S.loaded = true;
+      repaintHub();
     }
     const [pulse, groups] = await Promise.all([
       fetchJson(`${API_BASE}/api/community/pulse`).catch(() => null),
@@ -431,6 +454,33 @@ async function loadLive() {
     if (pulse) S.counters = { members: pulse.members, testimonies: pulse.testimonies, prayerRequests: pulse.prayerRequests, prayersLifted: pulse.prayersLifted };
     if (groups?.groups?.length) { S.groups = groups.groups; S.loaded = true; }
     S.members = buildDirectory();
+    /* Offset chain (2026-11-19 feed-count cure): the first slice is only
+       the head of the wall — the API serves the rest through the
+       nextOffset cursor (chain walked live 2026-11-19: 10 slices, 184+
+       unique posts, hasMore still true). Follow it to hasMore=false so
+       the wall carries the full live set and the Feed door's POSTS
+       CARRIED equals what the wall holds and can render at every
+       settled paint. A failed slice stops the chain with the cursor
+       standing — LOAD MORE resumes from it (loadMoreLive). The old
+       loader's three ?page= fetches were dead weight: the API ignores
+       the page param (page=2 returned slice 1 byte-identical) and its
+       response carries no total field, which had feedTotal pinned at
+       null and LOAD MORE permanently guarded off — the wall capped at
+       slice 1 (25 carried on the door, 19 renderable on the timeline,
+       the split being the slice's 6 testimonies) while claiming
+       "YOU'RE ALL CAUGHT UP." */
+    let chainGuard = 0;
+    while (S.mode === 'live' && S.feedHasMore && S.feedNextOffset != null && chainGuard++ < 40) {
+      const cursor = S.feedNextOffset;
+      let j;
+      try { j = await fetchJson(`${API_BASE}/api/community/posts?limit=25&offset=${cursor}`, 15000); }
+      catch { break; }
+      mergeLiveSlice(j);
+      S.feedNextOffset = j.nextOffset ?? null;
+      S.feedHasMore = !!j.hasMore && S.feedNextOffset != null && S.feedNextOffset !== cursor;
+      S.members = buildDirectory();
+      repaintHub();
+    }
   } catch { /* snapshot mode stands, labeled in the UI */ }
 }
 
@@ -650,8 +700,8 @@ function viewFeed() {
     <div data-feedlist>${shown.map((p) => postCard(p)).join('') || (S.loaded
       ? '<div class="bk-ctx"><h3>Quiet in here.</h3><p>No posts of this kind are in the carried wall. The other doors hold the rest of the family.</p></div>'
       : '<div class="bk-ctx"><h3>Loading the wall…</h3><p>The family\'s posts are on their way — an unloaded wall never reads as an empty one.</p></div>')}</div>
-    ${list.length > S.feedShown
-      ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE · ${list.length - S.feedShown} MORE</button>`
+    ${list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
+      ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}</button>`
       : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : '')}
   </section>`;
 }
@@ -826,7 +876,7 @@ function paint() {
   main.querySelectorAll('[data-feedfilter]').forEach((n) => n.addEventListener('click', () => { S.feedFilter = n.dataset.feedfilter; S.feedShown = PAGE; paint(); }));
   main.querySelectorAll('[data-loadmore]').forEach((n) => n.addEventListener('click', () => {
     S.feedShown += PAGE; paint();
-    if (S.feedFilter === 'all' && S.mode === 'live') loadMoreLive();
+    if (S.mode === 'live') loadMoreLive();
   }));
   main.querySelectorAll('[data-joingate]').forEach((n) => n.addEventListener('click', () => {
     const panel = n.parentElement.querySelector('[data-joingatepanel]'); if (panel) panel.classList.toggle('open');
@@ -842,21 +892,24 @@ function paint() {
   });
   wirePosts(main);
 }
+/* LOAD MORE's live leg (2026-11-19 feed-count cure): fetch the next
+   slice at the standing cursor. This is the resume path for a chain
+   that stalled on a failed slice during loadLive — the cursor and
+   feedHasMore survive the stall, so a tap picks the wall up exactly
+   where it stopped. One slice per tap; the merge dedupes against
+   everything already held. */
 async function loadMoreLive() {
-  if (S.feedBusy || S.feedTotal == null || S.posts.length + S.testimonies.length >= S.feedTotal) return;
+  if (S.feedBusy || S.mode !== 'live' || !S.feedHasMore || S.feedNextOffset == null) return;
   S.feedBusy = true;
+  const cursor = S.feedNextOffset;
   try {
-    const next = Math.floor((S.posts.length + S.testimonies.length) / 25) + 1;
-    const j = await fetchJson(`${API_BASE}/api/community/posts?page=${next}&limit=25`);
-    const seenIds = new Set([...S.posts, ...S.testimonies].map((p) => p.id));
-    const fresh = uniqPosts((j.posts || []).map(normalizePost)).filter((p) => !seenIds.has(p.id));
-    if (fresh.length) {
-      S.posts.push(...fresh.filter((p) => p.type !== 'testimony'));
-      S.testimonies.push(...fresh.filter((p) => p.type === 'testimony'));
-      S.members = buildDirectory();
-      if (S.view === 'feed') paint();
-    }
-  } catch { /* the wall keeps what it has */ }
+    const j = await fetchJson(`${API_BASE}/api/community/posts?limit=25&offset=${cursor}`, 15000);
+    mergeLiveSlice(j);
+    S.feedNextOffset = j.nextOffset ?? null;
+    S.feedHasMore = !!j.hasMore && S.feedNextOffset != null && S.feedNextOffset !== cursor;
+    S.members = buildDirectory();
+    if (S.view === 'feed') paint();
+  } catch { /* the wall keeps what it has; the cursor stands for the next tap */ }
   S.feedBusy = false;
 }
 
