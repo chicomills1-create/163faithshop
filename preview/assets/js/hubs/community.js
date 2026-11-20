@@ -343,6 +343,55 @@ function normalizePost(p) {
 }
 const rxTotal = (p) => Object.values(p.reactionCounts || {}).reduce((a, b) => a + (b || 0), 0);
 
+/* Cure helpers (2026-11-19 live-walk cures):
+   uniqPosts — the posts API paginates by offset, not by the page param the
+   loader sends, so the three page fetches can return the same page three
+   times; every ingestion point dedupes by post id (first occurrence wins).
+   normName — canonical person key: the same member can stand in the data
+   under more than one account id (split accounts across the capture's
+   sources); directory + profile matching merge on the normalized name.
+   normalizeProfile — the profile payload is Facebook-shaped: the profile
+   object carries avatar/cover, while postCount/followerCount/friendCount
+   and the posts array are TOP-LEVEL siblings of it. Reading them off the
+   profile object rendered literal "undefined" counts and hid the posts. */
+const uniqPosts = (arr) => { const seen = new Set(); return arr.filter((p) => { if (!p || p.id == null) return true; if (seen.has(p.id)) return false; seen.add(p.id); return true; }); };
+const normName = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+const numOrNull = (v) => { const n = typeof v === 'string' && v.trim() !== '' ? Number(v) : v; return typeof n === 'number' && isFinite(n) ? n : null; };
+const absMedia = (u) => (u && u.startsWith('/') ? API_BASE + u : (u ?? null));
+function normalizeProfile(j) {
+  const p = j?.profile || null;
+  if (!p) return null;
+  return {
+    ...p,
+    avatarUrl: absMedia(p.avatarUrl ?? p.avatar ?? null),
+    coverUrl: absMedia(p.coverUrl ?? p.cover ?? null),
+    postCount: numOrNull(j.postCount), followerCount: numOrNull(j.followerCount), friendCount: numOrNull(j.friendCount),
+    posts: Array.isArray(j.posts) ? j.posts : null,
+  };
+}
+/* Every account id that belongs to the same person as `id` (split-account
+   merge): ids sharing the member's normalized display name across the
+   baked directory and the carried posts' authors. */
+function personIds(id) {
+  const ids = new Set([id]);
+  const self = (S.bakedMembers || []).find((m) => m.id === id);
+  const nm = normName(self?.name || [...S.posts, ...S.testimonies].find((p) => p.authorId === id)?.authorName || '');
+  if (nm) {
+    for (const m of S.bakedMembers || []) if (m.id && normName(m.name) === nm) ids.add(m.id);
+    for (const p of [...S.posts, ...S.testimonies]) if (p.authorId && normName(p.authorName) === nm) ids.add(p.authorId);
+  }
+  return ids;
+}
+/* Profile counts: a count renders only when the payload actually carries
+   it as a number — absent renders as absent, never "undefined", never
+   invented. Falls back to the carried-pages line when no counts exist. */
+const profCountsHtml = (prof, fallbackHtml) => {
+  const cells = [['POSTS', prof?.postCount], ['FOLLOWERS', prof?.followerCount], ['FRIENDS', prof?.friendCount]]
+    .filter(([, v]) => Number.isFinite(v))
+    .map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  return cells ? `<div class="bk-profcounts">${cells}</div>` : (fallbackHtml || '');
+};
+
 /* Live-first load: guest feed pages + testimonies + prayers + groups +
    member search index, all from the community API. Any failure keeps the
    baked capture (labeled as such in the UI). */
@@ -353,7 +402,7 @@ async function loadLive() {
     const [bakedFeed, bakedMembers, bakedMeta, bakedGroups] = await Promise.all([
       fetchBaked('feed.json'), fetchBaked('members.json'), fetchBaked('meta.json'), fetchBaked('groups.json').catch(() => null),
     ]);
-    const b = bakedFeed.posts.map(normalizePost);
+    const b = uniqPosts(bakedFeed.posts.map(normalizePost));
     S.posts = b.filter((p) => p.type !== 'testimony');
     S.testimonies = b.filter((p) => p.type === 'testimony');
     S.bakedMembers = bakedMembers.members || [];
@@ -363,7 +412,7 @@ async function loadLive() {
   } catch { /* baked data unavailable: live leg below still runs */ }
   try {
     const pages = await Promise.all([1, 2, 3].map((n) => fetchJson(`${API_BASE}/api/community/posts?page=${n}&limit=25`)));
-    const live = pages.flatMap((j) => (j.posts || []).map(normalizePost));
+    const live = uniqPosts(pages.flatMap((j) => (j.posts || []).map(normalizePost)));
     if (live.length) {
       S.posts = live.filter((p) => p.type !== 'testimony');
       const liveTest = live.filter((p) => p.type === 'testimony');
@@ -392,7 +441,44 @@ function buildDirectory() {
     cur.location = cur.location || p.authorLocation; cur.postsInPull = counts.get(p.authorId) || 0;
     byId.set(p.authorId, cur);
   }
-  return [...byId.values()].sort((a, b2) => (b2.postsInPull || b2.posts || 0) - (a.postsInPull || a.posts || 0) || String(a.name).localeCompare(String(b2.name)));
+  /* Canonical-identity merge (2026-11-19 cure): the same person can stand
+     in the data under more than one account id — Chico M. and Julie P.
+     each arrived under two ids, one per source the directory merges — and
+     keying on id alone listed them twice. One person = one card: entries
+     sharing a normalized display name merge into the entry with the most
+     recent activity (their current account; for Chico M. that is the
+     founder's own profile), with counts aggregated across all their ids
+     and the merged id set kept on the card for profile matching. */
+  const byName = new Map();
+  for (const e of byId.values()) {
+    const k = normName(e.name) || e.key;
+    if (!byName.has(k)) byName.set(k, []);
+    byName.get(k).push(e);
+  }
+  const people = [];
+  for (const group of byName.values()) {
+    if (group.length === 1) { people.push(group[0]); continue; }
+    const ranked = [...group].sort((a, b) =>
+      String(b.latestAt || '').localeCompare(String(a.latestAt || '')) ||
+      (b.posts || 0) - (a.posts || 0) ||
+      (b.verified ? 1 : 0) - (a.verified ? 1 : 0));
+    const head = ranked[0];
+    const merged = { ...head };
+    merged.ids = ranked.map((e) => e.id).filter(Boolean);
+    const capPosts = group.reduce((a, e) => a + (e.posts || 0), 0);
+    merged.posts = capPosts || undefined;
+    let pull = 0, hasPull = false;
+    for (const e of group) if (e.id && counts.has(e.id)) { pull += counts.get(e.id); hasPull = true; }
+    if (hasPull) merged.postsInPull = pull; else delete merged.postsInPull;
+    merged.verified = group.some((e) => e.verified);
+    merged.avatar = head.avatar || group.map((e) => e.avatar).find(Boolean) || null;
+    merged.location = head.location || group.map((e) => e.location).find(Boolean) || null;
+    const badges = []; for (const e of group) for (const bd of (e.badges || [])) if (!badges.includes(bd)) badges.push(bd);
+    merged.badges = badges;
+    merged.latestAt = group.map((e) => e.latestAt).filter(Boolean).sort().pop() || head.latestAt || null;
+    people.push(merged);
+  }
+  return people.sort((a, b2) => (b2.postsInPull || b2.posts || 0) - (a.postsInPull || a.posts || 0) || String(a.name).localeCompare(String(b2.name)));
 }
 
 /* ---------------- frame: rails ---------------- */
@@ -452,8 +538,8 @@ function viewDoors() {
       <span class="in"><span class="no">${no}</span><h3>${title}</h3><p>${text}</p><span class="cnt">${cnt}</span></span>
     </button>`;
   return `<div class="bk-doorhero"><img src="assets/img/community/mixtape.svg" alt="16:3 Faith — The Block mixtape artwork">
-      <div><span class="eyebrow">COMMUNITY · FAITHBOOK</span><h1>The family <em>talks here.</em></h1>
-      <p>Faithbook — the 16:3 Faith wall. Real posts, real people, real testimonies: read everything, get to know the family, and when member sign-in joins this house, post like home.</p></div></div>
+      <div><span class="eyebrow">COMMUNITY · THE SANCTUARY</span><h1>The family <em>talks here.</em></h1>
+      <p>The Sanctuary — the 16:3 Faith wall. Real posts, real people, real testimonies: read everything, get to know the family, and when member sign-in joins this house, post like home.</p></div></div>
     <div class="bk-doors">
       ${door('feed', 'poster-community.svg', 'DOOR 01', 'The Feed', 'The family wall — every post in the order it was shared.', `${S.posts.length + S.testimonies.length} POSTS CARRIED`)}
       ${door('testimonies', 'poster-testimony.svg', 'DOOR 02', 'Testimonies', 'What God has done, in the family\'s own words — its own tape.', `${c.testimonies ?? S.testimonies.length} TESTIMONIES`)}
@@ -467,7 +553,7 @@ function viewDoors() {
 /* ---------------- feed pieces ---------------- */
 function heroHtml() {
   return `<section class="bk-hero"><div class="bk-herographics"><span class="bk-herogrid"></span><span class="bk-herotape">THE BLOCK · VOL. 01</span><img src="assets/img/community/mixtape.svg" alt="16:3 Faith The Block mixtape artwork"></div>
-    <div class="bk-heroc"><div class="bk-heroeb"><span class="bk-sq"></span>16:3 PRESENTS <b>///</b> FAITHBOOK</div>
+    <div class="bk-heroc"><div class="bk-heroeb"><span class="bk-sq"></span>16:3 PRESENTS <b>///</b> THE SANCTUARY</div>
     <h1>FAITH GOT<br><span>A FEED.</span></h1><p>More than followers. More like family.<br>Real stories, real prayer, real people.</p>
     <div class="bk-herobot"><button type="button" class="bk-redbtn" data-composefocus>PULL UP &amp; POST <span>↗</span></button><span>THIS IS YOUR CORNER OF THE INTERNET.</span></div></div>
     <span class="bk-herostamp">COME AS YOU ARE ✳</span></section>
@@ -552,10 +638,11 @@ function viewFeed() {
 }
 
 function viewTestimonies() {
+  const list = uniqPosts(S.testimonies);
   return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
   <div class="bk-feedhead"><div><span class="eyebrow">STORIES OF GRACE</span><h2>The <em>testimony tape.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.</p>
-  ${S.testimonies.map((p) => postCard(p)).join('') || '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts every testimony on the wall; this view lists the ones in the carried pages.</p></div>'}`;
+  ${list.map((p) => postCard(p)).join('') || '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts every testimony on the wall; this view lists the ones in the carried pages.</p></div>'}`;
 }
 function peopleStripHtml() {
   const rows = S.peopleResults != null
@@ -609,7 +696,8 @@ function viewSaved() {
   <p>When member sign-in joins this preview, the posts you save from the wall collect here.</p></div>`;
 }
 async function viewProfile(id) {
-  const carried = [...S.posts, ...S.testimonies].filter((p) => p.authorId === id);
+  const ids = personIds(id);
+  const carried = [...S.posts, ...S.testimonies].filter((p) => ids.has(p.authorId));
   const first = carried[0];
   const baked = (S.bakedMembers || []).find((m) => m.id === id);
   const name0 = first?.authorName || baked?.name || 'Member';
@@ -617,17 +705,18 @@ async function viewProfile(id) {
     <div data-prof><div class="bk-ctx"><h3>${esc(name0)}</h3><p>Loading the full profile…</p></div></div>`;
   let prof = S.profileCache.get(id) || null;
   if (!prof) {
-    try { const j = await fetchJson(`${API_BASE}/api/community/members/${encodeURIComponent(id)}/profile`); prof = j.profile || null; if (prof) S.profileCache.set(id, prof); } catch { /* carried fallback below */ }
+    try { const j = await fetchJson(`${API_BASE}/api/community/members/${encodeURIComponent(id)}/profile`); prof = normalizeProfile(j); if (prof) S.profileCache.set(id, prof); } catch { /* carried fallback below */ }
   }
   if (S.view !== 'profile' || S.profileId !== id) return;
-  const posts = prof?.posts?.length ? prof.posts.map(normalizePost) : carried;
+  const posts = prof?.posts?.length ? uniqPosts(prof.posts.map(normalizePost)) : carried;
+  const carriedMeta = `<div class="meta" style="margin-top:10px">${posts.length} post${posts.length === 1 ? '' : 's'} in this ${S.mode === 'live' ? 'pull' : 'capture'}</div>`;
   const name = prof?.displayName || name0;
   const el = S.root.querySelector('[data-prof]'); if (!el) return;
   if (id === HOUSE_ID && prof) {
     el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(prof.coverUrl || '')}')"></div><div class="bk-profbody">
       <span data-profile="${HOUSE_ID}" style="cursor:pointer">${avatarHtml(name, prof.avatarUrl, true)}</span>
       <h2>${esc(name)} <span class="bk-ver">✦</span></h2><div class="meta">${esc(prof.headline || '')}${prof.location ? ' · ' + esc(prof.location) : ''}</div>
-      <div class="bk-profcounts"><div><b>${prof.postCount}</b><span>POSTS</span></div><div><b>${prof.followerCount}</b><span>FOLLOWERS</span></div><div><b>${prof.friendCount}</b><span>FRIENDS</span></div></div>
+      ${profCountsHtml(prof, carriedMeta)}
       ${prof.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:14px 0 0">${linkify(prof.bio)}</p>` : ''}
     </div></div>
     <h3 class="bk-secttl">From the <em>house</em></h3>${posts.map((p) => postCard(p, true)).join('')}`;
@@ -637,7 +726,7 @@ async function viewProfile(id) {
     ${avatarHtml(name, prof?.avatarUrl || first?.authorAvatar || baked?.avatar, false)}
     <h2>${esc(name)}${(prof?.isVerified || first?.authorVerified || baked?.verified) ? ' <span class="bk-ver">✦</span>' : ''}</h2>
     <div class="meta">${esc(prof?.location || first?.authorLocation || baked?.location || '')}${prof?.createdAt ? ' · Member since ' + fmtDate(prof.createdAt) : ''}</div>
-    ${prof ? `<div class="bk-profcounts"><div><b>${prof.postCount}</b><span>POSTS</span></div><div><b>${prof.followerCount}</b><span>FOLLOWERS</span></div><div><b>${prof.friendCount}</b><span>FRIENDS</span></div></div>` : `<div class="meta" style="margin-top:10px">${posts.length} post${posts.length === 1 ? '' : 's'} in this ${S.mode === 'live' ? 'pull' : 'capture'}</div>`}
+    ${prof ? profCountsHtml(prof, carriedMeta) : carriedMeta}
     ${prof?.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:14px 0 0">${linkify(prof.bio)}</p>` : ''}
     ${prof?.testimony ? `<div class="bk-proftest">“${esc(prof.testimony)}”</div>` : ''}
   </div></div>
@@ -738,7 +827,8 @@ async function loadMoreLive() {
   try {
     const next = Math.floor((S.posts.length + S.testimonies.length) / 25) + 1;
     const j = await fetchJson(`${API_BASE}/api/community/posts?page=${next}&limit=25`);
-    const fresh = (j.posts || []).map(normalizePost).filter((p) => !findPost(p.id));
+    const seenIds = new Set([...S.posts, ...S.testimonies].map((p) => p.id));
+    const fresh = uniqPosts((j.posts || []).map(normalizePost)).filter((p) => !seenIds.has(p.id));
     if (fresh.length) {
       S.posts.push(...fresh.filter((p) => p.type !== 'testimony'));
       S.testimonies.push(...fresh.filter((p) => p.type === 'testimony'));
