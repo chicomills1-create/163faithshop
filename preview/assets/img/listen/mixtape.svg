@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 490" role="img" aria-labelledby="title">
+<title id="title">16:3 Faith, The Block mixtape concept artwork</title>
+<defs>
+ <pattern id="dots" patternUnits="userSpaceOnUse" width="13" height="13"><circle cx="2" cy="2" r="1.1" fill="#efb830" opacity=".3"/></pattern>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffeeb1"/><stop offset=".45" stop-color="#f5c24c"/><stop offset="1" stop-color="#a96f15"/></linearGradient>
+ <linearGradient id="tape" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#34322c"/><stop offset=".55" stop-color="#131413"/><stop offset="1" stop-color="#2b2721"/></linearGradient>
+ <filter id="shadow"><feGaussianBlur stdDeviation="13"/></filter>
+</defs>
+<path d="M20 66L656 3 648 449 18 481Z" fill="url(#dots)"/>
+<path d="M39 405L621 37" stroke="#eb3e36" stroke-width="35" opacity=".13"/>
+<path d="M10 386L620 50" stroke="#f2bd38" stroke-width="3" opacity=".75" stroke-dasharray="8 8"/>
+<g transform="rotate(-10 353 239)">
+ <rect x="106" y="85" width="500" height="321" rx="21" fill="#000" opacity=".6" filter="url(#shadow)"/>
+ <rect x="91" y="73" width="500" height="316" rx="19" fill="url(#tape)" stroke="#e7bb4e" stroke-width="5"/>
+ <path d="M109 93h462v74H109z" fill="#f1d783"/>
+ <path d="M120 106h440v47H120z" fill="#f4e9d0"/>
+ <text x="135" y="125" font-family="Arial Black,Arial,sans-serif" font-size="12" font-weight="900" letter-spacing="2.5" fill="#1b1710">THE 16:3 FAITH RADIO SERIES</text>
+ <text x="135" y="147" font-family="Arial Black,Arial,sans-serif" font-size="29" font-weight="900" letter-spacing="-1" fill="#13100b">THE BLOCK / VOL. 01</text>
+ <rect x="127" y="187" width="425" height="129" rx="14" fill="#080a09" stroke="#a18648" stroke-width="3"/>
+ <rect x="140" y="200" width="397" height="98" rx="9" fill="#22221b"/>
+ <g transform="translate(0 1)">
+  <circle cx="250" cy="249" r="51" fill="#1b1c1b" stroke="#a8a48e" stroke-width="5"/><circle cx="250" cy="249" r="35" fill="#242523" stroke="#d7d0bc" stroke-width="8"/><circle cx="250" cy="249" r="13" fill="#d2bf80"/><circle cx="250" cy="249" r="5" fill="#161715"/>
+  <circle cx="431" cy="249" r="51" fill="#1b1c1b" stroke="#a8a48e" stroke-width="5"/><circle cx="431" cy="249" r="35" fill="#242523" stroke="#d7d0bc" stroke-width="8"/><circle cx="431" cy="249" r="13" fill="#d2bf80"/><circle cx="431" cy="249" r="5" fill="#161715"/>
+  <path d="M250 249l181 0" stroke="#d8cba4" stroke-width="3" stroke-dasharray="8 3" opacity=".7"/>
+ </g>
+ <path d="M165 330h361l-36 39H201Z" fill="#daa83d"/><path d="M200 369l27-30h236l27 30" fill="none" stroke="#393026" stroke-width="6"/>
+ <text x="122" y="358" font-family="Arial Black,Arial,sans-serif" font-size="12" fill="#ebd69a" letter-spacing="3">A SIDE</text><text x="508" y="358" font-family="Arial Black,Arial,sans-serif" font-size="12" fill="#ebd69a">163</text>
+</g>
+<g transform="translate(515 45) rotate(12)"><circle r="56" fill="#ee3837" stroke="#f5cf62" stroke-width="5" stroke-dasharray="7 4"/><text y="-6" text-anchor="middle" font-size="13" font-family="Arial Black,Arial,sans-serif" fill="#fff9e4" letter-spacing="1">GOD</text><text y="20" text-anchor="middle" font-size="13" font-family="Arial Black,Arial,sans-serif" fill="#fff9e4" letter-spacing="1">IS HERE</text></g>
+<path d="M49 85L70 49l20 36-41-11 47-8" fill="none" stroke="#f5d87d" stroke-width="5" stroke-linejoin="round"/>
+<path d="M592 398l12-27 13 25 30 9-26 10-8 30-14-28-23-7Z" fill="#f7ca54"/>
+</svg>
