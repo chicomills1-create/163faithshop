@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>16:3 Faith</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+(function () {
+  var map = {
+    '/music': '/#/listen',
+    '/listen': '/#/listen',
+    '/watch': '/#/watch',
+    '/bible': '/#/read',
+    '/read': '/#/read',
+    '/prayer-room': '/#/pray',
+    '/prayer': '/#/pray',
+    '/pray': '/#/pray',
+    '/community': '/#/community',
+    '/sanctuary': '/#/community',
+    '/give': '/#/give',
+    '/offering': '/#/give',
+    '/shop': '/#/shop',
+    '/store': '/#/shop'
+  };
+  var path = window.location.pathname.replace(/\/+$/, '') || '/';
+  var target = map[path.toLowerCase()] || '/';
+  window.location.replace(target);
+})();
+</script>
+</head>
+<body></body>
+</html>
