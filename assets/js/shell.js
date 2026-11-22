@@ -27,6 +27,7 @@ const fmt = (s) => {
 };
 
 const Player = {
+  barEl: $('player'),
   audio: $('player-audio'),
   titleEl: $('player-title'),
   subEl: $('player-sub'),
@@ -96,6 +97,16 @@ const Player = {
 
   /* ---------- face ---------- */
   emit() { window.dispatchEvent(new CustomEvent('faithplayer', { detail: this.state() })); },
+  /* HIDE-WHEN-IDLE (founder order 2026-11-22): the dock exists on screen
+     only while a track is loaded (playing, paused, or ended). setFace()
+     is the single load funnel and close() the single unload, so these
+     are the only two call sites. body.player-on reserves the dock's
+     height in the page padding; without it the hidden bar leaves no gap. */
+  syncDock() {
+    const has = !!this.current;
+    if (this.barEl) this.barEl.hidden = !has;
+    document.body.classList.toggle('player-on', has);
+  },
   setFace(track) {
     this.current = track;
     this.ended = false;
@@ -126,6 +137,7 @@ const Player = {
     this.stageEndedEl.hidden = true;
     this.npEndedEl.hidden = true;
     this.syncTransport(false);
+    this.syncDock();
     this.renderQueue();
     this.renderNpQueue();
     this.emit();
@@ -501,6 +513,7 @@ const Player = {
     this.npElapsedEl.textContent = '0:00'; this.npTotalEl.textContent = '';
     this.setPlayingUI(false);
     this.syncTransport(false);
+    this.syncDock();
     this.renderQueue();
     this.renderNpQueue();
     this.emit();
@@ -529,6 +542,7 @@ const Player = {
     };
   },
 };
+Player.syncDock(); /* idle at first paint: no track, no dock */
 Player.audio.addEventListener('play', () => Player.setPlayingUI(true));
 Player.audio.addEventListener('pause', () => Player.setPlayingUI(false));
 Player.audio.addEventListener('ended', () => Player.onEnded());
@@ -663,6 +677,9 @@ navigate(routeFromHash());
    CLERK-SIGNUP-CHECK-2026-11-22.md, cure list C1–C6). ClerkJS is pinned
    and loaded DIRECTLY from the production FAPI host — never the dead
    /api/__clerk proxy, whose registered URL now lands on GitHub Pages.
+   ClerkJS v6 also needs its UI package (@clerk/ui): without the ctor
+   handed to Clerk.load(), every open/mount throws "Clerk was not loaded
+   with Ui components" — the MOUNT CURE of 2026-11-22 loads it first.
    Loading is async and FAIL-SOFT: the shell renders fully for guests
    whether or not the Clerk host answers; if it never loads, the buttons
    give an honest unavailable note — never a hang, never a blank page.
@@ -681,6 +698,7 @@ navigate(routeFromHash());
 const Auth = {
   PK: 'pk_live_Y2xlcmsuMTYzZmFpdGguY29tJA',
   SRC: 'https://clerk.163faith.com/npm/@clerk/clerk-js@6/dist/clerk.browser.js',
+  UI_SRC: 'https://clerk.163faith.com/npm/@clerk/ui@1/dist/ui.browser.js',
   API: 'https://faith-hub-api-railway-production.up.railway.app',
   state: 'loading',        // 'loading' | 'ready' | 'error'
   pendingIntent: null,     // 'signin' | 'join' clicked before Clerk was ready
@@ -777,7 +795,7 @@ const Auth = {
     try {
       if (kind === 'join' && typeof C.openSignUp === 'function') { C.openSignUp({ appearance: this.appearance }); return; }
       if (kind === 'signin' && typeof C.openSignIn === 'function') { C.openSignIn({ appearance: this.appearance }); return; }
-    } catch { /* fall through to the mounted form */ }
+    } catch (err) { console.warn('[FaithAuth] Clerk modal open failed, falling back to mount:', err); }
     /* Fallback: mount the component into the shell's own overlay. */
     this.openOverlay();
     const node = $('auth-mount');
@@ -789,7 +807,10 @@ const Auth = {
       if (kind === 'join' && typeof C.mountSignUp === 'function') C.mountSignUp(node, { appearance: this.appearance });
       else if (typeof C.mountSignIn === 'function') C.mountSignIn(node, { appearance: this.appearance });
       else { this.showNote('<b>The sign-in form didn\'t open.</b> Try again in a moment — nothing about the house is locked to reading.'); return; }
-    } catch {
+    } catch (err) {
+      /* never swallow silently again — the hidden throw behind this note
+         cost a full live cycle (MOUNT CURE, 2026-11-22) */
+      console.warn('[FaithAuth] Clerk mount failed:', err);
       this.showNote('<b>The sign-in form didn\'t open.</b> Try again in a moment — nothing about the house is locked to reading.');
       return;
     }
@@ -876,31 +897,44 @@ const Auth = {
   },
 
   load() {
-    if (this.state === 'ready' || window.Clerk) return;
+    if (this.state === 'ready' || this._loading) return;
+    this._loading = true;
     this.state = 'loading';
-    const fail = () => { if (this.state !== 'ready') this.state = 'error'; };
-    const s = document.createElement('script');
-    s.src = this.SRC;
-    s.async = true;
-    s.setAttribute('data-clerk-publishable-key', this.PK);
-    s.onload = async () => {
+    const fail = () => { this._loading = false; if (this.state !== 'ready') this.state = 'error'; };
+    const loadScript = (src, attrs = {}) => new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error(`script failed: ${src}`));
+      document.head.appendChild(s);
+    });
+    (async () => {
       try {
-        if (!window.Clerk) return fail();
+        /* ClerkJS v6 splits the UI into its own package (@clerk/ui): the
+           core bundle alone loads fine, but EVERY open/mount call then
+           throws "Clerk was not loaded with Ui components" (proven in-page,
+           cure-work/evidence-before.json). The UI script registers
+           window.__internal_ClerkUICtor, and it must be handed to the
+           FIRST Clerk.load() call — load() consumes its options once.
+           So: UI script first, core second, then load() with the ctor. */
+        if (!window.__internal_ClerkUICtor) await loadScript(this.UI_SRC);
+        if (!window.Clerk) await loadScript(this.SRC, { 'data-clerk-publishable-key': this.PK });
+        if (!window.Clerk) throw new Error('Clerk core did not arrive');
+        if (!window.__internal_ClerkUICtor) throw new Error('Clerk UI did not arrive');
         if (typeof window.Clerk.load === 'function' && !window.Clerk.loaded) {
-          await window.Clerk.load({ publishableKey: this.PK });
+          await window.Clerk.load({ publishableKey: this.PK, ui: { ClerkUI: window.__internal_ClerkUICtor } });
         }
         this.state = 'ready';
+        this._loading = false;
         window.Clerk.addListener(() => this.onAuthChange());
         this.onAuthChange();
-        if (this.pendingIntent && !$('auth-overlay').hidden) {
-          const k = this.pendingIntent; this.pendingIntent = null; this.mount(k);
-        } else if (this.pendingIntent && this.state === 'ready') {
+        if (this.pendingIntent) {
           const k = this.pendingIntent; this.pendingIntent = null; this.mount(k);
         }
       } catch { fail(); }
-    };
-    s.onerror = fail;
-    document.head.appendChild(s);
+    })();
     setTimeout(fail, 25000);
   },
 };
