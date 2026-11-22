@@ -28,6 +28,33 @@ button{font-family:var(--sans);cursor:pointer}
 .acct-btn{background:none;border:1px solid var(--gold-dim);color:var(--gold);border-radius:999px;padding:7px 14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
 .acct-btn:hover{border-color:var(--gold);color:var(--gold-hi)}
 .acct-btn.gold{background:linear-gradient(120deg,var(--gold-dim),var(--gold) 45%,var(--gold-hi));color:#141005;font-weight:700;border:none}
+
+/* ---------- ACCOUNT / AUTH (F-CLERK, 2026-11-22) ---------- */
+.acct-member{display:flex;align-items:center;gap:9px}
+.acct-member[hidden]{display:none}
+.acct-avatar{width:29px;height:29px;border-radius:50%;object-fit:cover;border:1px solid var(--gold-dim)}
+.acct-initials{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#6b4c21,#2c1b13);color:#f6dda1;font-family:var(--serif);font-weight:700;font-size:12px;border:1px solid var(--gold-dim)}
+.acct-name{font-size:13px;color:var(--bone);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:560px){.acct-name{display:none}}
+#auth-overlay,#terms-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px}
+#auth-overlay[hidden],#terms-overlay[hidden]{display:none}
+.auth-scrim{position:absolute;inset:0;background:rgba(0,0,0,.76);backdrop-filter:blur(4px)}
+.auth-card{position:relative;width:100%;max-width:404px;max-height:92vh;overflow-y:auto;background:var(--coal);border:1px solid var(--gold-dim);border-radius:18px;padding:26px 24px 22px;box-shadow:0 30px 80px rgba(0,0,0,.65)}
+.auth-brand{font-family:var(--serif);font-size:17px;letter-spacing:.14em;color:var(--bone);text-align:center;margin-bottom:16px}
+.auth-brand b{color:var(--gold)}
+.auth-x{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--mute);font-size:16px;padding:6px}
+.auth-x:hover{color:var(--gold-hi)}
+.auth-note{margin-top:14px;font-size:13px;line-height:1.55;color:var(--mute);text-align:center}
+.auth-note b{color:var(--gold-hi)}
+.auth-switch{background:none;border:none;color:var(--gold);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:0}
+.auth-switch:hover{color:var(--gold-hi)}
+.terms-h{font-family:var(--serif);font-size:23px;color:var(--bone);margin-bottom:10px}
+.terms-h span{color:var(--gold)}
+.terms-p{font-size:13.5px;line-height:1.6;color:var(--bone)}
+.terms-list{margin:12px 0 4px 18px;font-size:13px;line-height:1.65;color:var(--mute)}
+.terms-list li{margin-bottom:6px}
+.terms-status{margin-top:12px;font-size:13px;line-height:1.55;color:var(--gold-hi)}
+.terms-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 @media(max-width:860px){.topnav{display:none}}
 
 /* ---------- BOTTOM BAR (mobile) ---------- */
