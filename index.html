@@ -56,8 +56,11 @@
 <main id="hub-root" tabindex="-1" aria-live="polite"></main>
 
 <!-- ===== PERSISTENT PLAYER — mounted once, OUTSIDE the hub root.
-     Hub switches never touch this node, so playback never interrupts (§4 gate). ===== -->
-<section id="player" aria-label="Music player">
+     Hub switches never touch this node, so playback never interrupts (§4 gate).
+     HIDE-WHEN-IDLE (founder order 2026-11-22): the dock carries `hidden`
+     until a track is loaded — it never sits on screen reading "Nothing
+     playing". Player.syncDock() owns the attribute from first load on. ===== -->
+<section id="player" aria-label="Music player" hidden>
   <button type="button" class="player-cover" id="player-cover" aria-label="Open now playing" disabled><span>16:3</span></button>
   <div class="player-meta">
     <div class="player-title-row">
