@@ -23,9 +23,17 @@
     <a href="#/shop" data-nav="shop">Shop</a>
   </nav>
   <div class="account">
-    <!-- §3.8: JOIN lives here, in global account controls — never a hub. -->
+    <!-- §3.8: JOIN lives here, in global account controls — never a hub.
+         F-CLERK (2026-11-22): the buttons drive the real Clerk mounts in
+         shell.js; when a session exists the member chrome replaces them. -->
     <button class="acct-btn" id="btn-signin" type="button">Sign in</button>
     <button class="acct-btn gold" id="btn-join" type="button">Join</button>
+    <div class="acct-member" id="acct-member" hidden>
+      <img class="acct-avatar" id="acct-avatar" alt="" hidden>
+      <span class="acct-initials" id="acct-initials" hidden></span>
+      <span class="acct-name" id="acct-name"></span>
+      <button class="acct-btn" id="btn-signout" type="button">Sign out</button>
+    </div>
   </div>
 </header>
 
@@ -177,6 +185,47 @@
   <a href="#/give" data-nav="give"><span class="bn-ico">♥</span>Give</a>
   <a href="#/shop" data-nav="shop"><span class="bn-ico">◆</span>Shop</a>
 </nav>
+
+<!-- ===== AUTH OVERLAY (F-CLERK, 2026-11-22) — Clerk's own sign-in /
+     sign-up components mount into #auth-mount (Clerk supplies the form,
+     the email-code step, and the smart CAPTCHA — never a hand-rolled
+     form). The overlay is shell furniture: it opens over any hub and
+     closing it returns the visitor exactly where they were. ===== -->
+<div id="auth-overlay" hidden>
+  <div class="auth-scrim" data-auth-close></div>
+  <div class="auth-card" role="dialog" aria-modal="true" aria-label="16:3 Faith account">
+    <button type="button" class="auth-x" id="btn-auth-close" aria-label="Close">✕</button>
+    <div class="auth-brand">16:3 <b>FAITH</b></div>
+    <div id="auth-mount"></div>
+    <p class="auth-note" id="auth-status" hidden></p>
+  </div>
+</div>
+
+<!-- ===== TERMS OVERLAY (F-CLERK / JOIN gate) — the membership-terms
+     step. Shown right after a join, and whenever the API answers a
+     member write with 403 TERMS_ACCEPTANCE_REQUIRED. Accepting POSTs
+     /api/terms/acceptance with the session token; the server records
+     its own current terms version. ===== -->
+<div id="terms-overlay" hidden>
+  <div class="auth-scrim"></div>
+  <div class="auth-card terms-card" role="dialog" aria-modal="true" aria-label="Membership terms">
+    <div class="auth-brand">16:3 <b>FAITH</b></div>
+    <h2 class="terms-h">One house, <span>one standard.</span></h2>
+    <p class="terms-p">Your account is live — one step makes it a membership. The house
+      terms are short, and they protect the family:</p>
+    <ul class="terms-list">
+      <li>Speak life. No harassment, no spam, no scams — ever.</li>
+      <li>What's shared in prayer is treated with care, never mocked or carried outside.</li>
+      <li>Your posts and testimonies are yours; posting shares them with the family wall.</li>
+      <li>Membership is free. 16:3 Faith is a for-profit LLC, not a 501(c)(3) — giving is voluntary and never a condition of belonging.</li>
+    </ul>
+    <p class="terms-status" id="terms-status" hidden></p>
+    <div class="terms-bar">
+      <button type="button" class="acct-btn gold" id="btn-terms-accept">I agree — count me in</button>
+      <button type="button" class="acct-btn" id="btn-terms-later">Not yet</button>
+    </div>
+  </div>
+</div>
 
 <script type="module" src="assets/js/shell.js"></script>
 </body>
