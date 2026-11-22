@@ -192,6 +192,38 @@ const STYLE = `<style>
  .lsn-ftrow{padding:10px 12px}.lsn-rothead{padding:13px 14px}
 }
 @media(prefers-reduced-motion:reduce){.lsn-crate,.lsn-grid .acard,.lsn-relcard,.lsn-redbtn,.lsn-goldbtn{transition:none}}
+/* ---------- ARTIST PAGE v2 — clean card + releases by kind (2026-11-22) ---------- */
+.artist-card{display:flex;gap:18px;align-items:center;margin-top:18px;border:1px solid var(--line);border-radius:16px;background:var(--coal);padding:18px}
+.artist-card .acard-art.big{width:110px;height:110px;flex:none;margin:0}
+.artist-card-main{flex:1;min-width:0}
+.artist-card-main h2{margin:0 0 6px}
+.artist-counts{font-size:15px;color:var(--bone);margin:0}
+.artist-counts b{color:var(--gold-hi);font-family:var(--serif);font-size:17px}
+.artist-sub{font-size:12.5px;color:var(--mute);margin:5px 0 0}
+.artist-card-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:13px}
+.rel-filter{display:block;flex:1 1 200px;min-width:0}
+.rel-filter input{background:#0d0c0a;border:1px solid var(--line);border-radius:999px;color:var(--bone);padding:9px 14px;font-size:13px;width:100%;box-sizing:border-box;font-family:var(--sans)}
+.rel-filter input:focus{outline:none;border-color:var(--gold)}
+.rel-sec{margin-top:36px}
+.rel-sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+.rel-sec-head h3{margin:0}
+.rel-sec-note{font-size:11px;letter-spacing:1.2px;color:#aa9572;font-weight:800;text-transform:uppercase;white-space:nowrap}
+.rel-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:14px}
+.rgc{background:#11100e;border:1px solid #352f29;border-radius:10px;padding:10px;text-align:left;color:var(--bone);cursor:pointer;font-family:var(--sans);min-width:0;width:100%;transition:transform .2s,border-color .2s}
+.rgc:hover{transform:translateY(-3px);border-color:#94753c}
+.rgc[aria-expanded="true"]{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.rgc-art{position:relative;display:block;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:6px;background:linear-gradient(140deg,rgba(212,175,55,.22),rgba(212,175,55,.04))}
+.rgc-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rgc-art .acard-mono{font-size:30px}
+.rgc-title{display:block;margin-top:9px;font-size:13.5px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rgc-meta{display:block;margin-top:3px;font-size:11px;color:#ab9a86}
+.rel-detail{margin-top:14px}
+.rel-more-row{display:flex;align-items:center;gap:14px;margin-top:14px}
+.rel-more-note{font-size:12px;color:var(--mute)}
+.rel-nomatch{margin-top:26px}
+@media(max-width:1020px){.rel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.rel-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.artist-card{padding:14px;gap:13px}.artist-card .acard-art.big{width:84px;height:84px}.artist-counts{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.rgc{transition:none}}
 </style>`;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -278,6 +310,7 @@ export function render(root, { player }) {
   let view = { kind: 'doors' };
   let query = '';
   let digTab = 'artists';
+  let artistUi = {};
 
   root.innerHTML = `
     ${STYLE}
@@ -702,8 +735,11 @@ export function render(root, { player }) {
   }
 
   /* ---------- artist view: the ALBUM BREAKDOWN (founder law) ----------
-     Carried behavior-identical from the album-breakdown build — the
-     graft changes the hub home's visual layer, never this view. */
+     Songs stay grouped BY ALBUM with exact official covers; the v2
+     layout (2026-11-22, founder order) presents the groups as cover
+     cards sectioned by kind under one clean artist card — see the
+     ARTIST PAGE v2 note inside. Queues, rows and covers are the same
+     carried behavior; only the presentation layer changed. */
   async function artistView(slug) {
     view = { kind: 'artist', slug };
     const a = artistBySlug(slug);
@@ -732,21 +768,54 @@ export function render(root, { player }) {
       ? groups.map((g, i) => ({ g, i })).sort((x, y) =>
           ((x.g.year == null) - (y.g.year == null)) || ((x.g.year || 0) - (y.g.year || 0)) || (x.i - y.i))
       : [];
-    /* Default expansion: the first album with playable songs. */
-    let openIdx = ordered.findIndex(({ g }) => g.kind === 'album' && g.play.length);
-    if (openIdx < 0) openIdx = ordered.findIndex(({ g }) => g.play.length);
-    if (openIdx < 0) openIdx = ordered.length ? 0 : -1;
+    ordered.forEach((it, pos) => { it.pos = pos; });
 
-    function albumCard({ g }, oi) {
-      /* LISTEN DATA CURE: the header's "K playable" counts playable
-         ROWS (g.pr, baked) — never bound recordings (g.play.length),
-         which exceeded the track count. The Play button still gates
-         on the queue itself (g.play). */
-      const playableN = g.pr;
-      const meta = [g.year || '', kindLabel(g.kind), `${g.n} track${g.n === 1 ? '' : 's'}`,
-        playableN && playableN !== g.n ? `${playableN} playable` : ''].filter(Boolean).join(' · ');
+    /* ---------- ARTIST PAGE v2 — clean card + releases by kind ----------
+       Founder order 2026-11-22 15:54 MST: "artists need a much cleaner
+       artist card. Also, you should make this in cards by singles,
+       albums, misc... because the playlist is too long." Design ruled
+       with ChatGPT consult chatcmpl-EnBOpDDeNVN3udvKd3yD5eawXQTH4:
+       FIXED section order Albums → Singles → Misc; cover-card grids;
+       "Show more" in place (6 phone / 12 desktop per step); a per-artist
+       filter as the findability guard. Sections classify by TRACK COUNT
+       at render (Albums 7+ · Singles 1–2 · Misc = EPs 3–6 and any other
+       kind). A card tap opens that release's album-group track view in
+       place (the same playable rows, queues and covers as the retired
+       row list — ALBUM BREAKDOWN LAW behavior unchanged); Back returns
+       to the same section and scroll position. Unmatched tracks keep
+       the honest "More songs" group after the sections. */
+    const sectionOf = (g) => (g.n >= 7 ? 'albums' : g.n <= 2 ? 'singles' : 'misc');
+    const SECTIONS = [
+      { id: 'albums', label: 'Albums' },
+      { id: 'singles', label: 'Singles' },
+      { id: 'misc', label: 'Misc' },
+    ];
+    const totalTracks = groups ? groups.reduce((s, g) => s + g.n, 0) : a.songs;
+    const kindCounts = { albums: 0, singles: 0, misc: 0 };
+    if (groups) ordered.forEach(({ g }) => { kindCounts[sectionOf(g)] += 1; });
+
+    /* Per-artist UI state — survives repaints inside this hub mount:
+       Show-more depth per section, the open release, the filter text. */
+    const ui = artistUi[slug] || (artistUi[slug] = { shown: {}, openOi: -2, filter: '', moreOpen: false });
+    const stepFor = () => (window.innerWidth <= 700 ? 6 : 12);
+    if (ui.openOi === -2) {
+      /* Default expansion: the first album with playable songs. */
+      let d = ordered.findIndex(({ g }) => g.kind === 'album' && g.play.length);
+      if (d < 0) d = ordered.findIndex(({ g }) => g.play.length);
+      ui.openOi = d; /* -1 = nothing open */
+      if (d >= 0) {
+        const secId = sectionOf(ordered[d].g);
+        const posInSec = ordered.filter(({ g }) => sectionOf(g) === secId).findIndex((it) => it.pos === d);
+        ui.shown[secId] = Math.max(stepFor(), posInSec + 1);
+      }
+    }
+
+    function trackRows(g, oi) {
+      /* LISTEN DATA CURE: playable ROWS (row.p bindings + row.x pool
+         rows) render as playable buttons; unbound rows render static —
+         carried behavior-identical from the retired row list. */
       const posInPlay = new Map(g.play.map((ti, pi) => [ti, pi]));
-      const rows = g.rows.map((row, li) => {
+      return g.rows.map((row, li) => {
         if (row.p && row.p.length) {
           return row.p.map((ti, k) => `
           <button type="button" class="trow" data-track="${esc(tracks[ti].y)}" data-albrow="${oi}" data-pos="${posInPlay.get(ti)}">
@@ -764,34 +833,58 @@ export function render(root, { player }) {
         }
         return `<div class="trow static"><span class="tnum">${li + 1}</span><span class="ttitle">${esc(row.t)}</span></div>`;
       }).join('');
+    }
+
+    function albumDetail(it) {
+      const { g } = it, oi = it.pos;
+      /* LISTEN DATA CURE: the playable count is playable ROWS (g.pr,
+         baked) — never bound recordings (g.play.length). */
+      const playableN = g.pr;
+      const meta = [g.year || '', kindLabel(g.kind), `${g.n} track${g.n === 1 ? '' : 's'}`,
+        playableN && playableN !== g.n ? `${playableN} playable` : ''].filter(Boolean).join(' · ');
       return `<div class="rel-card alb-card" data-albcard="${oi}">
         <div class="rel-head">
           <span class="alb-cover">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g.title))}</span></span>
           <div class="alb-meta"><b>${esc(g.title)}</b><span>${esc(meta)}</span></div>
           ${g.play.length ? `<button type="button" class="btn-gold alb-play" data-albplay="${oi}" aria-label="Play ${esc(g.title)}">▶</button>` : ''}
-          <button type="button" class="btn-ghost alb-toggle" data-albtoggle="${oi}" aria-expanded="${oi === openIdx}">${oi === openIdx ? 'Hide tracks' : 'Tracks'}</button>
+          <button type="button" class="btn-ghost alb-toggle" data-detailback>← Releases</button>
         </div>
-        <div class="alb-body" data-albbody="${oi}" ${oi === openIdx ? '' : 'hidden'}>
-          ${g.rows.length ? `<div class="trows mini">${rows}</div>`
+        <div class="alb-body" data-albbody="${oi}">
+          ${g.rows.length ? `<div class="trows mini">${trackRows(g, oi)}</div>`
             : `<p class="lede alb-note">${g.n} tracks in the catalog — this tracklist rides the next catalog pass; the artist's playable songs live in the other groups and in More songs.</p>`}
         </div>
       </div>`;
     }
 
-    const moreCard = more.length ? `<div class="rel-card alb-card" data-morecard>
+    function gridCard(it) {
+      const { g } = it, oi = it.pos;
+      const open = ui.openOi === oi;
+      return `<button type="button" class="rgc" data-relcard="${oi}" aria-expanded="${open}">
+        <span class="rgc-art">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g.title))}</span></span>
+        <span class="rgc-title">${esc(g.title)}</span>
+        <span class="rgc-meta">${[g.year || '', `${g.n} track${g.n === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}</span>
+      </button>`;
+    }
+
+    function moreCardHtml() {
+      if (!more.length) return '';
+      return `<div class="rel-card alb-card" data-morecard>
         <div class="rel-head">
           <div class="alb-meta"><b>More songs</b><span>${more.length} song${more.length === 1 ? '' : 's'}</span></div>
           <button type="button" class="btn-gold alb-play" data-moreplay aria-label="Play more songs">▶</button>
-          <button type="button" class="btn-ghost alb-toggle" data-moretoggle aria-expanded="false">Tracks</button>
+          <button type="button" class="btn-ghost alb-toggle" data-moretoggle aria-expanded="${ui.moreOpen}">${ui.moreOpen ? 'Hide tracks' : 'Tracks'}</button>
         </div>
         <p class="lede alb-note">Live recordings, features and one-offs that live outside the albums — every one plays full.</p>
-        <div class="alb-body" data-morebody hidden><div class="trows mini">${more.map((ti, k) => `
+        <div class="alb-body" data-morebody ${ui.moreOpen ? '' : 'hidden'}><div class="trows mini">${more.map((ti, k) => `
           <button type="button" class="trow" data-track="${esc(tracks[ti].y)}" data-morerow="${k}">
             <span class="tnum">${k + 1}</span><span class="ttitle">${esc(tracks[ti].t)}</span>
             ${tracks[ti].d ? `<span class="tdur">${fmtDur(tracks[ti].d)}</span>` : ''}
             <span class="tplay">▶</span>
           </button>`).join('')}</div></div>
-      </div>` : '';
+      </div>`;
+    }
+
+    const dataNote = `<p class="placeholder-note"><b>Data:</b> albums, covers and tracklists ride the production catalog plus the album-map harvest. Every playable song plays full from YouTube; songs that live outside the albums ride “More songs” — nothing is dropped, nothing is fake-assigned.</p>`;
 
     const flatShelf = `
       <div class="shelf"><h3>Songs — playable now <span class="shelf-count">${tracks.length}</span></h3>
@@ -806,23 +899,6 @@ export function render(root, { player }) {
       : `<p class="lede">This artist's playable songs are still being bound to the catalog.</p>`}
       </div>`;
 
-    viewEl.innerHTML = `
-      <button type="button" class="btn-ghost back-btn" data-back>← Back</button>
-      <div class="artist-head">
-        <span class="acard-art big">${a.art ? `<img src="${esc(a.art)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
-        <div><h2>${esc(a.name)}</h2>
-        <p class="lede">${a.releases} releases · ${a.songs} songs in the catalog${headerPlayable ? ` · ${headerPlayable} playable` : ''}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}</p></div>
-      </div>
-      ${groups ? `
-      <div class="shelf"><h3>Albums <span class="shelf-count">${groups.length}</span></h3>
-        ${tracks.length ? `<button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(a.name)}</button>` : ''}
-        <div class="rel-list alb-list">${ordered.map(albumCard).join('')}${moreCard}</div>
-        <p class="placeholder-note"><b>Data:</b> albums, covers and tracklists ride the production catalog plus the album-map harvest. Every playable song plays full from YouTube; songs that live outside the albums ride “More songs” — nothing is dropped, nothing is fake-assigned.</p>
-      </div>` : flatShelf}`;
-    viewEl.querySelector('[data-back]').addEventListener('click', () => (a.door ? doorView(a.door) : doorsView()));
-    const playAllBtn = viewEl.querySelector('[data-playall]');
-    if (playAllBtn) playAllBtn.addEventListener('click', () => playArtistFrom(slug, 0));
-
     function playAlbum(oi, pos) {
       const { g } = ordered[oi];
       /* LISTEN DATA CURE: album cover only — no artist-art fallback
@@ -834,32 +910,113 @@ export function render(root, { player }) {
       const q = queueFromTracks(more.map((ti) => tracks[ti]), a.name, a.art);
       if (q.length) player.playQueue(q, pos, 'More songs');
     }
-    viewEl.querySelectorAll('[data-albplay]').forEach((el) =>
-      el.addEventListener('click', () => playAlbum(+el.dataset.albplay, 0)));
-    viewEl.querySelectorAll('[data-albrow]').forEach((el) =>
-      el.addEventListener('click', () => playAlbum(+el.dataset.albrow, +el.dataset.pos)));
-    viewEl.querySelectorAll('[data-xrow]').forEach((el) =>
-      el.addEventListener('click', () => playArtistFrom(slug, +el.dataset.xrow)));
-    viewEl.querySelectorAll('[data-morerow]').forEach((el) =>
-      el.addEventListener('click', () => playMore(+el.dataset.morerow)));
-    const morePlayBtn = viewEl.querySelector('[data-moreplay]');
-    if (morePlayBtn) morePlayBtn.addEventListener('click', () => playMore(0));
-    viewEl.querySelectorAll('[data-flatrow]').forEach((el) =>
-      el.addEventListener('click', () => playArtistFrom(slug, +el.dataset.flatrow)));
-    function wireToggle(btnSel, bodySel) {
-      const btn = viewEl.querySelector(btnSel);
-      const body = viewEl.querySelector(bodySel);
-      if (!btn || !body) return;
-      btn.addEventListener('click', () => {
-        const open = body.hidden;
-        body.hidden = !open;
-        btn.setAttribute('aria-expanded', String(open));
-        btn.textContent = open ? 'Hide tracks' : 'Tracks';
-      });
+
+    function paintSections() {
+      const host = viewEl.querySelector('#artist-sections');
+      if (!host) return;
+      const f = norm(ui.filter);
+      const filtering = f.length > 0;
+      let matchTotal = 0;
+      const secsHtml = SECTIONS.map((sec) => {
+        let items = ordered.filter(({ g }) => sectionOf(g) === sec.id);
+        if (!items.length) return '';
+        if (filtering) {
+          items = items.filter(({ g }) => norm(g.title).includes(f));
+          matchTotal += items.length;
+          if (!items.length) return '';
+          return `<section class="rel-sec" data-section="${sec.id}">
+            <div class="rel-sec-head"><h3>${sec.label} <span class="shelf-count">${kindCounts[sec.id]}</span></h3>
+            <span class="rel-sec-note">${items.length} match${items.length === 1 ? '' : 'es'}</span></div>
+            <div class="rel-grid">${items.map(gridCard).join('')}</div>
+          </section>`;
+        }
+        const shownN = Math.min(ui.shown[sec.id] || stepFor(), items.length);
+        const openItem = items.find((it) => it.pos === ui.openOi);
+        return `<section class="rel-sec" data-section="${sec.id}">
+          <div class="rel-sec-head"><h3>${sec.label} <span class="shelf-count">${items.length}</span></h3>
+          <span class="rel-sec-note">Showing ${shownN} of ${items.length}</span></div>
+          <div class="rel-grid">${items.slice(0, shownN).map(gridCard).join('')}</div>
+          ${openItem ? `<div class="rel-detail">${albumDetail(openItem)}</div>` : ''}
+          ${shownN < items.length ? `<div class="rel-more-row"><button type="button" class="btn-ghost" data-showmore="${sec.id}">Show more</button><span class="rel-more-note">${items.length - shownN} more in ${sec.label}</span></div>` : ''}
+        </section>`;
+      }).join('');
+      host.innerHTML = (filtering && !matchTotal)
+        ? `<p class="lede rel-nomatch">No releases match “${esc(ui.filter)}” — clear the filter to see the full shelf.</p>`
+        : secsHtml + moreCardHtml() + dataNote;
+      wireSections();
     }
-    ordered.forEach((_, oi) => wireToggle(`[data-albtoggle="${oi}"]`, `[data-albbody="${oi}"]`));
-    wireToggle('[data-moretoggle]', '[data-morebody]');
-    markPlaying();
+
+    function wireSections() {
+      viewEl.querySelectorAll('[data-relcard]').forEach((el) =>
+        el.addEventListener('click', () => {
+          const oi = +el.dataset.relcard;
+          const wasOpen = ui.openOi === oi;
+          ui.openOi = wasOpen ? -1 : oi;
+          paintSections();
+          const target = wasOpen
+            ? viewEl.querySelector(`[data-relcard="${oi}"]`)
+            : viewEl.querySelector('.rel-detail');
+          if (target) target.scrollIntoView({ block: 'nearest' });
+        }));
+      viewEl.querySelectorAll('[data-showmore]').forEach((el) =>
+        el.addEventListener('click', () => {
+          const sec = el.dataset.showmore;
+          ui.shown[sec] = (ui.shown[sec] || stepFor()) + stepFor();
+          paintSections();
+        }));
+      viewEl.querySelectorAll('[data-albplay]').forEach((el) =>
+        el.addEventListener('click', () => playAlbum(+el.dataset.albplay, 0)));
+      viewEl.querySelectorAll('[data-albrow]').forEach((el) =>
+        el.addEventListener('click', () => playAlbum(+el.dataset.albrow, +el.dataset.pos)));
+      viewEl.querySelectorAll('[data-xrow]').forEach((el) =>
+        el.addEventListener('click', () => playArtistFrom(slug, +el.dataset.xrow)));
+      viewEl.querySelectorAll('[data-morerow]').forEach((el) =>
+        el.addEventListener('click', () => playMore(+el.dataset.morerow)));
+      const morePlayBtn = viewEl.querySelector('[data-moreplay]');
+      if (morePlayBtn) morePlayBtn.addEventListener('click', () => playMore(0));
+      const moreToggle = viewEl.querySelector('[data-moretoggle]');
+      if (moreToggle) moreToggle.addEventListener('click', () => { ui.moreOpen = !ui.moreOpen; paintSections(); });
+      viewEl.querySelectorAll('[data-detailback]').forEach((el) =>
+        el.addEventListener('click', () => {
+          const oi = ui.openOi;
+          ui.openOi = -1;
+          paintSections();
+          const card = viewEl.querySelector(`[data-relcard="${oi}"]`);
+          if (card) card.scrollIntoView({ block: 'nearest' });
+        }));
+      markPlaying();
+    }
+
+    const countsLine = groups
+      ? `<b>${kindCounts.albums}</b> Albums · <b>${kindCounts.singles}</b> Singles · <b>${totalTracks}</b> Tracks`
+      : `${a.songs} songs in the catalog`;
+    viewEl.innerHTML = `
+      <button type="button" class="btn-ghost back-btn" data-back>← Back</button>
+      <div class="artist-card">
+        <span class="acard-art big">${a.art ? `<img src="${esc(a.art)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
+        <div class="artist-card-main">
+          <h2>${esc(a.name)}</h2>
+          <p class="artist-counts">${countsLine}</p>
+          <p class="artist-sub">${headerPlayable ? `${headerPlayable} playable` : ''}${a.door ? `${headerPlayable ? ' · ' : ''}${esc(doorLabel(a.door))}` : ''}</p>
+          <div class="artist-card-actions">
+            ${groups && tracks.length ? `<button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(a.name)}</button>` : ''}
+            ${groups && groups.length > 8 ? `<label class="rel-filter"><input type="search" data-relfilter placeholder="Find a release…" aria-label="Find a release" value="${esc(ui.filter)}"></label>` : ''}
+          </div>
+        </div>
+      </div>
+      ${groups ? `<div id="artist-sections"></div>` : flatShelf}`;
+    viewEl.querySelector('[data-back]').addEventListener('click', () => (a.door ? doorView(a.door) : doorsView()));
+    const playAllBtn = viewEl.querySelector('[data-playall]');
+    if (playAllBtn) playAllBtn.addEventListener('click', () => playArtistFrom(slug, 0));
+    const filterEl = viewEl.querySelector('[data-relfilter]');
+    if (filterEl) filterEl.addEventListener('input', () => { ui.filter = filterEl.value; paintSections(); });
+    if (groups) {
+      paintSections();
+    } else {
+      viewEl.querySelectorAll('[data-flatrow]').forEach((el) =>
+        el.addEventListener('click', () => playArtistFrom(slug, +el.dataset.flatrow)));
+      markPlaying();
+    }
   }
 
   searchEl.addEventListener('input', () => {
