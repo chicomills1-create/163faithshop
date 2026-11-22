@@ -280,10 +280,43 @@ const CSS3 = `
 @media(prefers-reduced-motion:reduce){.bk .bk-story{transition:none}}
 `;
 
+
+const CSS4 = `
+/* ---------- amp-up phase 1 (2026-11-22) ---------- */
+.bk-stories.member{display:flex;overflow-x:auto;padding-bottom:6px}
+.bk-stories.member .bk-story{flex:0 0 128px;height:162px}
+.bk-stories.member .bk-ava{margin-bottom:10px;width:40px;height:40px}
+.bk-story-kind{font-size:8px;letter-spacing:1.4px;color:#f5d77f;font-weight:900}
+.bk-story-name{font-family:Impact,"Arial Black",sans-serif;font-weight:900;font-size:15px;line-height:1.08;color:#fff2ce;letter-spacing:.4px;margin-top:5px}
+.bk-story-ex{font-size:10px;color:#d8c491;line-height:1.45;margin-top:5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bk-rxchips{display:inline-flex;gap:9px;flex-wrap:wrap}
+.bk-rxchips .k{color:#d7b66d;font-weight:900}
+.bk-shortstrip{display:none}
+.bk-feedbelow{display:none}
+@media(max-width:1240px){.bk-feedbelow{display:block;margin-top:26px}}
+@media(max-width:880px){
+ .bk-shortstrip{display:flex;gap:7px;overflow-x:auto;padding:12px 2px 2px;white-space:nowrap}
+ .bk-stripchip{border:1px solid #584c30;border-radius:999px;padding:8px 13px;font-size:11px;font-weight:900;color:#e8dcbc;background:#1a1813;cursor:pointer;flex:none}
+ .bk-stripchip.on{border-color:var(--gold);color:var(--gold);background:#2a2110}
+ .bk-stripchip.grp{color:#bdb096;font-weight:700}
+}
+.bk-aicard{padding:16px 17px;border:1px solid #6c5021;border-radius:12px;background:linear-gradient(160deg,#221c10,#141310 60%);margin-bottom:14px}
+.bk-ailabel{font-size:9px;letter-spacing:2px;color:var(--gold);font-weight:900;display:flex;align-items:center;gap:7px}
+.bk-aicard p{font-size:12.5px;line-height:1.65;color:#e6dcc0;margin:10px 0 0}
+.bk-aicard p b{color:var(--gold)}
+.bk-ainote{display:block;margin-top:10px;font-size:9px;letter-spacing:1.2px;color:#9b907a;font-weight:900}
+.bk-about{background:#191814;border:1px solid #4a3d24;border-radius:10px;padding:14px 18px;margin:0 0 6px}
+.bk-about div{display:flex;gap:10px;font-size:12.5px;padding:5px 0;color:#d9cfb4;line-height:1.55}
+.bk-about div b{color:var(--gold);min-width:96px;font-size:10px;letter-spacing:1.4px;padding-top:2px;flex:none}
+.bk-profcover{position:relative;height:132px}
+.bk-profcovnote{position:absolute;right:10px;bottom:8px;font-size:8.5px;letter-spacing:1.4px;color:#e8d9ac;font-weight:900;background:rgba(10,8,4,.6);padding:4px 8px;border-radius:4px}
+.bk-mini .bk-ava{width:36px;height:36px;font-size:10px}
+`;
+
 const S = {
   view: 'doors', root: null, navigate: null,
   mode: 'snapshot',            // 'live' once the API answers from this browser
-  posts: [], testimonies: [], groups: [], members: [], bakedMembers: [],
+  posts: [], testimonies: [], groups: [], members: [], bakedMembers: [], wallPosts: [],
   counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false, chainSettled: false,
   feedFilter: 'all', feedShown: PAGE,
   composeType: 'post', gateOpen: false,
@@ -442,9 +475,11 @@ async function loadLive() {
   if (S.loadedLive) return;
   S.loadedLive = true;
   try {
-    const [bakedFeed, bakedMembers, bakedMeta, bakedGroups] = await Promise.all([
+    const [bakedFeed, bakedMembers, bakedMeta, bakedGroups, bakedWall] = await Promise.all([
       fetchBaked('feed.json'), fetchBaked('members.json'), fetchBaked('meta.json'), fetchBaked('groups.json').catch(() => null),
+      fetchBaked('../pray/wall-snapshot.json').catch(() => null),
     ]);
+    if (bakedWall?.posts?.length) S.wallPosts = ingestPosts(bakedWall.posts);
     const b = ingestPosts(bakedFeed.posts);
     S.posts = b.filter((p) => p.type !== 'testimony');
     S.testimonies = b.filter((p) => p.type === 'testimony');
@@ -604,6 +639,7 @@ function railHtml() {
 }
 function sideHtml() {
   return `<aside class="bk-side">
+    ${aiHighlightsHtml()}
     <div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
     <section class="panel bk-tape"><div class="small">THE WEEKLY ROTATION <span>VOL. 01</span></div><h3>FAITH HAS<br><em>A SOUND.</em></h3>
       <div class="bk-disc"><div class="bk-dring">16:3</div></div>
@@ -611,16 +647,93 @@ function sideHtml() {
       <button type="button" class="bk-track" data-view="testimonies"><span class="no">02</span><span class="tt"><strong>STILL STANDING</strong><small>Stories from the family.</small></span><span class="wv">▇▂▄▅▃▆</span></button>
       <button type="button" class="bk-goldbtn" data-hubgo="listen">EXPLORE THE LISTEN HUB ↗</button></section>
     <section class="panel bk-sidecard bk-praypanel"><div class="phead"><span class="eyebrow">YOUR PEOPLE NEED YOU</span><span class="x">✛</span></div><h3>PRAY WITH<br>SOMEBODY.</h3><p>You don't need the right words. Just show up with an open heart.</p><button type="button" class="bk-goldbtn" data-hubgo="pray">OPEN THE PRAYER WALL ↗</button></section>
-    <section class="panel bk-sidecard"><div class="phead"><span class="eyebrow">FIND YOUR CIRCLE</span><span class="x">✦</span></div>
-      ${S.groups.slice(0, 4).map((g) => `<button type="button" class="bk-mini" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group</small></span><span class="plus">+</span></button>`).join('')}
-      <button type="button" class="bk-textlink" data-view="groups">EXPLORE ALL GROUPS ↗</button></section>
+    ${latestTestCardHtml()}
+    ${suggestedGroupsCardHtml()}
     <section class="panel bk-sidecard bk-code"><div class="phead"><span class="eyebrow">THE FAMILY CODE</span><span style="color:#8d7a4d;font-size:10px;font-weight:900">0163</span></div>
       <p><b>COME AS YOU ARE.</b><br>Protect each other's stories. Pray, don't shame. Listen before you judge. Love people out loud.</p></section>
     <div class="bk-sidefoot">16:3 FAITH © 2026<br>A DIFFERENT KIND OF SUNDAY. EVERY DAY.</div>
   </aside>`;
 }
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+}
+
+
+/* ---------------- amp-up phase 1 (2026-11-22) ---------------- */
+/* P1-8: AI cover dressing — generated gold-on-black art bands for
+   profiles with no real cover. Abstract light / dove / olive / glass /
+   hands / dawn art only: never a person, never a stand-in for a real
+   photo, cover, or product shot. Assigned deterministically per member. */
+const AI_COVERS = [
+  'assets/img/community/covers/cover-rivers.webp',
+  'assets/img/community/covers/cover-dove.webp',
+  'assets/img/community/covers/cover-olive.webp',
+  'assets/img/community/covers/cover-glass.webp',
+  'assets/img/community/covers/cover-hands.webp',
+  'assets/img/community/covers/cover-dawn.webp',
+];
+const aiCoverFor = (key) => { let h = 0; for (const c of String(key || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AI_COVERS[h % AI_COVERS.length]; };
+
+/* P1-AI-1 themes: the most repeated content words (4+ letters, function
+   words removed) across the wall's own real post bodies. A word rises
+   only when the family actually wrote it at least twice. */
+const THEME_STOP = new Set('the,and,for,with,that,this,have,from,will,your,yours,they,them,then,than,when,what,were,been,over,under,more,most,also,just,like,into,about,after,before,there,their,its,our,ours,who,which,while,where,being,has,had,not,but,all,any,can,could,would,should,now,out,one,two,get,got,her,him,his,she,was,are,you,me,my,we,he,it,in,on,at,to,of,an,is,am,be,do,does,did,so,if,or,as,by,up,down,off,too,very,really,going,come,came,see,saw,know,make,made,take,took,way,even,still,back,much,many,well,first,day,days,week,year,time,times,life,live,lives,lived,living,im,ive,dont,cant,thats,whats,been,being,there,here,were,werent,isnt,arent,didnt,doesnt,wont,hes,shes,youre,theyre,lets,lets,gets,keep,keeps,went,gone,said,says,thing,things,people,person,man,woman,men,women,good,great,big,small,long,high,low,old,young,right,left,last,next,every,other,another,same,own,off,per,via,unto,thee,thou,thy,yea,ye'.split(','));
+function wallThemes(n = 3) {
+  const counts = new Map();
+  for (const p of [...S.testimonies, ...S.posts]) {
+    for (const w of String(p.body || '').toLowerCase().replace(/[^a-z\s']/g, ' ').split(/\s+/)) {
+      const word = w.replace(/^'+|'+$/g, '');
+      if (word.length < 4 || THEME_STOP.has(word)) continue;
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+  }
+  return [...counts.entries()].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, n).map(([w]) => w);
+}
+
+/* P1-AI-1: FaithGuide "AI Highlights" — a labeled AI welcome card that
+   summarizes ONLY the real carried wall (counts, newest voice, the
+   words the family itself repeats). No invented posts, people, or
+   counts; while the wall is still loading it says exactly that. */
+function aiHighlightsHtml() {
+  const head = `<span class="bk-ailabel">✦ FAITHGUIDE · AI HIGHLIGHTS</span>`;
+  const note = `<span class="bk-ainote">POWERED BY AI · SUMMARIZES THE REAL WALL ONLY — NOTHING INVENTED</span>`;
+  if (!countsSettled()) return `<section class="bk-aicard">${head}<p>FaithGuide is reading the wall…</p>${note}</section>`;
+  const all = uniqPosts([...S.posts, ...S.testimonies]).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const latest = all[0];
+  const prayers = S.posts.filter((p) => p.type === 'prayer').length;
+  const themes = wallThemes(3);
+  return `<section class="bk-aicard">${head}
+    <p>Welcome home. The wall is carrying <b>${S.posts.length + S.testimonies.length} posts</b> — <b>${S.testimonies.length} testimonies</b> and <b>${prayers} prayer requests</b> among them.${themes.length ? ` Words rising in the family's own posts: <b>${themes.map(esc).join(', ')}</b>.` : ''}${latest ? ` Newest voice: <b>${esc(latest.authorName)}</b>, ${relTime(latest.createdAt)}.` : ''}</p>${note}</section>`;
+}
+
+/* P1-10: latest testimonies — the real newest testimony posts. */
+function latestTestCardHtml() {
+  const list = uniqPosts(S.testimonies).slice(0, 3);
+  return `<section class="panel bk-sidecard"><div class="phead"><span class="eyebrow">LATEST TESTIMONIES</span><span class="x">✦</span></div>
+    ${list.length ? list.map((p) => `<button type="button" class="bk-mini" data-view="testimonies">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}<span class="mi"><strong>${esc(p.authorName)}</strong><small>${esc(p.body.slice(0, 90))}${p.body.length > 90 ? '…' : ''} · ${relTime(p.createdAt)}</small></span></button>`).join('') : '<p class="bk-note" style="margin:8px 0 0">The testimony tape is still loading — an unloaded tape never reads as an empty one.</p>'}
+    <button type="button" class="bk-textlink" data-view="testimonies">READ THE TESTIMONY TAPE ↗</button></section>`;
+}
+/* P1-10: suggested groups — the real 7, with their real member counts. */
+function suggestedGroupsCardHtml() {
+  return `<section class="panel bk-sidecard"><div class="phead"><span class="eyebrow">FIND YOUR CIRCLE</span><span class="x">✦</span></div>
+      ${S.groups.slice(0, 4).map((g) => `<button type="button" class="bk-mini" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group</small></span><span class="plus">+</span></button>`).join('')}
+      <button type="button" class="bk-textlink" data-view="groups">EXPLORE ALL GROUPS ↗</button></section>`;
+}
+/* P1-9: phone shortcut strip — the hub's doors as a horizontal strip
+   above the feed where the rails collapse away (the 7 real groups ride
+   as chips). Desktop keeps the full rails; CSS shows this ≤880px. */
+function stripHtml() {
+  const chip = (view, label) => `<button type="button" class="bk-stripchip ${S.view === view ? 'on' : ''}" data-view="${view}">${label}</button>`;
+  return `<nav class="bk-shortstrip" aria-label="Community shortcuts">
+    ${chip('feed', '⌂ The Feed')}${chip('testimonies', '✦ Testimonies')}${chip('members', '◎ Members')}${chip('groups', '◉ Groups')}
+    ${S.groups.map((g) => `<button type="button" class="bk-stripchip grp" data-view="groups">${esc(g.name)}</button>`).join('')}
+  </nav>`;
+}
+/* P1-9: on phone/narrow widths the right rail's content stacks BELOW
+   the feed instead of disappearing. CSS shows this ≤1240px, where the
+   rail itself is display:none. */
+function belowFeedHtml() {
+  return `<div class="bk-feedbelow">${aiHighlightsHtml()}${latestTestCardHtml()}${suggestedGroupsCardHtml()}</div>`;
 }
 
 /* ---------------- doors ---------------- */
@@ -674,13 +787,33 @@ function heroHtml() {
   <div class="bk-secline"><span>THE COMMUNITY / 001</span><span>REAL PEOPLE. NO PERFECT STORIES.</span></div>`;
 }
 function storiesHtml() {
-  return `<div class="bk-sechead"><div><span class="eyebrow">VOICES FROM THE BLOCK</span><h2>The stories <em>keep going.</em></h2></div><button type="button" class="bk-alltest" data-view="testimonies">ALL TESTIMONIES ›</button></div>
-  <div class="bk-stories">
-    <button type="button" class="bk-story bk-story-start" data-story="yours"><span class="bk-story-plus">+</span><strong>YOUR STORY</strong><small>LET IT OUT</small></button>
+  /* P1-2 (amp-up 2026-11-22): the stories row carries MEMBERS now — the
+     family's most recent voices, newest first, one card per person,
+     built from their real latest post/testimony. A slot exists only
+     where a real member's content backs it; nothing is filled with a
+     fake person. "Your Story" stays first as the composer shortcut.
+     Before the wall loads (or if it ever carried nobody), the original
+     house cards stand — labeled house doors, not people. */
+  const seen = new Map();
+  const all = uniqPosts([...S.testimonies, ...S.posts])
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  for (const p of all) {
+    if (!p.authorId || seen.has(p.authorId)) continue;
+    seen.set(p.authorId, p);
+    if (seen.size >= 7) break;
+  }
+  const yours = `<button type="button" class="bk-story bk-story-start" data-story="yours"><span class="bk-story-plus">+</span><strong>YOUR STORY</strong><small>LET IT OUT</small></button>`;
+  const memberCards = [...seen.values()].map((p) => `
+    <button type="button" class="bk-story" data-profile="${esc(p.authorId)}">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}
+      <span class="bk-story-kind">${p.type === 'testimony' ? '✦ TESTIMONY' : p.type === 'prayer' ? '✛ PRAYER REQUEST' : '✎ POST'} · ${relTime(p.createdAt).toUpperCase()}</span>
+      <span class="bk-story-name">${esc(p.authorName)}</span>
+      <span class="bk-story-ex">${esc(p.body.slice(0, 110))}</span></button>`).join('');
+  const houseCards = `
     <button type="button" class="bk-story bk-story-prayer" data-hubgo="pray"><span class="bk-story-mono">✛</span><span class="bk-story-label">THE PRAYER<br>ROOM</span><span class="bk-story-foot">LEAVE IT HERE <b>↗</b></span></button>
     <button type="button" class="bk-story bk-story-test" data-view="testimonies"><span class="bk-story-mono">✦</span><span class="bk-story-label">GRACE HAS<br>A STORY</span><span class="bk-story-foot">TESTIMONIES <b>↗</b></span></button>
-    <button type="button" class="bk-story bk-story-comm" data-view="members"><span class="bk-story-mono">♡</span><span class="bk-story-label">YOU<br>BELONG.</span><span class="bk-story-foot">FIND YOUR PEOPLE <b>↗</b></span></button>
-  </div>`;
+    <button type="button" class="bk-story bk-story-comm" data-view="members"><span class="bk-story-mono">♡</span><span class="bk-story-label">YOU<br>BELONG.</span><span class="bk-story-foot">FIND YOUR PEOPLE <b>↗</b></span></button>`;
+  return `<div class="bk-sechead"><div><span class="eyebrow">VOICES FROM THE BLOCK</span><h2>The stories <em>keep going.</em></h2></div><button type="button" class="bk-alltest" data-view="testimonies">ALL TESTIMONIES ›</button></div>
+  <div class="bk-stories${memberCards ? ' member' : ''}">${yours}${memberCards || houseCards}</div>`;
 }
 const COMPOSE_TYPES = {
   post: { icon: '✎', label: 'POST', pill: "What's on your heart today?", gate: '<b>Posting opens with your 16:3 Faith account.</b> Member accounts connect to this preview at the sign-in leg — until then the wall is open to read, exactly as the family left it. Nothing about browsing is locked.' },
@@ -702,9 +835,13 @@ function postCard(p, inProfile = false) {
   const rx = p.reactionCounts || {};
   const total = rxTotal(p);
   const praying = p.type === 'prayer' ? (p.prayerCount || 0) : (rx.pray || 0);
+  /* P1-3 (amp-up 2026-11-22): the five real reaction kinds render as
+     their own chips with their real counts — the family's response
+     reads as life on the card, not a summary statistic. */
+  const RX_KINDS = [['amen', '♥', 'Amen'], ['love', '❤', 'Love'], ['pray', '✛', 'Pray'], ['fire', '🔥', 'Fire'], ['blessing', '✦', 'Blessing']];
+  const rxChips = RX_KINDS.filter(([k]) => rx[k]).map(([k, g, l]) => `<span><span class="k">${g} ${l}</span> ${rx[k]}</span>`).join('');
   const metaBits = [];
-  if (total) metaBits.push(`♥ ${total} reaction${total === 1 ? '' : 's'}`);
-  if (praying) metaBits.push(`✛ ${praying} praying`);
+  if (praying && p.type === 'prayer') metaBits.push(`✛ ${praying} praying`);
   const tag = p.type === 'testimony' ? '<span class="bk-tag test">✦ TESTIMONY</span>'
     : p.type === 'prayer' ? `<span class="bk-tag">✛ PRAYER REQUEST${p.isAnswered ? ' · ANSWERED ✓' : ''}</span>`
     : p.isPinned ? '<span class="bk-tag pin">PINNED</span>' : '';
@@ -718,7 +855,7 @@ function postCard(p, inProfile = false) {
       <small>${relTime(p.createdAt)}${p.authorLocation ? ' · ' + esc(p.authorLocation) : ''}</small></div>${tag}</div>
       <p class="bk-posttext">${body}</p>${long && !inProfile ? '<button type="button" class="bk-seemore" data-seemore>See more</button>' : ''}
     </div>${media}
-    <div class="bk-postmeta"><span class="amen">${metaBits.length ? metaBits.join(' · ') : 'Be the first to say Amen — reactions open with sign-in'}</span><span>${p.commentCount} comment${p.commentCount === 1 ? '' : 's'} · ${p.shareCount} share${p.shareCount === 1 ? '' : 's'}</span></div>
+    <div class="bk-postmeta"><span class="amen">${total ? `<span class="bk-rxchips">${rxChips}</span>${metaBits.length ? ' · ' + metaBits.join(' · ') : ''}` : (metaBits.length ? metaBits.join(' · ') : 'Be the first to say Amen — reactions open with sign-in')}</span><span>${p.commentCount} comment${p.commentCount === 1 ? '' : 's'} · ${p.shareCount} share${p.shareCount === 1 ? '' : 's'}</span></div>
     <div class="bk-actions">
       <button type="button" class="bk-act" data-act="amen"><span class="ic">♥</span>AMEN${rx.amen ? ` · ${rx.amen}` : ''}</button>
       <button type="button" class="bk-act" data-comments><span class="ic">❝</span>COMMENT${p.commentCount ? ` · ${p.commentCount}` : ''}</button>
@@ -736,7 +873,7 @@ function viewFeed() {
   const srcNote = S.mode === 'live'
     ? `Live from the community API as you read — the family's wall, in the API's own order. Tap a name for the member's profile; comments open right on the card.`
     : `Captured production feed (2026-10-21/22 guest pages) — real posts, in the API's own order. The wall loads live wherever the API answers. Tap a name for the member's profile; comments open right on the card.`;
-  return `${heroHtml()}${storiesHtml()}${composerHtml()}
+  return `${heroHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
   <section class="bk-feedsec"><div class="bk-feedhead"><div><span class="eyebrow">THE TIMELINE</span><h2>The <em>family feed.</em></h2></div><span class="bk-feedtruth">SHOW UP AS YOU ARE. ♡</span></div>
     <p class="bk-note">${srcNote}</p>
     <div class="bk-filters" role="group" aria-label="Filter posts">
@@ -750,12 +887,12 @@ function viewFeed() {
     ${list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
       ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}</button>`
       : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : '')}
-  </section>`;
+  </section>${belowFeedHtml()}`;
 }
 
 function viewTestimonies() {
   const list = uniqPosts(S.testimonies);
-  return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
+  return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">STORIES OF GRACE</span><h2>The <em>testimony tape.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.${S.mode === 'live' && S.feedHasMore ? ' The wall is still arriving — the LOAD MORE button at the end of the tape pulls the next pages in.' : ''}</p>
   ${list.map((p) => postCard(p)).join('') || (S.loaded
@@ -775,7 +912,7 @@ function peopleStripHtml() {
 }
 function viewMembers() {
   const list = S.members;
-  return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
+  return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE FAMILY DIRECTORY</span><h2>Every face <em>matters.</em></h2></div></div>
   <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> strong — ` : ''}the directory below lists the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'} — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
   <form class="bk-search" data-peoplesearch><input type="search" placeholder="Search the family by name…" value="${esc(S.peopleQuery)}" aria-label="Search members by name"><button type="submit">SEARCH</button></form>
@@ -791,7 +928,7 @@ function viewMembers() {
     </div>`).join('')}</div>`;
 }
 function viewGroups() {
-  return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
+  return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE SMALL CIRCLES</span><h2>Find your <em>people.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'The live group list from the community API, read as you opened this door.' : 'The verified group list, captured live from the community API on 2026-11-19 (the live API did not answer from this network).'} Joining a group is a member action — it opens with your account when sign-in joins this preview.</p>
   <div class="bk-mgrid">${S.groups.map((g) => `
@@ -803,13 +940,13 @@ function viewGroups() {
     </div>`).join('')}</div>`;
 }
 function viewMessages() {
-  return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
+  return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-ctx"><span class="eyebrow">INBOX</span><h3 style="margin-top:8px">Stay <em style="color:var(--gold)">connected.</em></h3>
   <p><b>Messages are member-to-member.</b> The message routes are live on the community API and answer “Please sign in” to guests (verified 2026-11-19) — so there is no inbox to show a guest, and this house does not fake one: no sample conversations, no demo threads.</p>
   <p>When member sign-in joins this preview, your real conversations open here.</p></div>`;
 }
 function viewSaved() {
-  return `<button type="button" class="bk-back" data-view="doors">← ALL COMMUNITY DOORS</button>
+  return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-ctx"><span class="eyebrow">YOUR BOOKMARKS</span><h3 style="margin-top:8px">Keep it <em style="color:var(--gold)">close.</em></h3>
   <p><b>Saved posts live in your member account.</b> Bookmarks are personal account state on the community API — a guest has none, and nothing is quietly stored on this device to pretend otherwise.</p>
   <p>When member sign-in joins this preview, the posts you save from the wall collect here.</p></div>`;
@@ -820,8 +957,9 @@ async function viewProfile(id) {
   const first = carried[0];
   const baked = (S.bakedMembers || []).find((m) => m.id === id);
   const name0 = first?.authorName || baked?.name || 'Member';
-  S.root.querySelector('.bk-main').innerHTML = `<button type="button" class="bk-back" data-view="members">← FIND YOUR PEOPLE</button>
+  S.root.querySelector('.bk-main').innerHTML = `<button type="button" class="bk-back" data-profback>← THE SANCTUARY</button>
     <div data-prof><div class="bk-ctx"><h3>${esc(name0)}</h3><p>Loading the full profile…</p></div></div>`;
+  S.root.querySelector('[data-profback]')?.addEventListener('click', () => { location.hash = '#/community'; });
   let prof = S.profileCache.get(id) || null;
   if (!prof) {
     try { const j = await fetchJson(`${API_BASE}/api/community/members/${encodeURIComponent(id)}/profile`); prof = normalizeProfile(j); if (prof) S.profileCache.set(id, prof); } catch { /* carried fallback below */ }
@@ -843,7 +981,7 @@ async function viewProfile(id) {
   const name = prof?.displayName || name0;
   const el = S.root.querySelector('[data-prof]'); if (!el) return;
   if (id === HOUSE_ID && prof) {
-    el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(prof.coverUrl || '')}')"></div><div class="bk-profbody">
+    el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(prof.coverUrl || aiCoverFor(HOUSE_ID))}')">${prof.coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>'}</div><div class="bk-profbody">
       <span data-profile="${HOUSE_ID}" style="cursor:pointer">${avatarHtml(name, prof.avatarUrl, true)}</span>
       <h2>${esc(name)} <span class="bk-ver">✦</span></h2><div class="meta">${esc(prof.headline || '')}${prof.location ? ' · ' + esc(prof.location) : ''}</div>
       ${countsHtml}
@@ -852,17 +990,52 @@ async function viewProfile(id) {
     <h3 class="bk-secttl">From the <em>house</em></h3>${posts.map((p) => postCard(p, true)).join('')}`;
     wirePosts(el); return;
   }
-  el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(prof?.coverUrl || '')}')"></div><div class="bk-profbody">
+  /* P1-7 + P1-8 (amp-up 2026-11-22): the profile is a full page —
+     AI cover dressing when the member has no real cover, a structured
+     About block, Testimonies as their own section, a Prayer section
+     from the wall's real data, and their Circles. Every number below
+     comes from the carried wall or the profile payload; a section
+     with no data says so plainly instead of inventing content. */
+  const cover = prof?.coverUrl || aiCoverFor(id);
+  const coverNote = prof?.coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>';
+  const theirTest = posts.filter((p) => p.type === 'testimony');
+  const theirPosts = posts.filter((p) => p.type !== 'testimony' && p.type !== 'prayer');
+  const theirPrayers = uniqPosts([...posts.filter((p) => p.type === 'prayer'), ...S.wallPosts.filter((p) => ids.has(p.authorId))]);
+  const prayingTotal = theirPrayers.reduce((a, p) => a + (p.prayerCount || 0), 0);
+  const groupIds = [...new Set(posts.map((p) => p.groupId).filter(Boolean))];
+  const theirGroups = S.groups.filter((g) => groupIds.includes(g.id));
+  const loc = prof?.location || first?.authorLocation || baked?.location || '';
+  const aboutRows = [
+    prof?.headline ? `<div><b>HEADLINE</b><span>${esc(prof.headline)}</span></div>` : '',
+    loc ? `<div><b>LOCATION</b><span>${esc(loc)}</span></div>` : '',
+    prof?.createdAt ? `<div><b>MEMBER SINCE</b><span>${fmtDate(prof.createdAt)}</span></div>` : '',
+    prof?.bio ? `<div><b>ABOUT</b><span>${linkify(prof.bio)}</span></div>` : '',
+  ].join('');
+  const signedInSelf = !!(window.Clerk?.user?.id && window.Clerk.user.id === id);
+  el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(cover)}')">${coverNote}</div><div class="bk-profbody">
     ${avatarHtml(name, prof?.avatarUrl || first?.authorAvatar || baked?.avatar, false)}
     <h2>${esc(name)}${(prof?.isVerified || first?.authorVerified || baked?.verified) ? ' <span class="bk-ver">✦</span>' : ''}</h2>
-    <div class="meta">${esc(prof?.location || first?.authorLocation || baked?.location || '')}${prof?.createdAt ? ' · Member since ' + fmtDate(prof.createdAt) : ''}</div>
+    <div class="meta">${esc(loc)}${prof?.createdAt ? ' · Member since ' + fmtDate(prof.createdAt) : ''}</div>
     ${countsHtml}
-    ${prof?.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:14px 0 0">${linkify(prof.bio)}</p>` : ''}
-    ${prof?.testimony ? `<div class="bk-proftest">“${esc(prof.testimony)}”</div>` : ''}
+    ${signedInSelf ? '<p class="bk-note" style="margin-top:10px">This is your profile — editing opens with the full member sign-in leg.</p>' : ''}
   </div></div>
+  ${aboutRows ? `<h3 class="bk-secttl">About <em>${esc(name.split(' ')[0])}</em></h3><div class="bk-about">${aboutRows}</div>` : ''}
+  <h3 class="bk-secttl">Their <em>testimonies</em></h3>
+  ${prof?.testimony ? `<div class="bk-proftest">“${esc(prof.testimony)}”</div>` : ''}
+  ${theirTest.length ? theirTest.map((p) => postCard(p, true)).join('') : (prof?.testimony ? '' : '<div class="bk-ctx"><p>No testimony posts by this member are in the carried wall.</p></div>')}
+  <h3 class="bk-secttl">Prayers <em>lifted</em></h3>
+  <div class="bk-ctx"><p>${theirPrayers.length
+    ? `<b>${theirPrayers.length} prayer request${theirPrayers.length === 1 ? '' : 's'}</b> from ${esc(name.split(' ')[0])} on the wall, with <b>${prayingTotal} prayers lifted</b> over them by the family.`
+    : `No prayer requests from ${esc(name.split(' ')[0])} are in the carried wall — the Prayer Wall in the Pray hub carries the family's live requests.`}</p></div>
+  ${theirPrayers.map((p) => postCard(p, true)).join('')}
+  <h3 class="bk-secttl">Their <em>circles</em></h3>
+  ${theirGroups.length
+    ? theirGroups.map((g) => `<button type="button" class="bk-mini" data-view="groups" style="border:1px solid #353027;border-radius:10px;padding:10px 12px;margin-bottom:8px;width:100%"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · posting here from this member's wall</small></span></button>`).join('')
+    : '<div class="bk-ctx"><p>Group membership is member-account data — it opens with sign-in. The circles themselves are all on the Groups door.</p></div>'}
   <h3 class="bk-secttl">Posts by <em>${esc(name.split(' ')[0])}</em></h3>
-  ${posts.length ? posts.map((p) => postCard(p, true)).join('') : '<div class="bk-ctx"><p>No posts by this member are in the carried pages.</p></div>'}`;
+  ${theirPosts.length ? theirPosts.map((p) => postCard(p, true)).join('') : '<div class="bk-ctx"><p>No posts by this member are in the carried pages.</p></div>'}`;
   wirePosts(el);
+  el.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); window.scrollTo(0, 0); }));
 }
 
 /* ---------------- comments ---------------- */
@@ -911,9 +1084,21 @@ function wirePosts(scope) {
   }));
 }
 function goHub(hub) { if (location.hash !== '#/' + hub) location.hash = '#/' + hub; else if (S.navigate) S.navigate(hub); }
-function openProfile(id) { S.view = 'profile'; S.profileId = id; paint(); viewProfile(id); }
+function openProfile(id) {
+  if (!id) return;
+  /* P1-6: a profile is a page — navigate by its hash route so the URL
+     is shareable and the back button is sane. The shell re-renders
+     this hub on the hash change and render() parses the route; only
+     when the hash already names this profile do we paint directly. */
+  const target = '#/community/profile/' + encodeURIComponent(id);
+  if (location.hash !== target) { location.hash = target; return; }
+  S.view = 'profile'; S.profileId = id; paint(); viewProfile(id);
+}
 function paint() {
-  const mains = { doors: viewDoors, feed: viewFeed, testimonies: viewTestimonies, members: viewMembers, groups: viewGroups, messages: viewMessages, saved: viewSaved };
+  /* P1-1: the doors grid is retired as a landing — the hub opens IN
+     the feed (template: community.tsx). viewDoors stays defined for
+     the record; every 'doors' state resolves to the feed. */
+  const mains = { doors: viewFeed, feed: viewFeed, testimonies: viewTestimonies, members: viewMembers, groups: viewGroups, messages: viewMessages, saved: viewSaved };
   S.root.innerHTML = frame(S.view === 'profile' ? '<div data-prof><div class="bk-ctx"><h3>Profile</h3><p>Loading…</p></div></div>' : (mains[S.view] || viewDoors)());
   const main = S.root.querySelector('.bk-main');
   S.root.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => {
@@ -980,14 +1165,25 @@ async function loadMoreLive() {
 
 export function render(root, ctx) {
   S.root = root; S.navigate = ctx?.navigate || null;
-  S.view = 'doors'; S.feedFilter = 'all'; S.feedShown = PAGE; S.gateOpen = false; S.composeType = 'post';
+  /* P1-1 + P1-6 (amp-up 2026-11-22): the hub opens IN the feed, and a
+     profile hash (#/community/profile/<id>) opens that member's page.
+     The shell routes on the first hash segment only; this hub parses
+     the rest of its own route. */
+  const pm = location.hash.match(/^#\/community\/profile\/([^/?#]+)/);
+  S.view = pm ? 'profile' : 'feed';
+  S.profileId = pm ? decodeURIComponent(pm[1]) : null;
+  S.feedFilter = 'all'; S.feedShown = PAGE; S.gateOpen = false; S.composeType = 'post';
   S.commentsOpen = new Set(); S.peopleQuery = ''; S.peopleResults = null;
   paint();
-  loadLive().then(() => { if (S.root && S.view !== 'profile') paint(); });
+  if (S.view === 'profile') viewProfile(S.profileId);
+  loadLive().then(() => {
+    if (!S.root) return;
+    if (S.view === 'profile') viewProfile(S.profileId); else paint();
+  });
   window.__community = {
     version: 'faithbook-graft', mode: () => S.mode, state: () => S,
     openFeed: () => { S.view = 'feed'; paint(); }, openTestimonies: () => { S.view = 'testimonies'; paint(); },
     openMembers: () => { S.view = 'members'; paint(); }, openGroups: () => { S.view = 'groups'; paint(); },
-    openProfile: (id) => openProfile(id), openDoors: () => { S.view = 'doors'; paint(); },
+    openProfile: (id) => openProfile(id), openDoors: () => { S.view = 'feed'; paint(); },
   };
 }
