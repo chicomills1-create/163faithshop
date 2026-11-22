@@ -29,6 +29,21 @@
   </div>
 </header>
 
+<!-- ===== FAITH ANSWERS — site-wide AI answer bar (amp-up P1-AI-2,
+     2026-11-22). Labeled AI; answers only from this house's own
+     carried data (Listen catalog, Watch catalog, the day's
+     devotional/KJV verse, community counters). Pastoral care, crisis,
+     and doctrine disputes route to the pastoral team — never an AI
+     answer. Shell-level: it sits above every hub. ===== -->
+<section id="faith-answers" aria-label="Faith Answers">
+  <form id="fa-form">
+    <span class="fa-label">✦ FAITH ANSWERS<em>POWERED BY AI</em></span>
+    <input id="fa-input" type="search" placeholder="Ask about the music, the films, today's word, the family…" aria-label="Ask Faith Answers">
+    <button type="submit" class="fa-btn">ASK</button>
+  </form>
+  <div id="fa-panel" hidden></div>
+</section>
+
 <!-- ===== HUB ROOT — only this region is replaced on a hub switch ===== -->
 <main id="hub-root" tabindex="-1" aria-live="polite"></main>
 
