@@ -10,9 +10,13 @@
    rejected — the shell's nav and player govern.
    DATA: live-first from the community API (Railway home — the only API base
    whose CORS allowlist serves this origin; same production DB as Render),
-   baked capture as the labeled fallback. Writes stay honestly gated until
-   member sign-in (F-CLERK) joins the preview: the backend's member routes
-   are live and answer "Please sign in" to guests (verified 2026-11-19). */
+   baked capture as the labeled fallback. Member sign-in is LIVE on this
+   face (F-CLERK, 2026-11-22): the shell loads the real Clerk instance,
+   so window.Clerk.user is a true signal and member writes are real —
+   the composer POSTs to the community API, Amen/Pray post reactions,
+   replies post comments, all through postJson() below (session token
+   via window.FaithAuth; the terms gate's 403 routes to the acceptance
+   step and retries). Guests keep the honest gates. */
 
 const API_BASE = 'https://faith-hub-api-railway-production.up.railway.app';
 const DATA = 'assets/data/community/';
@@ -120,6 +124,21 @@ const CSS2 = `
 .bk-gate .row{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
 .bk-gbtn{border:1px solid #765921;background:transparent;border-radius:5px;padding:9px 13px;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.5px;cursor:pointer}
 .bk-gbtn:hover{background:#312411}
+/* F-CLERK member composer + comment form (2026-11-22) */
+.bk-comp-form{flex:1;min-width:0}
+.bk-comp-input{width:100%;border:1px solid #454038;border-radius:16px;padding:12px 16px;background:#211f1c;color:var(--cream);font:inherit;font-size:13.5px;line-height:1.5;resize:vertical}
+.bk-comp-input:focus{outline:none;border-color:var(--gold)}
+.bk-comp-status{font-size:12.5px;color:#e7dcc0;margin-top:10px;line-height:1.55}
+.bk-comp-status b{color:var(--gold)}
+.bk-comp-sendrow{display:flex;justify-content:flex-end}
+.bk-goldbtn.bk-compsend{width:auto;padding:10px 18px}
+.bk-goldbtn.bk-compsend:disabled{opacity:.55}
+.bk-cform{display:flex;gap:8px;margin-top:10px}
+.bk-cinput{flex:1;min-width:0;background:#211f1c;border:1px solid #454038;border-radius:20px;padding:8px 14px;color:var(--cream);font:inherit;font-size:13px}
+.bk-cinput:focus{outline:none;border-color:var(--gold)}
+.bk-csend{border:1px solid #765921;background:transparent;border-radius:20px;padding:8px 14px;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.5px;cursor:pointer;flex:none}
+.bk-csend:hover{background:#312411}
+.bk-csend:disabled{opacity:.55}
 /* ---------- feed ---------- */
 .bk-feedsec{margin-top:28px}
 .bk-feedhead{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
@@ -362,6 +381,35 @@ async function fetchJson(url, ms = 9000) {
    fetch that hangs (a network that accepts and never answers) would
    strand loadLive forever and freeze the doors on their first paint. */
 async function fetchBaked(name) { return fetchJson(DATA + name); }
+
+/* F-CLERK (2026-11-22): the member signal + write transport. The shell
+   owns the session (window.FaithAuth): its apiFetch attaches the Clerk
+   session token and routes the terms gate's 403 to the acceptance step,
+   retrying once on accept. postJson throws an Error carrying the
+   server's own message (+ .status) — a member write is only ever
+   reported done when the server said so. */
+const isSignedIn = () => { try { return !!(window.Clerk && window.Clerk.user); } catch { return false; } };
+async function postJson(url, body) {
+  const doFetch = window.FaithAuth?.apiFetch || fetch;
+  let r;
+  try {
+    r = await doFetch(url, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    const e = new Error('The house could not be reached just now — try again.');
+    e.status = 0; throw e;
+  }
+  let j = null;
+  try { j = await r.json(); } catch { /* non-JSON error body */ }
+  if (!r.ok) {
+    const e = new Error((j && (j.error || j.message)) || `That didn't go through (HTTP ${r.status}).`);
+    e.status = r.status; throw e;
+  }
+  return j || {};
+}
 
 function normalizePost(p) {
   return {
@@ -816,14 +864,24 @@ function storiesHtml() {
   <div class="bk-stories${memberCards ? ' member' : ''}">${yours}${memberCards || houseCards}</div>`;
 }
 const COMPOSE_TYPES = {
-  post: { icon: '✎', label: 'POST', pill: "What's on your heart today?", gate: '<b>Posting opens with your 16:3 Faith account.</b> Member accounts connect to this preview at the sign-in leg — until then the wall is open to read, exactly as the family left it. Nothing about browsing is locked.' },
-  testimony: { icon: '✦', label: 'TESTIMONY', pill: 'Share what God has done…', gate: '<b>Testimonies are shared from member accounts.</b> When sign-in joins this preview, your testimony posts straight to the Testimony Tape. Until then, read the family\'s testimonies — every one is real and carried word for word.' },
-  prayer: { icon: '✛', label: 'PRAYER REQUEST', pill: 'What should the family pray over?', gate: '<b>Prayer requests are posted from member accounts.</b> When sign-in joins this preview, your request lands on the wall with its own praying count. The Prayer Wall in the Pray hub is open to read right now.', prayBtn: true },
+  post: { icon: '✎', label: 'POST', pill: "What's on your heart today?", gate: '<b>Posting opens with your 16:3 Faith account.</b> Join free or sign in (top right) and this box becomes yours — the wall stays open to read either way. Nothing about browsing is locked.' },
+  testimony: { icon: '✦', label: 'TESTIMONY', pill: 'Share what God has done…', gate: '<b>Testimonies are shared from member accounts.</b> Join free or sign in (top right) and your testimony posts straight to the Testimony Tape. Until then, read the family\'s testimonies — every one is real and carried word for word.' },
+  prayer: { icon: '✛', label: 'PRAYER REQUEST', pill: 'What should the family pray over?', gate: '<b>Prayer requests are posted from member accounts.</b> Join free or sign in (top right) and your request lands on the wall with its own praying count. The Prayer Wall in the Pray hub is open to read right now.', prayBtn: true },
 };
 function composerHtml() {
   const t = COMPOSE_TYPES[S.composeType];
+  const tools = `<div class="bk-comp-tools"><span>DROP SOMETHING REAL.</span><div>${Object.entries(COMPOSE_TYPES).map(([k, v]) => `<button type="button" data-composetype="${k}" class="${S.composeType === k ? 'sel' : ''}">${v.icon} <span>${v.label}</span></button>`).join('')}</div></div>`;
+  /* F-CLERK: a signed-in member gets the real composer — a textarea and
+     a share button wired in paint() to POST /api/community/posts. The
+     guest pill + gate panel below stay exactly as they were. */
+  if (isSignedIn()) {
+    return `<section class="panel bk-composer" id="bk-composer"><div class="bk-comp-main"><span class="bk-ava you">YOU</span><form class="bk-comp-form" data-composer><textarea class="bk-comp-input" data-composer-input rows="2" maxlength="20000" placeholder="${esc(t.pill)}" aria-label="Write your post"></textarea></form></div>
+    ${tools}
+    <p class="bk-comp-status" data-composer-status${S.composerFlash ? '' : ' hidden'}>${S.composerFlash || ''}</p>
+    <div class="bk-comp-sendrow"><button type="button" class="bk-goldbtn bk-compsend" data-composersend>SHARE IT WITH THE FAMILY</button></div></section>`;
+  }
   return `<section class="panel bk-composer" id="bk-composer"><div class="bk-comp-main"><span class="bk-ava you">YOU</span><button type="button" class="bk-comp-pill" data-gate>${esc(t.pill)}</button></div>
-    <div class="bk-comp-tools"><span>DROP SOMETHING REAL.</span><div>${Object.entries(COMPOSE_TYPES).map(([k, v]) => `<button type="button" data-composetype="${k}" class="${S.composeType === k ? 'sel' : ''}">${v.icon} <span>${v.label}</span></button>`).join('')}</div></div>
+    ${tools}
     <div class="bk-gate ${S.gateOpen ? 'open' : ''}" data-gatepanel>${t.gate}${t.prayBtn ? '<div class="row"><button type="button" class="bk-gbtn" data-hubgo="pray">OPEN THE PRAYER WALL ↗</button></div>' : ''}</div></section>`;
 }
 function feedList() {
@@ -855,7 +913,7 @@ function postCard(p, inProfile = false) {
       <small>${relTime(p.createdAt)}${p.authorLocation ? ' · ' + esc(p.authorLocation) : ''}</small></div>${tag}</div>
       <p class="bk-posttext">${body}</p>${long && !inProfile ? '<button type="button" class="bk-seemore" data-seemore>See more</button>' : ''}
     </div>${media}
-    <div class="bk-postmeta"><span class="amen">${total ? `<span class="bk-rxchips">${rxChips}</span>${metaBits.length ? ' · ' + metaBits.join(' · ') : ''}` : (metaBits.length ? metaBits.join(' · ') : 'Be the first to say Amen — reactions open with sign-in')}</span><span>${p.commentCount} comment${p.commentCount === 1 ? '' : 's'} · ${p.shareCount} share${p.shareCount === 1 ? '' : 's'}</span></div>
+    <div class="bk-postmeta"><span class="amen">${total ? `<span class="bk-rxchips">${rxChips}</span>${metaBits.length ? ' · ' + metaBits.join(' · ') : ''}` : (metaBits.length ? metaBits.join(' · ') : (isSignedIn() ? 'Be the first to say Amen' : 'Be the first to say Amen — reactions open with sign-in'))}</span><span>${p.commentCount} comment${p.commentCount === 1 ? '' : 's'} · ${p.shareCount} share${p.shareCount === 1 ? '' : 's'}</span></div>
     <div class="bk-actions">
       <button type="button" class="bk-act" data-act="amen"><span class="ic">♥</span>AMEN${rx.amen ? ` · ${rx.amen}` : ''}</button>
       <button type="button" class="bk-act" data-comments><span class="ic">❝</span>COMMENT${p.commentCount ? ` · ${p.commentCount}` : ''}</button>
@@ -930,26 +988,32 @@ function viewMembers() {
 function viewGroups() {
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE SMALL CIRCLES</span><h2>Find your <em>people.</em></h2></div></div>
-  <p class="bk-note">${S.mode === 'live' ? 'The live group list from the community API, read as you opened this door.' : 'The verified group list, captured live from the community API on 2026-11-19 (the live API did not answer from this network).'} Joining a group is a member action — it opens with your account when sign-in joins this preview.</p>
+  <p class="bk-note">${S.mode === 'live' ? 'The live group list from the community API, read as you opened this door.' : 'The verified group list, captured live from the community API on 2026-11-19 (the live API did not answer from this network).'} ${isSignedIn() ? 'You are signed in — group joining wires to your account with the member build; the circles themselves are the live list below.' : 'Joining a group is a member action — join free or sign in (top right) and the circles open to your account.'}</p>
   <div class="bk-mgrid">${S.groups.map((g) => `
     <div class="bk-gcard"><span class="bk-gcover">${esc(initials(g.name))}</span>
       <h3>${esc(g.name)}</h3><div class="meta">${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group · led by the 16:3 Faith house</div>
       <p>${esc(g.description || '')}</p>
       <button type="button" class="bk-goldbtn" style="width:auto;padding:9px 16px;margin-top:4px" data-joingate>JOIN GROUP</button>
-      <div class="bk-gate" data-joingatepanel><b>Joining opens with member sign-in.</b> Groups are live on the community API today — membership itself is an account action, and accounts join this preview at the sign-in leg. The circle will be here.</div>
+      <div class="bk-gate" data-joingatepanel>${isSignedIn() ? '<b>You are signed in.</b> Group joining wires to your account with the member build — the circle will be here, and it will be real.' : '<b>Joining opens with member sign-in.</b> Groups are live on the community API today — membership itself is an account action. Join free or sign in (top right). The circle will be here.'}</div>
     </div>`).join('')}</div>`;
 }
 function viewMessages() {
+  const member = isSignedIn();
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-ctx"><span class="eyebrow">INBOX</span><h3 style="margin-top:8px">Stay <em style="color:var(--gold)">connected.</em></h3>
-  <p><b>Messages are member-to-member.</b> The message routes are live on the community API and answer “Please sign in” to guests (verified 2026-11-19) — so there is no inbox to show a guest, and this house does not fake one: no sample conversations, no demo threads.</p>
-  <p>When member sign-in joins this preview, your real conversations open here.</p></div>`;
+  ${member
+    ? `<p><b>You're signed in — and the honest word is the inbox is the next member build.</b> The message routes are live on the community API, but this wall does not fake threads: no sample conversations stand in for yours. When the inbox lands, it opens on this account.</p>`
+    : `<p><b>Messages are member-to-member.</b> The message routes are live on the community API and answer “Please sign in” to guests (verified 2026-11-19) — so there is no inbox to show a guest, and this house does not fake one: no sample conversations, no demo threads.</p>
+  <p>Join free or sign in (top right) and your real conversations will open here as the member build lands.</p>`}</div>`;
 }
 function viewSaved() {
+  const member = isSignedIn();
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-ctx"><span class="eyebrow">YOUR BOOKMARKS</span><h3 style="margin-top:8px">Keep it <em style="color:var(--gold)">close.</em></h3>
-  <p><b>Saved posts live in your member account.</b> Bookmarks are personal account state on the community API — a guest has none, and nothing is quietly stored on this device to pretend otherwise.</p>
-  <p>When member sign-in joins this preview, the posts you save from the wall collect here.</p></div>`;
+  ${member
+    ? `<p><b>You're signed in — your saved shelf is account state, and it is not wired on this wall yet.</b> Nothing is quietly stored on this device to pretend otherwise; when the shelf lands, the posts you save collect here under this account.</p>`
+    : `<p><b>Saved posts live in your member account.</b> Bookmarks are personal account state on the community API — a guest has none, and nothing is quietly stored on this device to pretend otherwise.</p>
+  <p>Join free or sign in (top right), and the posts you save from the wall will collect here.</p>`}</div>`;
 }
 async function viewProfile(id) {
   const ids = personIds(id);
@@ -1017,7 +1081,7 @@ async function viewProfile(id) {
     <h2>${esc(name)}${(prof?.isVerified || first?.authorVerified || baked?.verified) ? ' <span class="bk-ver">✦</span>' : ''}</h2>
     <div class="meta">${esc(loc)}${prof?.createdAt ? ' · Member since ' + fmtDate(prof.createdAt) : ''}</div>
     ${countsHtml}
-    ${signedInSelf ? '<p class="bk-note" style="margin-top:10px">This is your profile — editing opens with the full member sign-in leg.</p>' : ''}
+    ${signedInSelf ? '<p class="bk-note" style="margin-top:10px">This is your profile, and you are signed in — this page is your public family face. Profile editing is the next member build; nothing here is simulated.</p>' : ''}
   </div></div>
   ${aboutRows ? `<h3 class="bk-secttl">About <em>${esc(name.split(' ')[0])}</em></h3><div class="bk-about">${aboutRows}</div>` : ''}
   <h3 class="bk-secttl">Their <em>testimonies</em></h3>
@@ -1039,11 +1103,7 @@ async function viewProfile(id) {
 }
 
 /* ---------------- comments ---------------- */
-async function toggleComments(card, post) {
-  const box = card.querySelector('[data-commentsbox]');
-  const open = box.classList.toggle('open');
-  S.commentsOpen[open ? 'add' : 'delete'](post.id);
-  if (!open || box.dataset.loaded) return;
+async function fillComments(box, post) {
   box.innerHTML = '<p class="bk-cnote">Loading comments from the live community API…</p>';
   let rows = S.commentsCache.get(post.id);
   if (!rows) {
@@ -1051,22 +1111,97 @@ async function toggleComments(card, post) {
     catch { box.innerHTML = `<p class="bk-cnote">Comments for this post load from the live community API, which did not answer from this network. The count on the card is the post's real recorded count (${post.commentCount}).</p>`; box.dataset.loaded = 'err'; return; }
   }
   box.dataset.loaded = '1';
+  /* F-CLERK: a signed-in member gets the reply form (POST below);
+     guests keep the honest gate note. Reading is open to everyone. */
+  const tail = isSignedIn()
+    ? `<form class="bk-cform" data-cform><input class="bk-cinput" data-cinput type="text" maxlength="2000" placeholder="Add your voice…" aria-label="Write a comment"><button class="bk-csend" type="submit">REPLY</button></form><p class="bk-cnote" data-cstatus style="margin-top:6px"></p>`
+    : `<p class="bk-cnote" style="margin-top:8px">Commenting opens with member sign-in — join free or sign in (top right) to add your voice. Reading is open to everyone.</p>`;
   box.innerHTML = (rows.length ? rows.map((cm) => `
     <div class="bk-cline">${avatarHtml(cm.authorName, cm.authorAvatar, cm.authorId === HOUSE_ID)}
       <div class="bk-bubble"><b data-profile="${esc(cm.authorId || '')}" style="cursor:pointer">${esc(cm.authorName)}</b><span>${relTime(cm.createdAt)}</span><p>${linkify(cm.body || '')}</p></div></div>`).join('')
     : '<p class="bk-cnote">No comments yet on this post.</p>')
-    + `<p class="bk-cnote" style="margin-top:8px">Commenting opens with member sign-in — accounts join this preview at the sign-in leg. Reading is open to everyone.</p>`;
+    + tail;
   box.querySelectorAll('[data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
+  const form = box.querySelector('[data-cform]');
+  if (form) form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = form.querySelector('[data-cinput]');
+    const status = box.querySelector('[data-cstatus]');
+    const btn = form.querySelector('.bk-csend');
+    const body = (input?.value || '').trim();
+    if (!body) return;
+    if (btn) btn.disabled = true;
+    try {
+      await postJson(`${API_BASE}/api/community/posts/${encodeURIComponent(post.id)}/comments`, { body });
+      S.commentsCache.delete(post.id);
+      post.commentCount = (post.commentCount || 0) + 1;
+      await fillComments(box, post);
+    } catch (err) { if (status) status.textContent = err.message; }
+    if (btn) btn.disabled = false;
+  });
+}
+async function toggleComments(card, post) {
+  const box = card.querySelector('[data-commentsbox]');
+  const open = box.classList.toggle('open');
+  S.commentsOpen[open ? 'add' : 'delete'](post.id);
+  if (!open || box.dataset.loaded) return;
+  await fillComments(box, post);
 }
 
 /* ---------------- events ---------------- */
 const ACT_GATES = {
-  amen: '<b>Amen is a member tap.</b> Reactions save to your 16:3 Faith account — the counts on every card are the family\'s real totals, and your Amen joins them when sign-in joins this preview.',
-  pray: '<b>Praying is a member tap.</b> The praying counts on the wall are real, kept by the community API. When sign-in joins this preview, your tap adds yours — and the family sees someone stood with them.',
-  share: '<b>Sharing is a member action.</b> The share counts on the cards are the real recorded totals. Sharing opens with your account when sign-in joins this preview.',
-  save: '<b>Saved posts live in your account.</b> Bookmarks are personal account state — nothing is stored on this device. Your saves collect on the Saved Posts door when sign-in joins this preview.',
+  amen: '<b>Amen is a member tap.</b> Reactions save to your 16:3 Faith account — the counts on every card are the family\'s real totals, and your Amen joins them the moment you join free or sign in (top right).',
+  pray: '<b>Praying is a member tap.</b> The praying counts on the wall are real, kept by the community API. Join free or sign in (top right) and your tap adds yours — and the family sees someone stood with them.',
+  share: '<b>Sharing is a member action.</b> The share counts on the cards are the real recorded totals. Sharing opens with your account — join free or sign in (top right).',
+  save: '<b>Saved posts live in your account.</b> Bookmarks are personal account state — nothing is stored on this device. Your saves collect on the Saved Posts door once you join free or sign in.',
 };
-function findPost(id) { return [...S.posts, ...S.testimonies].find((p) => p.id === id); }
+/* ---------------- member acts (F-CLERK) ----------------
+   AMEN and PRAY post to the SAME server handler (the /pray route is an
+   alias of /react) with the member's reaction type — AMEN rides as
+   'praise', the server's name for it. The server toggles and returns
+   the true counts; they are merged into the post (the card's keyspace
+   reads praise as amen, blessed as blessing) and the card repaints
+   from the merged post — never counted client-side. Authors can't
+   react to their own posts (403) and the terms gate can 403 too;
+   either way the server's own words are what the member reads.
+   SHARE/SAVE have no client-facing server contract on this wall, so
+   members get the honest word — never a fake count. */
+const MEMBER_ACT_NOTES = {
+  share: '<b>Sharing rides your own channels today.</b> The share counts on the cards are the family\'s recorded totals; an in-house share button is on the build list — not faked here. Copy the wall link from your browser and drop it where your people are.',
+  save: '<b>Your saved shelf is account state.</b> It opens on the Saved Posts door with the full member build — the save tap is not wired on this wall yet, and nothing is quietly stored on this device to pretend otherwise.',
+};
+function repaintCard(card, post) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = postCard(post, !!card.closest('[data-prof]'));
+  const fresh = tmp.firstElementChild;
+  if (!fresh) return;
+  card.replaceWith(fresh);
+  wirePosts(fresh);
+}
+async function memberReact(card, gate, act, post, btn) {
+  const type = act === 'amen' ? 'praise' : 'pray';
+  btn.disabled = true;
+  try {
+    const r = await postJson(`${API_BASE}/api/community/posts/${encodeURIComponent(post.id)}/react`, { type });
+    if (r.reactionCounts) {
+      const rc = r.reactionCounts, cur = post.reactionCounts || {};
+      post.reactionCounts = {
+        ...cur,
+        love: rc.love || 0, pray: rc.pray || 0, fire: rc.fire || 0,
+        amen: rc.praise ?? rc.amen ?? (cur.amen || 0),
+        blessing: rc.blessed ?? rc.blessing ?? (cur.blessing || 0),
+      };
+    }
+    if (typeof r.prayerCount === 'number') post.prayerCount = r.prayerCount;
+    repaintCard(card, post);
+  } catch (err) {
+    gate.innerHTML = `<b>That tap didn't land.</b> ${esc(err.message)}`;
+    gate.dataset.kind = act; gate.classList.add('open');
+  }
+  btn.disabled = false;
+}
+
+function findPost(id) { return [...S.posts, ...S.testimonies, ...(S.wallPosts || [])].find((p) => p.id === id); }
 function wirePosts(scope) {
   scope.querySelectorAll('[data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
   scope.querySelectorAll('[data-comments]').forEach((btn) => btn.addEventListener('click', () => {
@@ -1074,8 +1209,19 @@ function wirePosts(scope) {
   }));
   scope.querySelectorAll('[data-act]').forEach((btn) => btn.addEventListener('click', () => {
     const card = btn.closest('[data-post]'); const gate = card?.querySelector('[data-actgate]'); if (!gate) return;
-    const was = gate.classList.contains('open') && gate.dataset.kind === btn.dataset.act;
-    gate.innerHTML = ACT_GATES[btn.dataset.act] || ''; gate.dataset.kind = btn.dataset.act;
+    const act = btn.dataset.act;
+    if (isSignedIn()) {
+      if (act === 'amen' || act === 'pray') {
+        const post = findPost(card.dataset.post);
+        if (post) { memberReact(card, gate, act, post, btn); return; }
+      }
+      const wasM = gate.classList.contains('open') && gate.dataset.kind === act;
+      gate.innerHTML = MEMBER_ACT_NOTES[act] || ''; gate.dataset.kind = act;
+      gate.classList.toggle('open', !wasM);
+      return;
+    }
+    const was = gate.classList.contains('open') && gate.dataset.kind === act;
+    gate.innerHTML = ACT_GATES[act] || ''; gate.dataset.kind = act;
     gate.classList.toggle('open', !was);
   }));
   scope.querySelectorAll('[data-seemore]').forEach((btn) => btn.addEventListener('click', () => {
@@ -1117,6 +1263,46 @@ function paint() {
   }));
   main.querySelectorAll('[data-gate]').forEach((n) => n.addEventListener('click', () => { S.gateOpen = !S.gateOpen; paint(); }));
   main.querySelectorAll('[data-composetype]').forEach((n) => n.addEventListener('click', () => { S.composeType = n.dataset.composetype; paint(); }));
+  /* F-CLERK: the member composer's share button — POSTs the post, then
+     lands it at the head of the wall from the server's own returned row
+     (a head-slice refetch covers any other response shape). The 60s
+     double-submit guard and the sentence rule are the server's; its
+     message is what the member reads. */
+  const sendBtn = main.querySelector('[data-composersend]');
+  if (sendBtn) sendBtn.addEventListener('click', async () => {
+    const input = main.querySelector('[data-composer-input]');
+    const status = main.querySelector('[data-composer-status]');
+    const say = (html) => { if (status) { status.hidden = false; status.innerHTML = html; } };
+    const body = (input?.value || '').trim();
+    if (!body) { say('Write a line or two first — a sentence is plenty.'); return; }
+    sendBtn.disabled = true; say('Sharing…');
+    try {
+      const j = await postJson(`${API_BASE}/api/community/posts`, { type: S.composeType, body });
+      if (input) input.value = '';
+      S.composerFlash = '<b>Shared.</b> Your post is on the wall — it leads the feed below.';
+      const mine = j?.post?.id ? ingestPosts([j.post]) : [];
+      if (mine.length) {
+        const p = mine[0];
+        const list = p.type === 'testimony' ? S.testimonies : S.posts;
+        if (!list.some((x) => x.id === p.id)) list.unshift(p);
+        S.feedFilter = 'all'; S.feedShown = PAGE;
+        paint();
+      } else {
+        try {
+          const first = await fetchJson(`${API_BASE}/api/community/posts?limit=25`);
+          const live = ingestPosts(first.posts);
+          if (live.length) {
+            S.posts = live.filter((p) => p.type !== 'testimony');
+            const lt = live.filter((p) => p.type === 'testimony');
+            if (lt.length) S.testimonies = lt;
+            S.mode = 'live'; S.loaded = true;
+          }
+        } catch { /* the wall catches up on its next load */ }
+        paint();
+      }
+    } catch (err) { say(esc(err.message)); }
+    sendBtn.disabled = false;
+  });
   main.querySelectorAll('[data-feedfilter]').forEach((n) => n.addEventListener('click', () => { S.feedFilter = n.dataset.feedfilter; S.feedShown = PAGE; paint(); }));
   main.querySelectorAll('[data-loadmore]').forEach((n) => n.addEventListener('click', () => {
     S.feedShown += PAGE; paint();
@@ -1172,7 +1358,7 @@ export function render(root, ctx) {
   const pm = location.hash.match(/^#\/community\/profile\/([^/?#]+)/);
   S.view = pm ? 'profile' : 'feed';
   S.profileId = pm ? decodeURIComponent(pm[1]) : null;
-  S.feedFilter = 'all'; S.feedShown = PAGE; S.gateOpen = false; S.composeType = 'post';
+  S.feedFilter = 'all'; S.feedShown = PAGE; S.gateOpen = false; S.composeType = 'post'; S.composerFlash = null;
   S.commentsOpen = new Set(); S.peopleQuery = ''; S.peopleResults = null;
   paint();
   if (S.view === 'profile') viewProfile(S.profileId);

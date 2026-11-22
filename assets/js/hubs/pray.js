@@ -45,8 +45,10 @@
      guest-readable and LIVE (real rows read 2026-11-19); POST same route
      { body } is auth-gated server-side (401 "Please sign in to comment.").
      Reads render for everyone; the form renders only signed-in.
-   Auth signal: window.Clerk.user only (the shell's F-CLERK leg mounts the
-   real Clerk instance later); with no session the visitor is signed out. */
+   Auth signal: window.Clerk.user (the shell's F-CLERK leg loads the real
+   Clerk instance, 2026-11-22); with no session the visitor is signed out.
+   Member writes carry the Clerk session token via window.FaithAuth —
+   see fetchJSON below. */
 
 const API = 'https://faith-hub-api-railway-production.up.railway.app';
 const DATA = 'assets/data/pray/';
@@ -58,7 +60,13 @@ async function fetchJSON(url, opts = {}, timeoutMs = 6000) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), timeoutMs);
   try {
-    const r = await fetch(url, { credentials: 'include', signal: ctl.signal, ...opts });
+    /* F-CLERK (2026-11-22): member WRITES ride the shell's FaithAuth
+       transport — the Clerk session token rides along, and the terms
+       gate's 403 routes the member to the acceptance step and retries.
+       Reads stay on the plain fetch (public content is guest-open). */
+    const isWrite = !!opts.method && String(opts.method).toUpperCase() !== 'GET';
+    const doFetch = isWrite && window.FaithAuth?.apiFetch ? window.FaithAuth.apiFetch : fetch;
+    const r = await doFetch(url, { credentials: 'include', signal: ctl.signal, ...opts });
     if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
     return await r.json();
   } finally { clearTimeout(t); }

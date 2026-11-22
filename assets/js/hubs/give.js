@@ -64,8 +64,9 @@
    Giving and Partner membership revive with the same key (they share one
    Stripe client), so the one status line covers both doors.
 
-   Auth signal: window.Clerk.user only (the shell's F-CLERK leg mounts the
-   real Clerk instance later) — the same signal PRAY uses. */
+   Auth signal: window.Clerk.user (the shell's F-CLERK leg loads the real
+   Clerk instance, 2026-11-22) — the same signal PRAY uses. Checkout
+   carries the session token via window.FaithAuth (see postCheckout). */
 
 const API = 'https://faith-hub-api-railway-production.up.railway.app';
 const PARTNER_MONTHLY = '$16.30';
@@ -132,7 +133,13 @@ async function postCheckout(door, path, body) {
   }
   let res;
   try {
-    res = await fetch(url, opts);
+    /* F-CLERK (2026-11-22): checkout rides the shell's FaithAuth
+       transport — a signed-in member's session token verifies
+       server-side (the 401 "session didn't verify" leg below is now
+       reachable only on a genuinely dead session), and the terms
+       gate's 403 routes the member to the acceptance step + retry. */
+    const doFetch = window.FaithAuth?.apiFetch || fetch;
+    res = await doFetch(url, opts);
   } catch (e) {
     rec.status = 0; rec.response = { networkError: String(e && e.message || e) };
     publishDebug();
