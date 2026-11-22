@@ -652,7 +652,10 @@ window.addEventListener('hashchange', () => navigate(routeFromHash()));
 /* A bfcache restore revives the DOM exactly as it was frozen, which can
    disagree with the hash in the restored URL; reconcile on restore. */
 window.addEventListener('pageshow', (e) => {
-  if (e.persisted && routeFromHash() !== currentHub) navigate(routeFromHash());
+  if (e.persisted && routeFromHash() !== currentHub) 
+
+
+navigate(routeFromHash());
 });
 
 /* Account controls (§3.8) — shell-level placeholders at scaffold stage. */
@@ -662,6 +665,89 @@ document.getElementById('btn-signin').addEventListener('click', () => {
 document.getElementById('btn-join').addEventListener('click', () => {
   window.alert('Join mounts here at the F-CLERK leg: form visible from first paint, terms gate server-side (JOIN cure carries).');
 });
+
+
+/* ---------- FAITH ANSWERS (amp-up P1-AI-2, 2026-11-22) ----------
+   The AI consult's queue-jumper: a site-wide answer bar, labeled AI,
+   answering ONLY from this house's own carried data. The guardrails
+   are structural, not cosmetic: pastoral care / crisis / doctrine
+   disputes get the pastoral routing line and no AI answer; scripture
+   is quoted only from the carried devotional verse (KJV); artists,
+   films, groups, and counts come from the baked catalogs/counters —
+   or the bar says plainly that it doesn't know. Data loads lazily on
+   the first ask, so the bar costs nothing until it is used. */
+const FA = { data: null, loading: null };
+const faEsc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+async function faLoad() {
+  if (FA.data) return FA.data;
+  if (!FA.loading) FA.loading = (async () => {
+    const get = async (u) => { try { const r = await fetch(u); return r.ok ? await r.json() : null; } catch { return null; } };
+    const [listen, watch, devo, meta, groups] = await Promise.all([
+      get('assets/data/listen-index.json'), get('assets/data/watch.json'),
+      get('assets/data/read/devotionals.json'), get('assets/data/community/meta.json'),
+      get('assets/data/community/groups.json')]);
+    FA.data = { listen, watch, devo, meta, groups };
+    return FA.data;
+  })();
+  return FA.loading;
+}
+const FA_PASTORAL = 'That is beyond what an answer bar should carry. For personalized guidance, please contact our pastoral team — a person, not a program, will walk with you.';
+const FA_CRISIS = 'Please reach a person right now: call or text <b>988</b> — the Suicide and Crisis Lifeline (US), free, 24/7. And let our pastoral team stand with you too: for personalized guidance, please contact our pastoral team.';
+async function faithAnswer(raw) {
+  const panel = $('fa-panel');
+  if (!panel) return;
+  const show = (html, hub) => {
+    panel.hidden = false;
+    panel.innerHTML = `<div class="fa-a">${html}</div>` + (hub ? `<button type="button" class="fa-go" data-fago="${hub}">OPEN ${hub.toUpperCase()} ↗</button>` : '') + '<p class="fa-note">Powered by AI — answers only from 16:3 Faith\u2019s own carried data; nothing is invented, and it never speaks for the pastor or any member.</p>';
+    panel.querySelector('[data-fago]')?.addEventListener('click', () => { if (location.hash !== '#/' + hub) location.hash = '#/' + hub; });
+  };
+  const q = String(raw || '').trim();
+  if (!q) { panel.hidden = true; return; }
+  const low = q.toLowerCase();
+  show('<span class="fa-thinking">Faith Answers is checking the house\'s own shelves…</span>');
+  /* Guardrail routes first — before any data answer. */
+  if (/(suicide|kill myself|self[-\s]?harm|hurt myself|end my life|want to die)/.test(low)) return show(FA_CRISIS);
+  if (/(pastoral|talk to (a |the )?pastor|speak to (a |the )?pastor|counsel|crisis|depress|anxiet|grief|addict|abuse)/.test(low)) return show(FA_PASTORAL);
+  if (/(doctrine|denomination|calvinis|arminian|once saved|speaking in tongues|predestination|the rapture|end times prophecy)/.test(low)) return show(FA_PASTORAL + ' The Read hub carries the Word itself, word for word.', 'read');
+  const d = await faLoad();
+  const counters = d.meta?.counters?.livePulse20261119 || d.meta?.counters || {};
+  /* Today's Word — the day's devotional; the verse is quoted only from
+     the carried KJV data, never generated. */
+  if (/today'?s word|verse of the day|daily word|devotional/.test(low)) {
+    const t = new Date();
+    const iso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    const e = d.devo?.entries?.find((x) => x.date === iso);
+    if (e) return show(`<b>Today's Word — ${faEsc(e.title)}</b> (${faEsc(e.reference)}, KJV)<br>“${faEsc(e.verse)}”`, 'read');
+    return show('There is no devotional entry in the carried data for today — and nothing is fabricated in its place. The Read hub carries the full KJV text.', 'read');
+  }
+  /* A named verse reference answers only when a carried devotional
+     quotes it — otherwise the bar points at the full text. */
+  const refHit = d.devo?.entries?.find((e) => e.reference && low.includes(e.reference.toLowerCase()));
+  if (refHit) return show(`<b>${faEsc(refHit.reference)}</b> (KJV), carried in the devotional “${faEsc(refHit.title)}”:<br>“${faEsc(refHit.verse)}”`, 'read');
+  /* Counts — the production counters, named as such. */
+  if (/how many members|member count/.test(low) && counters.members) return show(`The family stands at <b>${counters.members} members</b> (production counters).`, 'community');
+  if (/testimon/.test(low) && counters.testimoniesCounter) return show(`The house counters carry <b>${counters.testimoniesCounter} testimonies</b>; the Sanctuary's tape lists the testimonies the wall itself serves.`, 'community');
+  if (/prayer|pray/.test(low) && counters.prayerRequests) return show(`The wall carries <b>${counters.prayerRequests} prayer requests</b>, with <b>${counters.prayersLifted} prayers lifted</b> (production counters). Bring what you carry.`, 'pray');
+  /* Groups — the real list. */
+  if (/(groups| circles)/.test(low) && d.groups?.groups?.length) return show(`The house has <b>${d.groups.groups.length} groups</b>: ${d.groups.groups.map((g) => faEsc(g.name)).join(' · ')}.`, 'community');
+  /* Artists — name match against the Listen index. */
+  const artists = d.listen?.artists || [];
+  const ahit = artists.find((a) => low.includes(a.name.toLowerCase()))
+    || (low.length >= 4 ? artists.find((a) => a.name.toLowerCase().includes(low)) : null);
+  if (ahit) return show(`<b>${faEsc(ahit.name)}</b> is on the roster — <b>${ahit.releases} releases · ${ahit.songs} songs · ${ahit.playable} playable</b> in the Listen hub, albums grouped by album with their exact official covers.`, 'listen');
+  /* Films — title match against the Watch catalog. */
+  const titles = d.watch?.titles || [];
+  const thit = titles.find((t) => low.includes(t.title.toLowerCase()))
+    || (low.length >= 5 ? titles.find((t) => t.title.toLowerCase().includes(low)) : null);
+  if (thit) return show(`<b>${faEsc(thit.title)}</b>${thit.year ? ` (${thit.year})` : ''} is in the Watch hub${thit.door ? ` — ${faEsc(thit.door)}` : ''}.${thit.description ? ' ' + faEsc(String(thit.description).slice(0, 160)) : ''}`, 'watch');
+  /* Door-level answers. */
+  if (/artist|music|song|listen|album/.test(low)) return show(`The Listen hub carries <b>${artists.length} artists</b> — ask me about one by name and I'll pull their real numbers.`, 'listen');
+  if (/film|movie|watch/.test(low)) return show(`The Watch hub carries <b>${titles.length} titles</b> — ask me about one by name.`, 'watch');
+  if (/give|donat|offering|tithe/.test(low)) return show('The Give hub carries the house\'s giving doors — every option, and the honesty line, stated there plainly.', 'give');
+  if (/shop|store|buy|merch|shirt|hoodie/.test(low)) return show('The Shop hub carries the house\'s real products — every piece a real, fulfillable product.', 'shop');
+  return show('Faith Answers speaks only from this house\'s own shelves — the Listen catalog, the Watch catalog, the day\'s Word, and the family\'s counters — and that isn\'t on them. Try an artist or a film by name, "today\'s word", or the Community.');
+}
+$('fa-form')?.addEventListener('submit', (e) => { e.preventDefault(); faithAnswer($('fa-input')?.value); });
 
 navigate(routeFromHash());
 
