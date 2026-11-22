@@ -658,13 +658,266 @@ window.addEventListener('pageshow', (e) => {
 navigate(routeFromHash());
 });
 
-/* Account controls (§3.8) — shell-level placeholders at scaffold stage. */
-document.getElementById('btn-signin').addEventListener('click', () => {
-  window.alert('Sign-in mounts here at the F-CLERK leg: same Clerk production instance, loaded directly from the Clerk FAPI host — no /api/__clerk proxy.');
+/* ---------- ACCOUNT / AUTH (F-CLERK, 2026-11-22) ----------
+   The cure for the scaffold placeholders (diagnosis: records/
+   CLERK-SIGNUP-CHECK-2026-11-22.md, cure list C1–C6). ClerkJS is pinned
+   and loaded DIRECTLY from the production FAPI host — never the dead
+   /api/__clerk proxy, whose registered URL now lands on GitHub Pages.
+   Loading is async and FAIL-SOFT: the shell renders fully for guests
+   whether or not the Clerk host answers; if it never loads, the buttons
+   give an honest unavailable note — never a hang, never a blank page.
+   What lives here:
+   - window.FaithAuth — the one auth surface the hubs use:
+       getToken() → the Clerk session JWT (null for guests)
+       apiFetch() → fetch with the session token attached; on the terms
+                    gate's 403 it routes the member to the acceptance
+                    step and retries the call once on accept
+       signedIn() → the same signal the hubs read via window.Clerk.user
+   - the terms step (JOIN gate): shown right after a join, and whenever
+     a member write answers 403 TERMS_ACCEPTANCE_REQUIRED. Accepting
+     POSTs /api/terms/acceptance with the session token; the server
+     records its own current terms version (201 = membership open).
+   - signed-in chrome: avatar/name + sign-out replace the guest buttons. */
+const Auth = {
+  PK: 'pk_live_Y2xlcmsuMTYzZmFpdGguY29tJA',
+  SRC: 'https://clerk.163faith.com/npm/@clerk/clerk-js@6/dist/clerk.browser.js',
+  API: 'https://faith-hub-api-railway-production.up.railway.app',
+  state: 'loading',        // 'loading' | 'ready' | 'error'
+  pendingIntent: null,     // 'signin' | 'join' clicked before Clerk was ready
+  lastUserId: null,
+  termsPromise: null,      // in-flight terms step, shared by concurrent 403s
+
+  appearance: {
+    variables: {
+      colorPrimary: '#d4af37', colorBackground: '#0d0d0d', colorText: '#efe9dc',
+      colorTextSecondary: '#a89f8d', colorInputBackground: '#121212',
+      colorInputText: '#efe9dc', colorDanger: '#e3472e', borderRadius: '10px',
+      fontFamily: "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif",
+    },
+    elements: {
+      card: { background: 'transparent', boxShadow: 'none', border: 'none', padding: '0' },
+      headerTitle: { fontFamily: "Georgia,'Times New Roman',serif", color: '#efe9dc' },
+      headerSubtitle: { color: '#a89f8d' },
+      footer: { background: 'transparent' },
+    },
+  },
+
+  signedIn() { try { return !!(window.Clerk && window.Clerk.user); } catch { return false; } },
+
+  async getToken() {
+    try {
+      if (window.Clerk && window.Clerk.session) return await window.Clerk.session.getToken();
+    } catch { /* a token hiccup reads as guest, never as a hang */ }
+    return null;
+  },
+  async authHeader() {
+    const tok = await this.getToken();
+    return tok ? { Authorization: `Bearer ${tok}` } : {};
+  },
+
+  /* fetch with the member's session attached. On the terms gate's 403,
+     the member is routed to the acceptance step; accepting retries the
+     original call once with the same arguments. */
+  async apiFetch(url, opts = {}) {
+    const exec = async () => {
+      const headers = { ...(opts.headers || {}), ...(await this.authHeader()) };
+      return fetch(url, { credentials: 'include', ...opts, headers });
+    };
+    let res = await exec();
+    if (res.status === 403 && this.signedIn()) {
+      let code = null;
+      try { const j = await res.clone().json(); code = j && (j.error || j.code); } catch { /* non-JSON 403 — not the gate */ }
+      if (code === 'TERMS_ACCEPTANCE_REQUIRED') {
+        const accepted = await this.openTerms();
+        if (accepted) res = await exec();
+      }
+    }
+    return res;
+  },
+
+  /* ----- overlay furniture ----- */
+  showNote(html) {
+    const st = $('auth-status');
+    if (st) { st.hidden = false; st.innerHTML = html; }
+  },
+  openOverlay() { const o = $('auth-overlay'); if (o) o.hidden = false; },
+  closeOverlay() {
+    const o = $('auth-overlay');
+    if (o) o.hidden = true;
+    const node = $('auth-mount');
+    try { window.Clerk?.unmountSignIn?.(node); } catch { /* noop */ }
+    try { window.Clerk?.unmountSignUp?.(node); } catch { /* noop */ }
+  },
+
+  openAuth(kind) {
+    if (kind === 'join') { try { sessionStorage.setItem('faith-just-joined', '1'); } catch { /* private mode */ } }
+    if (this.state === 'error') {
+      this.openOverlay();
+      this.showNote('<b>Sign-in couldn\'t load from this network.</b> The whole house stays open to read — try again in a moment.');
+      this.pendingIntent = kind;
+      this.load();
+      return;
+    }
+    if (this.state !== 'ready' || !window.Clerk) {
+      this.pendingIntent = kind;
+      this.openOverlay();
+      this.showNote('One moment — the sign-in desk is still opening…');
+      return;
+    }
+    this.mount(kind);
+  },
+
+  mount(kind) {
+    const C = window.Clerk;
+    if (!C) return;
+    /* Clerk's own modal first: it carries the form, the email-code step
+       and the smart CAPTCHA, and its footer switches between sign-in
+       and join in place. No redirect URLs — the member lands back on
+       the hub they were reading. */
+    try {
+      if (kind === 'join' && typeof C.openSignUp === 'function') { C.openSignUp({ appearance: this.appearance }); return; }
+      if (kind === 'signin' && typeof C.openSignIn === 'function') { C.openSignIn({ appearance: this.appearance }); return; }
+    } catch { /* fall through to the mounted form */ }
+    /* Fallback: mount the component into the shell's own overlay. */
+    this.openOverlay();
+    const node = $('auth-mount');
+    if (!node) return;
+    try { C.unmountSignIn?.(node); } catch { /* noop */ }
+    try { C.unmountSignUp?.(node); } catch { /* noop */ }
+    node.innerHTML = '';
+    try {
+      if (kind === 'join' && typeof C.mountSignUp === 'function') C.mountSignUp(node, { appearance: this.appearance });
+      else if (typeof C.mountSignIn === 'function') C.mountSignIn(node, { appearance: this.appearance });
+      else { this.showNote('<b>The sign-in form didn\'t open.</b> Try again in a moment — nothing about the house is locked to reading.'); return; }
+    } catch {
+      this.showNote('<b>The sign-in form didn\'t open.</b> Try again in a moment — nothing about the house is locked to reading.');
+      return;
+    }
+    const other = kind === 'join' ? 'signin' : 'join';
+    this.showNote(kind === 'join'
+      ? 'Already a member? <button type="button" class="auth-switch" data-switch="signin">Sign in</button>'
+      : 'New here? <button type="button" class="auth-switch" data-switch="join">Join free</button>');
+    $('auth-status')?.querySelector('[data-switch]')?.addEventListener('click', () => this.mount(other));
+  },
+
+  /* ----- the terms step (JOIN gate) ----- */
+  openTerms() {
+    if (this.termsPromise) return this.termsPromise;
+    this.termsPromise = new Promise((resolve) => {
+      const ov = $('terms-overlay');
+      if (!ov) { this.termsPromise = null; resolve(false); return; }
+      ov.hidden = false;
+      const status = $('terms-status');
+      if (status) status.hidden = true;
+      const done = (v) => { ov.hidden = true; this.termsPromise = null; resolve(v); };
+      $('btn-terms-later').onclick = () => done(false);
+      $('btn-terms-accept').onclick = async () => {
+        const btn = $('btn-terms-accept');
+        btn.disabled = true;
+        if (status) { status.hidden = false; status.textContent = 'Recording your yes…'; }
+        try {
+          const res = await fetch(`${this.API}/api/terms/acceptance`, {
+            method: 'POST', credentials: 'include',
+            headers: { 'Content-Type': 'application/json', ...(await this.authHeader()) },
+            body: '{}',
+          });
+          if (res.ok) { done(true); return; }
+          if (status) status.textContent = `The house couldn't record that just now (HTTP ${res.status}). Your account is fine — try again.`;
+        } catch {
+          if (status) status.textContent = 'The house couldn\'t be reached just now. Your account is fine — try again.';
+        }
+        btn.disabled = false;
+      };
+    });
+    return this.termsPromise;
+  },
+
+  /* ----- chrome + session transitions ----- */
+  paintChrome() {
+    const member = $('acct-member');
+    if (!member) return;
+    const user = (window.Clerk && window.Clerk.user) || null;
+    const guestBtns = [$('btn-signin'), $('btn-join')];
+    if (user) {
+      guestBtns.forEach((b) => { if (b) b.hidden = true; });
+      member.hidden = false;
+      const name = user.fullName || user.firstName
+        || (user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) || 'Member';
+      $('acct-name').textContent = name;
+      const img = $('acct-avatar'), ini = $('acct-initials');
+      if (user.imageUrl) { img.src = user.imageUrl; img.hidden = false; ini.hidden = true; }
+      else {
+        img.hidden = true; ini.hidden = false;
+        ini.textContent = name.split(/\s+/).slice(0, 2).map((w) => (w[0] || '').toUpperCase()).join('');
+      }
+    } else {
+      guestBtns.forEach((b) => { if (b) b.hidden = false; });
+      member.hidden = true;
+    }
+  },
+
+  onAuthChange() {
+    const user = (window.Clerk && window.Clerk.user) || null;
+    const id = user ? user.id : null;
+    this.paintChrome();
+    if (id === this.lastUserId) return;
+    const was = !!this.lastUserId;
+    this.lastUserId = id;
+    window.dispatchEvent(new CustomEvent('faithauth', { detail: { signedIn: !!id } }));
+    if (id && !was) {
+      this.closeOverlay();
+      let justJoined = false;
+      try { justJoined = !!sessionStorage.getItem('faith-just-joined'); sessionStorage.removeItem('faith-just-joined'); } catch { /* noop */ }
+      if (justJoined) this.openTerms();
+      if (currentHub) navigate(currentHub);
+    } else if (!id && was) {
+      if (currentHub) navigate(currentHub);
+    }
+  },
+
+  load() {
+    if (this.state === 'ready' || window.Clerk) return;
+    this.state = 'loading';
+    const fail = () => { if (this.state !== 'ready') this.state = 'error'; };
+    const s = document.createElement('script');
+    s.src = this.SRC;
+    s.async = true;
+    s.setAttribute('data-clerk-publishable-key', this.PK);
+    s.onload = async () => {
+      try {
+        if (!window.Clerk) return fail();
+        if (typeof window.Clerk.load === 'function' && !window.Clerk.loaded) {
+          await window.Clerk.load({ publishableKey: this.PK });
+        }
+        this.state = 'ready';
+        window.Clerk.addListener(() => this.onAuthChange());
+        this.onAuthChange();
+        if (this.pendingIntent && !$('auth-overlay').hidden) {
+          const k = this.pendingIntent; this.pendingIntent = null; this.mount(k);
+        } else if (this.pendingIntent && this.state === 'ready') {
+          const k = this.pendingIntent; this.pendingIntent = null; this.mount(k);
+        }
+      } catch { fail(); }
+    };
+    s.onerror = fail;
+    document.head.appendChild(s);
+    setTimeout(fail, 25000);
+  },
+};
+$('btn-signin').addEventListener('click', () => Auth.openAuth('signin'));
+$('btn-join').addEventListener('click', () => Auth.openAuth('join'));
+$('btn-signout')?.addEventListener('click', async () => {
+  try { await window.Clerk.signOut(); } catch { /* the listener paints the guest chrome either way */ }
 });
-document.getElementById('btn-join').addEventListener('click', () => {
-  window.alert('Join mounts here at the F-CLERK leg: form visible from first paint, terms gate server-side (JOIN cure carries).');
+$('btn-auth-close')?.addEventListener('click', () => Auth.closeOverlay());
+document.querySelector('[data-auth-close]')?.addEventListener('click', () => Auth.closeOverlay());
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('auth-overlay').hidden) Auth.closeOverlay();
 });
+window.FaithAuth = Auth;
+window.FaithTerms = () => Auth.openTerms();
+Auth.load();
+
 
 
 /* ---------- FAITH ANSWERS (amp-up P1-AI-2, 2026-11-22) ----------
@@ -783,6 +1036,42 @@ if (new URLSearchParams(location.search).has('selftest')) {
       ok('player node identity survives all hub switches', Player.audio === audioNode, 'same <audio> element reference');
       const playedThrough = audioNode.ended && audioNode.currentTime >= audioNode.duration - 0.25;
       ok('playback uninterrupted across all switches', (!audioNode.paused && audioNode.currentTime > 0.1) || playedThrough, `t=${audioNode.currentTime.toFixed(2)}s duration=${audioNode.duration.toFixed(2)}s paused=${audioNode.paused} ended=${audioNode.ended}`);
+
+      /* ---- F-CLERK battery (2026-11-22) ----
+         Guest state: the account chrome shows Sign in / Join, the member
+         chrome stays hidden, FaithAuth exists, and a guest token reads
+         null. Then the sign-in door itself: clicking Sign in must open
+         the overlay with either the real Clerk form mounted (this
+         sandbox's route to the Clerk host permitting) or the honest
+         "still opening / couldn't load" note — the fail-soft contract.
+         A hang or a blank overlay fails. */
+      const fa = window.FaithAuth;
+      ok('F-CLERK: FaithAuth surface exists', !!fa && typeof fa.getToken === 'function' && typeof fa.apiFetch === 'function', fa ? `state=${fa.state}` : 'window.FaithAuth missing');
+      const guestTok = fa ? await fa.getToken() : undefined;
+      ok('F-CLERK: guest token reads null (no fake session)', guestTok === null, `token=${guestTok === null ? 'null' : typeof guestTok}`);
+      const signinBtn = document.getElementById('btn-signin');
+      const memberChrome = document.getElementById('acct-member');
+      ok('F-CLERK: guest chrome — Sign in/Join visible, member chrome hidden',
+        !!signinBtn && !signinBtn.hidden && !!memberChrome && memberChrome.hidden,
+        `signinHidden=${signinBtn && signinBtn.hidden} memberHidden=${memberChrome && memberChrome.hidden}`);
+      if (signinBtn) {
+        signinBtn.click();
+        const opened = await waitFor(() => {
+          const ov = document.getElementById('auth-overlay');
+          if (!ov || ov.hidden) {
+            /* Clerk's own modal path: an iframe/component at body level. */
+            return document.querySelector('.cl-modalBackdrop, .cl-modal, [data-clerk-modal]') ? 'clerk-modal' : null;
+          }
+          const mount = document.getElementById('auth-mount');
+          const note = document.getElementById('auth-status');
+          if (mount && mount.children.length > 0) return 'mounted-form';
+          if (note && !note.hidden && note.textContent.trim()) return 'honest-note';
+          return null;
+        }, 30000);
+        ok('F-CLERK: sign-in door opens (Clerk form or honest note, never a hang)', !!opened, opened ? `via=${opened}` : 'overlay stayed empty for 30s');
+        const x = document.getElementById('btn-auth-close');
+        if (x) x.click();
+      }
       const resources = performance.getEntriesByType('resource')
         .filter((e) => /\.(js|css)(\?|$)/.test(e.name) || /listen-index\.json/.test(e.name))
         .map((e) => ({ file: e.name.split('/').slice(-2).join('/'), bytes: e.transferSize || e.encodedBodySize || 0 }));
