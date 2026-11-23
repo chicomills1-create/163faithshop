@@ -612,6 +612,92 @@ setInterval(() => {
 }, 500);
 window.FaithPlayer = Player;
 
+/* ---------- AMP-UP PHASE 2B (2026-11-22): shared film slot + motion
+   + the FaithGuide host ----------
+   FaithFilm: one cinematic film at the top of every hub (founder
+   order 17:47). slotHtml paints the poster first (a still frame
+   under reduced motion — no video element at all); wire() runs the
+   play/pause discipline: a film plays only while it is on screen.
+   Films are presentation atmosphere over the hub's real content;
+   a hub whose film is still owed (see the Phase 2B record's CP-F5
+   table) renders the slot with its poster still and an honest note. */
+const MOTION_REDUCED = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const filmEsc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+window.FaithFilm = {
+  reduced: MOTION_REDUCED,
+  slotHtml({ src = null, poster, title, note = '' }) {
+    const media = (src && !MOTION_REDUCED)
+      ? `<video muted loop playsinline autoplay preload="metadata" poster="${filmEsc(poster)}" aria-hidden="true"><source src="${filmEsc(src)}" type="video/mp4"></video>`
+      : `<img class="hubfilm-still" src="${filmEsc(poster)}" alt="" aria-hidden="true">`;
+    return `<section class="hubfilm gold-frame" data-hubfilm aria-label="16:3 Faith presents — a film for this room">
+      ${media}<span class="hubfilm-shade"></span><span class="glow-sweep" aria-hidden="true"></span>
+      <span class="hubfilm-cap"><span><span class="hubfilm-brand">16:3 Faith Presents</span>
+      <span class="hubfilm-title" style="display:block">${filmEsc(title)}</span></span>
+      ${note ? `<span class="hubfilm-note">${filmEsc(note)}</span>` : ''}</span></section>`;
+  },
+  wire(scope) {
+    if (!scope || MOTION_REDUCED || typeof IntersectionObserver !== 'function') return;
+    scope.querySelectorAll('[data-hubfilm] video').forEach((v) => {
+      const io = new IntersectionObserver((es) => es.forEach((e) => {
+        if (e.isIntersecting) { v.play().catch(() => {}); } else { v.pause(); }
+      }), { threshold: 0.15 });
+      io.observe(v);
+    });
+  },
+};
+window.FaithMotion = {
+  reduced: MOTION_REDUCED,
+  armReveals(scopeRoot) {
+    if (!scopeRoot || MOTION_REDUCED || typeof IntersectionObserver !== 'function') return;
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }), { threshold: 0.08 });
+    scopeRoot.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  },
+};
+
+/* FaithGuide — the persistent AI host (consult ruling (c)): the
+   button opens a small panel (FAQs, door shortcuts, feature notes,
+   the pastoral routing line). It never routes into Faith Answers
+   and never speaks for a person: where a person is needed, it says
+   so and points at the pastoral team. The greeting bubble shows
+   until dismissed once; the dismissal is remembered. */
+(function mountFaithGuide() {
+  const wrap = document.createElement('div');
+  wrap.id = 'faithguide';
+  const dismissed = (() => { try { return localStorage.getItem('fg-dismissed') === '1'; } catch { return false; } })();
+  wrap.innerHTML = `
+    <div class="fg-bubble" data-fg-bubble ${dismissed ? 'hidden' : ''}><b>✦ FaithGuide here.</b><br>I'm the house's AI host — doors, questions, and the way around. Tap my name any time.<button type="button" data-fg-dismiss>Got it</button></div>
+    <section id="fg-panel" data-fg-panel hidden aria-label="FaithGuide — the house AI host">
+      <h3>Faith<span>Guide</span></h3><p class="fg-sub">The house AI host · Powered by AI</p>
+      <p>Welcome home. I keep the doors of this house — <b>Watch, Listen, Read, Pray, Community, Give, Shop</b> — and I can tell you how each room works. I'm a program, labeled as one; I never pretend to be a person.</p>
+      <div class="fg-doors">${HUB_ORDER.map((h) => `<button type="button" data-fg-door="${h}">${h[0].toUpperCase() + h.slice(1)}</button>`).join('')}</div>
+      <p class="fg-q">Is membership free?</p>
+      <p>Yes. Joining the house is free — the Join button at the top opens your account. Ministry here is never paywalled.</p>
+      <p class="fg-q">What is 16:3?</p>
+      <p>Proverbs 16:3 — “Commit thy works unto the LORD, and thy thoughts shall be established.” It's the verse this whole house is built on.</p>
+      <p class="fg-q">Who leads the house?</p>
+      <p>Pastor Jeremy “Chico” Mills — founder and pastor of 16:3 Faith, and a USAF veteran. You'll find him on the home page, under Meet the Pastor.</p>
+      <p class="fg-q">Need a person, not a program?</p>
+      <p>For personalized guidance, please contact our pastoral team — a person, not a program, will walk with you. The Prayer Room is open day and night. If you are in crisis, call or text <b>988</b> — the Suicide and Crisis Lifeline (US), free, 24/7.</p>
+      <button type="button" class="fg-close" data-fg-close>Close</button>
+    </section>
+    <button type="button" id="fg-btn" data-fg-btn aria-haspopup="dialog"><span class="fg-spark">✦</span>FaithGuide</button>`;
+  document.body.appendChild(wrap);
+  const panel = wrap.querySelector('[data-fg-panel]');
+  wrap.querySelector('[data-fg-btn]').addEventListener('click', () => { panel.hidden = !panel.hidden; });
+  wrap.querySelector('[data-fg-close]').addEventListener('click', () => { panel.hidden = true; });
+  wrap.querySelector('[data-fg-dismiss]').addEventListener('click', () => {
+    wrap.querySelector('[data-fg-bubble]').hidden = true;
+    try { localStorage.setItem('fg-dismissed', '1'); } catch { /* private mode: the bubble simply returns next visit */ }
+  });
+  wrap.querySelectorAll('[data-fg-door]').forEach((b) => b.addEventListener('click', () => {
+    panel.hidden = true;
+    const target = '#/' + b.dataset.fgDoor;
+    if (location.hash !== target) location.hash = target;
+  }));
+})();
+
 function setActiveNav(name) {
   document.querySelectorAll('[data-nav]').forEach((a) => {
     a.classList.toggle('on', a.dataset.nav === name);
@@ -652,6 +738,14 @@ async function navigate(name) {
   view.style.display = 'contents';
   root.replaceChildren(view);
   mod.render(view, { navigate, player: Player, isCurrent: () => seq === navSeq });
+  /* CP5: the face-wide motion system — the container carries .motion
+     (unless reduced motion), and landing sections marked .reveal
+     rise in once. Hubs that repaint (community, listen, shop) re-arm
+     for their own later paints. */
+  if (!MOTION_REDUCED) {
+    view.classList.add('motion');
+    requestAnimationFrame(() => window.FaithMotion.armReveals(view));
+  }
   currentHub = name;
   setActiveNav(name);
   root.focus({ preventScroll: true });
