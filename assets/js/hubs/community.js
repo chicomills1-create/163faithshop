@@ -257,7 +257,6 @@ const CSS3 = `
 .bk .bk-mcard.static{cursor:default}
 .bk .bk-mcard.static:hover{border-color:#4b4333}
 .bk-gcard{border:1px solid #4b4333;border-radius:10px;padding:16px;background:#181715}
-.bk-gcard.bk-gfocus{outline:2px solid var(--gold);outline-offset:2px}
 .bk-gcard .bk-gcover{width:46px;height:46px;font-size:17px;margin-bottom:13px}
 .bk-gcard h3{font-family:Georgia,serif;font-size:18px;margin:0 0 7px;color:var(--cream)}
 .bk-gcard .meta{font-size:10.5px;color:#a69a84;letter-spacing:.4px}
@@ -460,12 +459,11 @@ const S = {
   mode: 'snapshot',            // 'live' once the API answers from this browser
   posts: [], testimonies: [], groups: [], members: [], bakedMembers: [], wallPosts: [],
   counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false, chainSettled: false,
-  feedFilter: 'all', feedShown: PAGE,
+  feedFilter: 'all', feedShown: PAGE, feedSort: 'new',
   composeType: 'post', gateOpen: false,
   profileId: null, profileCache: new Map(),
   commentsOpen: new Set(), commentsCache: new Map(),
   peopleQuery: '', peopleResults: null, loadedLive: false,
-  focusGroup: null, pulseLive: false, pulseSettled: false,
   presents: [], presentsLoaded: false,
   /* 2C-4: reaction session truth (fold-in 2), new-posts pill state,
      stories viewer state. rxTruth persists in sessionStorage so a
@@ -714,6 +712,10 @@ function settlePatch() {
   if (!S.root || S.view !== 'feed') { repaintHub(); return; }
   const cl = S.root.querySelector('.bk-countline');
   if (cl) cl.innerHTML = countersLine();
+  /* R-1 (2026-11-23): the lobby PULSE card carries settle-sensitive
+     numbers too — patch its cells in place the same way (finals,
+     in-flight count-up cancelled). Text-node writes only. */
+  patchPulse();
   S.root.querySelectorAll('.bk-aicard').forEach((n) => { n.outerHTML = aiHighlightsHtml(); });
   /* 2C-4: PYMK depends on the settled directory — patch it in place
      the same way (insert/remove/replace the card node, never a
@@ -782,7 +784,7 @@ async function loadLive() {
       fetchJson(`${API_BASE}/api/community/pulse`).catch(() => null),
       fetchJson(`${API_BASE}/api/community/groups`).catch(() => null),
     ]);
-    if (pulse) { S.counters = { members: pulse.members, testimonies: pulse.testimonies, prayerRequests: pulse.prayerRequests, prayersLifted: pulse.prayersLifted }; S.pulseLive = true; }
+    if (pulse) S.counters = { members: pulse.members, testimonies: pulse.testimonies, prayerRequests: pulse.prayerRequests, prayersLifted: pulse.prayersLifted };
     if (groups?.groups?.length) { S.groups = groups.groups; S.loaded = true; }
     S.members = buildDirectory();
     /* Offset chain (2026-11-19 feed-count cure): the first slice is only
@@ -829,10 +831,9 @@ async function loadLive() {
        the rail show the testimonies actually carried and listed —
        one stable number each, no climbing partials (M4 cure). */
     S.chainSettled = true;
-    S.pulseSettled = true;
     settlePatch(); /* BLINK CURE: settle lands as a patch, never a repaint. */
     S.settlePainted = true; /* render()'s closer must not repaint over it */
-  } catch { S.pulseSettled = true; /* snapshot mode stands, labeled in the UI */ }
+  } catch { /* snapshot mode stands, labeled in the UI */ }
 }
 
 function buildDirectory() {
@@ -886,14 +887,7 @@ function countersLine() {
      record. Members and prayer cells stay pulse: no served-set
      equivalent exists for them. */
   const t = countsSettled() ? S.testimonies.length : '…';
-  /* 2026-11-23 cure: the pulse cells print only once the pulse question
-     is settled — live numbers when the pulse answered, the capture's own
-     numbers when it provably did not — never a baked paint that a live
-     paint then contradicts mid-visit (2026-11-23 walk: 126→128 members,
-     21→25 lifted flips across loads). */
-  const settled = S.pulseLive || S.pulseSettled;
-  const m = settled ? c.members : '…', pr = settled ? c.prayerRequests : '…', pl = settled ? c.prayersLifted : '…';
-  return `<b>${m}</b> members · <b>${t}</b> testimonies<br><b>${pr}</b> prayer requests · <b>${pl}</b> prayers lifted`;
+  return `<b>${c.members}</b> members · <b>${t}</b> testimonies<br><b>${c.prayerRequests}</b> prayer requests · <b>${c.prayersLifted}</b> prayers lifted`;
 }
 function railHtml() {
   const v = S.view;
@@ -911,7 +905,7 @@ function railHtml() {
       ${link('saved', '⚑', 'Saved Posts', '<em>SIGN-IN</em>')}
     </div>
     <div class="bk-railgroup"><div class="bk-railt">YOUR CIRCLES</div>
-      ${S.groups.slice(0, 3).map((g, gi) => `<button type="button" class="bk-circle" data-view="groups" data-gfocus="${gi}"><span class="bk-gcover">${esc(initials(g.name))}</span><span>${esc(g.name)}</span></button>`).join('')}
+      ${S.groups.slice(0, 3).map((g) => `<button type="button" class="bk-circle" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span>${esc(g.name)}</span></button>`).join('')}
     </div>
     <div class="bk-quote"><div class="sc">“</div><p>Church is not just a building. It's who shows up for you when life gets loud.</p><span>THE 16:3 WAY.</span></div>
     <div class="bk-railbot">A PLACE TO BE REAL.<br>A PEOPLE TO BELONG TO.</div>
@@ -1067,8 +1061,64 @@ const CSS8 = `
 .bk-del-no{background:none;border:1px solid #4b4333;color:#cbbd97}
 @media(prefers-reduced-motion:reduce){.bk-viewer{transition:none}}
 `;
+
+const CSS9 = `
+/* ---------- COMMUNITY RESTORE R-1 + R-2 (2026-11-23) — THE LOBBY TOP,
+   THE PULSE CARD, THE PILLS + SORT. Fresh code in the ORIGINAL site's
+   shapes (study ORIGINAL-COMMUNITY-STUDY-2026-11-23 §1/§4): the
+   Community opens as one continuous lobby again — film moment, gold
+   JOIN treatment, the search pill with the tagline inside it, and the
+   bordered Cinzel COMMUNITY PULSE card as the wall's first card —
+   then the in-wall filter pills + NEW/TOP sort over the real wall. */
+/* LOBBY: the film slot is the hero now. The action row overlaps the
+   film's lower edge exactly as the original's JOIN overlay did; the
+   film element itself is never touched (blink law). */
+.bk-lobby{position:relative}
+.bk-lobby-actions{display:flex;gap:10px;align-items:stretch;margin:-27px 14px 0;position:relative;z-index:3}
+.bk button.bk-joinbtn{flex:1;background:linear-gradient(180deg,#ffe083,#f5b52c 55%,#d79219);color:#241a05;border:0;border-radius:10px;padding:15px 18px;font-weight:900;letter-spacing:1.6px;font-size:14px;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;gap:9px}
+.bk button.bk-joinbtn:hover{filter:brightness(1.06)}
+.bk button.bk-lobbyprof{width:50px;height:50px;border-radius:50%;border:2px solid rgba(243,195,75,.85);background:#141310;color:var(--gold);display:grid;place-items:center;cursor:pointer;flex:none;overflow:hidden;padding:0;font-size:17px;box-shadow:0 10px 24px rgba(0,0,0,.5)}
+.bk button.bk-lobbyprof .bk-ava{width:100%;height:100%;border:0;border-radius:50%}
+.bk button.bk-lobbyghost{margin:10px 14px 0;width:calc(100% - 28px);background:rgba(10,9,7,.78);border:1px solid rgba(243,195,75,.55);color:var(--cream);border-radius:10px;padding:13px 18px;font-weight:900;letter-spacing:1.6px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.bk button.bk-lobbyghost:hover{border-color:var(--gold);color:var(--gold)}
+/* SEARCH PILL: one object — search + the tagline inside it, as the
+   original carried it. Submit routes to the directory search; the
+   ASK chip focuses the shell's Faith Answers bar. */
+.bk-searchpill{display:flex;align-items:center;gap:11px;margin:16px 0 0;border:1px solid rgba(243,195,75,.65);border-radius:12px;padding:11px 14px;background:rgba(16,14,10,.88)}
+.bk-sp-ic{color:var(--gold);font-size:16px;flex:none}
+.bk-searchpill input{flex:1;min-width:0;background:none;border:0;color:var(--cream);font:inherit;font-size:12.5px;letter-spacing:1.4px;outline:none}
+.bk-searchpill input::placeholder{color:#a89d8a}
+.bk-sp-tag{font-family:Georgia,serif;font-size:12.5px;color:#e9d9ae;text-align:right;line-height:1.35;flex:none;max-width:46%}
+.bk button.bk-sp-ask{flex:none;border:1px solid rgba(243,195,75,.6);background:#241b08;color:var(--gold);border-radius:20px;padding:6px 11px;font-size:9.5px;font-weight:900;letter-spacing:1px;cursor:pointer}
+.bk button.bk-sp-ask:hover{background:#33270f}
+@media(max-width:560px){.bk-sp-tag{font-size:11px}.bk-searchpill{gap:8px;padding:10px 11px}}
+/* PULSE CARD: bordered, Cinzel label, gold dot, four real counters,
+   the original's footer line. The rail countline stays as it was. */
+.bk-pulse{margin:16px 0 0;border:1px solid rgba(201,169,97,.55);border-radius:14px;background:linear-gradient(180deg,#12100c,#0c0b09);padding:16px 18px 13px;box-shadow:0 6px 32px rgba(201,169,97,.10)}
+.bk-pulse-head{display:flex;align-items:center;gap:9px}
+.bk-pulse-head h3{font-family:Cinzel,Georgia,serif;font-size:12px;letter-spacing:2.6px;color:#f3dfb2;font-weight:700;margin:0}
+.bk-pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;animation:bk-pulsebeat 2.2s ease-in-out infinite}
+@keyframes bk-pulsebeat{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(243,195,75,.45)}50%{opacity:.65;box-shadow:0 0 0 6px rgba(243,195,75,0)}}
+.bk-pulse-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;text-align:center}
+.bk-pulse-cell b{display:block;font-size:21px;color:var(--cream);font-family:Georgia,serif;font-weight:700}
+.bk-pulse-cell span{display:block;font-size:8.5px;letter-spacing:1.5px;color:#b3a37e;font-weight:900;margin-top:3px}
+.bk-pulse-foot{text-align:center;font-size:9.5px;letter-spacing:2.2px;color:#9a8a63;margin:14px 0 0;font-weight:900}
+@media(max-width:560px){.bk-pulse-cell b{font-size:17px}.bk-pulse-cell span{font-size:7.5px;letter-spacing:1px}}
+/* PILLS + SORT (R-2): round gold pills in the original's row shape;
+   the active pill is gold-filled; NEW/TOP rides as a segmented
+   control at the row's end. */
+.bk-pills{display:flex;align-items:center;gap:7px;overflow-x:auto;white-space:nowrap;padding:2px 0 12px;border-bottom:1px solid #3b3528;margin-bottom:18px;scrollbar-width:none}
+.bk-pills::-webkit-scrollbar{display:none}
+.bk .bk-pills>button{border:1px solid #4a4231;background:#171510;color:#c9bfa9;border-radius:30px;padding:8px 14px;font-size:10px;font-weight:900;letter-spacing:1.2px;cursor:pointer;flex:none}
+.bk .bk-pills>button:hover{border-color:var(--gold);color:var(--gold)}
+.bk .bk-pills>button.on{background:linear-gradient(180deg,#ffe083,#e9b83c);color:#241a05;border-color:#ffe083}
+.bk-sortseg{margin-left:auto;display:flex;border:1px solid #4a4231;border-radius:30px;overflow:hidden;flex:none}
+.bk .bk-sortseg button{background:#12100d;color:#a89d8a;border:0;padding:8px 13px;font-size:10px;font-weight:900;letter-spacing:1.2px;cursor:pointer}
+.bk .bk-sortseg button.on{background:#33270f;color:var(--gold)}
+@media(prefers-reduced-motion:reduce){.bk-pulse-dot{animation:none}}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -1143,7 +1193,7 @@ function latestTestCardHtml() {
 /* P1-10: suggested groups — the real 7, with their real member counts. */
 function suggestedGroupsCardHtml() {
   return `<section class="panel bk-sidecard"><div class="phead"><span class="eyebrow">FIND YOUR CIRCLE</span><span class="x">✦</span></div>
-      ${S.groups.slice(0, 4).map((g, gi) => `<button type="button" class="bk-mini" data-view="groups" data-gfocus="${gi}"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group</small></span><span class="plus">+</span></button>`).join('')}
+      ${S.groups.slice(0, 4).map((g) => `<button type="button" class="bk-mini" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group</small></span><span class="plus">+</span></button>`).join('')}
       <button type="button" class="bk-textlink" data-view="groups">EXPLORE ALL GROUPS ↗</button></section>`;
 }
 /* P1-9: phone shortcut strip — the hub's doors as a horizontal strip
@@ -1158,7 +1208,7 @@ function stripHtml() {
      door and the real group chips ride after, as in Phase 1. */
   return `<nav class="bk-shortstrip" aria-label="Community shortcuts">
     ${chip('feed', '⌂ Sanctuary')}${chip('members', '◎ Directory')}${chip('groups', '◉ Circles')}<button type="button" class="bk-stripchip" data-hubgo="pray">✛ Pray</button>${chip('testimonies', '✦ Testimonies')}
-    ${S.groups.map((g, gi) => `<button type="button" class="bk-stripchip grp" data-view="groups" data-gfocus="${gi}">${esc(g.name)}</button>`).join('')}
+    ${S.groups.map((g) => `<button type="button" class="bk-stripchip grp" data-view="groups">${esc(g.name)}</button>`).join('')}
   </nav>`;
 }
 /* P1-9: on phone/narrow widths the right rail's content stacks BELOW
@@ -1217,6 +1267,122 @@ function heroHtml() {
     <div class="bk-herobot"><button type="button" class="bk-redbtn" data-composefocus>PULL UP &amp; POST <span>↗</span></button><span>THIS IS YOUR CORNER OF THE INTERNET.</span></div></div>
     <span class="bk-herostamp">COME AS YOU ARE ✳</span></section>
   <div class="bk-secline"><span>THE COMMUNITY / 001</span><span>REAL PEOPLE. NO PERFECT STORIES.</span></div>`;
+}
+
+/* ---------------- COMMUNITY RESTORE R-1 + R-2 (2026-11-23) ----------------
+   The lobby top, in the original's shapes (study §1/§4), fresh code:
+   the hub film IS the hero moment now — the cassette hero above
+   (heroHtml) no longer opens the feed view. Guests get the gold
+   JOIN THE FAMILY treatment (the shell's real join route — never a
+   fake CTA); members get SHARE YOUR HEART into the composer they
+   already own. Under the film: ENTER THE LOBBY, then the gold
+   search pill with the tagline inside it, then the COMMUNITY PULSE
+   card as the wall's first card. Nothing here needs data the API
+   doesn't carry; the film mute toggle the original wore is NOT
+   restored — the hub film is shell-ambient and muted by design, and
+   a toggle that cannot unmute would lie. */
+function lobbyHtml() {
+  const film = window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-community.mp4', poster: 'assets/video/film-community-poster.webp', title: 'The family, moving.', note: 'Community film · first movement' }) : '';
+  const member = isSignedIn();
+  let cu = null; try { cu = window.Clerk?.user || null; } catch { /* guest chrome */ }
+  const prof = member
+    ? `<button type="button" class="bk-lobbyprof" data-lobbyprofile aria-label="Your profile">${avatarHtml(cu?.fullName || cu?.firstName || 'You', cu?.imageUrl || null, false)}</button>`
+    : `<button type="button" class="bk-lobbyprof" data-lobbyjoin aria-label="Join the family">✚</button>`;
+  return `<div class="bk-lobby">${film}
+    <div class="bk-lobby-actions">
+      ${member
+        ? '<button type="button" class="bk-joinbtn" data-composefocus>♡ SHARE YOUR HEART <span aria-hidden="true">→</span></button>'
+        : '<button type="button" class="bk-joinbtn" data-lobbyjoin>♡ JOIN THE FAMILY <span aria-hidden="true">→</span></button>'}
+      ${prof}
+    </div>
+    <button type="button" class="bk-lobbyghost" data-lobbyenter>ENTER THE LOBBY <span aria-hidden="true">→</span></button>
+  </div>
+  ${searchPillHtml()}
+  ${pulseCardHtml()}`;
+}
+/* The search pill: search and slogan are ONE object, as the original
+   carried them. Submitting runs the directory's own live member
+   search (the members view's flow, same endpoint, same results);
+   the ASK chip routes to Faith Answers, which stays shell-wide. */
+function searchPillHtml() {
+  return `<form class="bk-searchpill" data-lobbysearch role="search">
+    <span class="bk-sp-ic" aria-hidden="true">⌕</span>
+    <input type="search" placeholder="SEARCH" aria-label="Search the family by name" autocomplete="off">
+    <span class="bk-sp-tag">More than a platform — a family.</span>
+    <button type="button" class="bk-sp-ask" data-askfaith>✦ ASK</button>
+  </form>`;
+}
+/* The PULSE card's numbers, from the same sources the rail countline
+   reads — pulse counters for members/requests/lifted, and the
+   testimonies cell under the standing M4 honesty rule (the served
+   set's count once the pull settles; null → the '…' glyph before).
+   Nothing is invented to fill the card. */
+function pulseVals() {
+  const c = S.counters; if (!c) return null;
+  return {
+    members: typeof c.members === 'number' ? c.members : null,
+    lifted: typeof c.prayersLifted === 'number' ? c.prayersLifted : null,
+    stories: countsSettled() ? S.testimonies.length : null,
+    requests: typeof c.prayerRequests === 'number' ? c.prayerRequests : null,
+  };
+}
+function pulseCardHtml() {
+  const v = pulseVals();
+  const cell = (key, label) => `<div class="bk-pulse-cell"><b data-pulse="${key}">${v && v[key] != null ? v[key] : '…'}</b><span>${label}</span></div>`;
+  return `<section class="bk-pulse" aria-label="Community pulse">
+    <div class="bk-pulse-head"><span class="bk-pulse-dot" aria-hidden="true"></span><h3>COMMUNITY PULSE</h3></div>
+    <div class="bk-pulse-nums">${cell('members', 'MEMBERS')}${cell('lifted', 'PRAYERS LIFTED')}${cell('stories', 'TESTIMONIES')}${cell('requests', 'PRAYER REQUESTS')}</div>
+    <p class="bk-pulse-foot">— REAL PEOPLE | REAL PRAYER | REAL CHANGE —</p>
+  </section>`;
+}
+/* Count-up (the original animated its counters): an ease-out rAF
+   over the number CELLS' text only — no repaint, no layout — run
+   once per hub visit, on the first paint whose counters are real.
+   Reduced motion (or any later paint) renders the finals standing
+   in the HTML already. settlePatch lands the finals in place via
+   patchPulse and cancels any in-flight count-up by token. */
+let pulseCounted = false, pulseAnim = 0;
+function wirePulseCountUp() {
+  if (!S.root) return;
+  const els = S.root.querySelectorAll('[data-pulse]');
+  if (!els.length) return;
+  const v = pulseVals(); if (!v) return;
+  const reduced = (window.FaithFilm && window.FaithFilm.reduced) || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (reduced) { pulseCounted = true; return; }
+  if (pulseCounted) return;
+  const targets = [...els].filter((el) => typeof v[el.dataset.pulse] === 'number');
+  if (!targets.length) return;
+  const token = ++pulseAnim, t0 = performance.now(), dur = 900;
+  const step = (t) => {
+    if (token !== pulseAnim) return;
+    const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    for (const el of targets) { if (el.isConnected) el.textContent = String(Math.round(v[el.dataset.pulse] * e)); }
+    if (k < 1) requestAnimationFrame(step); else pulseCounted = true;
+  };
+  requestAnimationFrame(step);
+}
+function patchPulse() {
+  if (!S.root) return;
+  const v = pulseVals(); if (!v) return;
+  pulseAnim++; pulseCounted = true;
+  S.root.querySelectorAll('[data-pulse]').forEach((el) => {
+    const val = v[el.dataset.pulse];
+    el.textContent = val == null ? '…' : String(val);
+  });
+}
+/* R-2: the in-wall pills + NEW/TOP sort, in the original's row
+   shape, over the wall's real kinds only. Excluded by data (named
+   in the build record, never faked): Prayer Chains, Urgent, and
+   the member scope tabs — the community API carries no chains,
+   urgency, or scope. SAVED rides for members only, onto the real
+   saved view; a guest's saved posts don't exist to filter. */
+function pillsHtml() {
+  const f = S.feedFilter, s = S.feedSort;
+  const pill = (val, label) => `<button type="button" data-feedfilter="${val}" class="${f === val ? 'on' : ''}" aria-pressed="${f === val}">${label}</button>`;
+  return `<div class="bk-pills" role="group" aria-label="Filter the wall">
+      ${pill('all', 'ALL')}${pill('watch', 'WATCH')}${pill('general', 'GENERAL')}${pill('testimony', 'TESTIMONIES')}${pill('prayer', 'PRAYERS')}${isSignedIn() ? '<button type="button" data-view="saved">SAVED</button>' : ''}
+      <span class="bk-sortseg" role="group" aria-label="Sort the wall"><button type="button" data-feedsort="new" class="${s === 'new' ? 'on' : ''}" aria-pressed="${s === 'new'}">NEW</button><button type="button" data-feedsort="top" class="${s === 'top' ? 'on' : ''}" aria-pressed="${s === 'top'}">TOP</button></span>
+    </div>`;
 }
 /* 2C-1 §4.3: story viewed state — client-side, per session, written
    ONLY by a real story open (the tap that opens the member's profile
@@ -1302,9 +1468,25 @@ function composerHtml() {
     <div class="bk-gate ${S.gateOpen ? 'open' : ''}" data-gatepanel>${t.gate}${t.prayBtn ? '<div class="row"><button type="button" class="bk-gbtn" data-hubgo="pray">OPEN THE PRAYER WALL ↗</button></div>' : ''}</div></section>`;
 }
 function feedList() {
-  if (S.feedFilter === 'prayer') return S.posts.filter((p) => p.type === 'prayer');
-  if (S.feedFilter === 'testimony') return S.testimonies;
-  return S.posts;
+  /* R-2 (2026-11-23): the pill set rides the wall's REAL kinds —
+     'general' is every carried post that is neither prayer nor
+     testimony (the API's own general type + any legacy 'post');
+     'watch' is not a post list at all (viewFeed renders the Presents
+     shelf alone for it), so it reads empty here and the load-more
+     logic stays out of it. TOP sorts a COPY by the family's real
+     response — reaction total + prayers + comments — newest first
+     on ties; NEW is the wall's own order, untouched. */
+  let list;
+  if (S.feedFilter === 'prayer') list = S.posts.filter((p) => p.type === 'prayer');
+  else if (S.feedFilter === 'testimony') list = S.testimonies;
+  else if (S.feedFilter === 'general') list = S.posts.filter((p) => p.type !== 'prayer');
+  else if (S.feedFilter === 'watch') list = [];
+  else list = S.posts;
+  if (S.feedSort === 'top' && list.length > 1) {
+    const eng = (p) => rxTotal(p) + (p.prayerCount || 0) + (p.commentCount || 0);
+    list = [...list].sort((a, b) => eng(b) - eng(a) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  }
+  return list;
 }
 function postCard(p, inProfile = false) {
   const rx = p.reactionCounts || {};
@@ -1582,24 +1764,34 @@ function feedCardsHtml(shown) {
 function viewFeed() {
   const list = feedList();
   const shown = list.slice(0, S.feedShown);
-  const srcNote = S.mode === 'live'
-    ? `Live from the community API as you read — the family's wall, in the API's own order. Tap a name for the member's profile; comments open right on the card.`
-    : `Captured production feed (2026-10-21/22 guest pages) — real posts, in the API's own order. The wall loads live wherever the API answers. Tap a name for the member's profile; comments open right on the card.`;
-  return `${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-community.mp4', poster: 'assets/video/film-community-poster.webp', title: 'The family, moving.', note: 'Community film · first movement' }) : ''}${heroHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
+  /* R-2 WATCH: the wall becomes the Presents shelf alone — the real
+     shelf cards, observed by the same pvObserve wiring in paint().
+     No member mix, no in-thread slots, no load-more: the shelf is
+     the shelf, labeled as itself. */
+  const isWatch = S.feedFilter === 'watch';
+  const srcNote = isWatch
+    ? `16:3 Faith Presents — the house's films and features, playing right here in the wall. The family's posts are one tap back, under ALL.`
+    : S.mode === 'live'
+      ? `Live from the community API as you read — the family's wall, in the API's own order. Tap a name for the member's profile; comments open right on the card.`
+      : `Captured production feed (2026-10-21/22 guest pages) — real posts, in the API's own order. The wall loads live wherever the API answers. Tap a name for the member's profile; comments open right on the card.`;
+  const feedBody = isWatch
+    ? (S.presentsLoaded
+      ? (S.presents.length
+        ? S.presents.map(presentsCardHtml).join('')
+        : '<div class="bk-ctx"><h3>The shelf is empty.</h3><p>No presentations are on the house shelf right now — the family wall under ALL is full.</p></div>')
+      : '<div class="bk-ctx"><h3>Loading the shelf…</h3><p>The house presentations are on their way — an unloaded shelf never reads as an empty one.</p></div>')
+    : null;
+  return `${lobbyHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
   <section class="bk-feedsec"><div class="bk-feedhead"><div><span class="eyebrow">THE TIMELINE</span><h2>The <em>family feed.</em></h2></div><span class="bk-feedtruth">SHOW UP AS YOU ARE. ♡</span></div>
     <p class="bk-note">${srcNote}</p>
-    <div class="bk-filters" role="group" aria-label="Filter posts">
-      <button type="button" data-feedfilter="all" class="${S.feedFilter === 'all' ? 'on' : ''}">FOR YOU</button>
-      <button type="button" data-feedfilter="prayer" class="${S.feedFilter === 'prayer' ? 'on' : ''}">PRAYER WALL</button>
-      <button type="button" data-feedfilter="testimony" class="${S.feedFilter === 'testimony' ? 'on' : ''}">TESTIMONIES</button>
-    </div>
+    ${pillsHtml()}
     <div class="bk-newpill" data-newpill hidden><button type="button" data-newpillbtn>✦ NEW POSTS</button></div>
-    <div data-feedlist>${shown.length ? feedCardsHtml(shown) : (S.loaded
+    <div data-feedlist>${isWatch ? feedBody : (shown.length ? feedCardsHtml(shown) : (S.loaded
       ? '<div class="bk-ctx"><h3>Quiet in here.</h3><p>No posts of this kind are in the carried wall. The other doors hold the rest of the family.</p></div>'
-      : '<div class="bk-ctx"><h3>Loading the wall…</h3><p>The family\'s posts are on their way — an unloaded wall never reads as an empty one.</p></div>')}</div>
-    ${list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
+      : '<div class="bk-ctx"><h3>Loading the wall…</h3><p>The family\'s posts are on their way — an unloaded wall never reads as an empty one.</p></div>'))}</div>
+    ${isWatch ? '' : (list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
       ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}</button>`
-      : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : '')}
+      : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : ''))}
   </section>${belowFeedHtml()}`;
 }
 
@@ -1625,14 +1817,10 @@ function peopleStripHtml() {
       : '<p class="bk-note" style="margin:0">No member matches that name in the live search.</p>'}</div>`;
 }
 function viewMembers() {
-  /* 2026-11-23 cure: an active search filters the directory grid itself
-     (same name/location predicate as the results strip) — a search that
-     left the grid untouched read as a search that did nothing. */
-  const q = S.peopleQuery.trim().toLowerCase();
-  const list = q ? S.members.filter((mm) => (mm.name + ' ' + (mm.location || '')).toLowerCase().includes(q)) : S.members;
+  const list = S.members;
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE FAMILY DIRECTORY</span><h2>Every face <em>matters.</em></h2></div></div>
-  <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> in the family (the community pulse total) · ` : ''}<b style="color:var(--gold)">${list.length} profiles listed</b>${q ? ` for “${esc(S.peopleQuery.trim())}” — clear the search to see everyone` : ''} in the directory below — the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'}. Two different counts, labeled: the pulse counts every registered member; this directory lists the profiles the wall's pages evidence — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
+  <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> in the family (the community pulse total) · ` : ''}<b style="color:var(--gold)">${list.length} profiles listed</b> in the directory below — the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'}. Two different counts, labeled: the pulse counts every registered member; this directory lists the profiles the wall's pages evidence — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
   <form class="bk-search" data-peoplesearch><input type="search" placeholder="Search the family by name…" value="${esc(S.peopleQuery)}" aria-label="Search members by name"><button type="submit">SEARCH</button></form>
   ${peopleStripHtml()}
   <div class="bk-mgrid">${list.map((m) => m.id ? `
@@ -1649,8 +1837,8 @@ function viewGroups() {
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE SMALL CIRCLES</span><h2>Find your <em>people.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'The live group list from the community API, read as you opened this door.' : 'The verified group list, captured live from the community API on 2026-11-19 (the live API did not answer from this network).'} ${isSignedIn() ? 'You are signed in — group joining wires to your account with the member build; the circles themselves are the live list below.' : 'Joining a group is a member action — join free or sign in (top right) and the circles open to your account.'}</p>
-  <div class="bk-mgrid">${S.groups.map((g, gi) => `
-    <div class="bk-gcard${S.focusGroup === gi ? ' bk-gfocus' : ''}" id="bk-group-${gi}">${GROUP_ART[g.name] ? `<img class="bk-gcoverimg" src="${GROUP_ART[g.name]}" alt="" aria-hidden="true" loading="lazy">` : ''}<span class="bk-gcover">${esc(initials(g.name))}</span>
+  <div class="bk-mgrid">${S.groups.map((g) => `
+    <div class="bk-gcard">${GROUP_ART[g.name] ? `<img class="bk-gcoverimg" src="${GROUP_ART[g.name]}" alt="" aria-hidden="true" loading="lazy">` : ''}<span class="bk-gcover">${esc(initials(g.name))}</span>
       <h3>${esc(g.name)}</h3><div class="meta">${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group · led by the 16:3 Faith house</div>
       <p>${esc(g.description || '')}</p>
       <button type="button" class="bk-goldbtn" style="width:auto;padding:9px 16px;margin-top:4px" data-joingate>JOIN GROUP</button>
@@ -2192,9 +2380,7 @@ function paint(keepScroll = false) {
   S.root.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => {
     const t0 = n.dataset.t0 != null ? performance.now() : null;
     S.view = n.dataset.view; S.gateOpen = false;
-    S.focusGroup = n.dataset.gfocus != null ? Number(n.dataset.gfocus) : null;
     paint();
-    if (S.focusGroup != null) { const gel = S.root.querySelector(`#bk-group-${S.focusGroup}`); if (gel) requestAnimationFrame(() => gel.scrollIntoView({ block: 'center', behavior: 'smooth' })); }
     if (t0 != null) { const ms = String(Math.round((performance.now() - t0) * 10) / 10); S.root.dataset.doorMs = ms; const hr = S.root.closest('#hub-root'); if (hr && hr !== S.root) hr.dataset.doorMs = ms; }
   }));
   S.root.querySelectorAll('[data-hubgo]').forEach((n) => n.addEventListener('click', () => goHub(n.dataset.hubgo)));
@@ -2248,6 +2434,35 @@ function paint(keepScroll = false) {
     sendBtn.disabled = false;
   });
   main.querySelectorAll('[data-feedfilter]').forEach((n) => n.addEventListener('click', () => { S.feedFilter = n.dataset.feedfilter; S.feedShown = PAGE; paint(); }));
+  /* RESTORE R-1 + R-2 wiring (2026-11-23): sort segment, the lobby
+     actions, the search pill, the Faith Answers chip, and the pulse
+     count-up. JOIN rides the shell's own #btn-join (the real Clerk
+     route the header button uses); ENTER scrolls to the wall; the
+     profile circle opens the member's own profile. */
+  main.querySelectorAll('[data-feedsort]').forEach((n) => n.addEventListener('click', () => { S.feedSort = n.dataset.feedsort; S.feedShown = PAGE; paint(); }));
+  S.root.querySelectorAll('[data-lobbyjoin]').forEach((n) => n.addEventListener('click', () => {
+    const b = document.getElementById('btn-join');
+    if (b) b.click(); else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+  main.querySelectorAll('[data-lobbyenter]').forEach((n) => n.addEventListener('click', () => {
+    S.root.querySelector('.bk-feedsec')?.scrollIntoView({ behavior: window.FaithFilm?.reduced ? 'auto' : 'smooth', block: 'start' });
+  }));
+  main.querySelectorAll('[data-lobbyprofile]').forEach((n) => n.addEventListener('click', () => { const id = myId(); if (id) openProfile(id); }));
+  S.root.querySelectorAll('[data-askfaith]').forEach((n) => n.addEventListener('click', () => {
+    const fa = document.getElementById('fa-input');
+    if (fa) { fa.scrollIntoView({ block: 'center' }); fa.focus(); }
+  }));
+  const lobbySearch = main.querySelector('[data-lobbysearch]');
+  if (lobbySearch) lobbySearch.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = lobbySearch.querySelector('input').value.trim();
+    S.peopleQuery = q; S.peopleResults = null; S.view = 'members'; paint();
+    if (!q) return;
+    try { const j = await fetchJson(`${API_BASE}/api/community/members/search?q=${encodeURIComponent(q)}`); S.peopleResults = j.results || []; }
+    catch { S.peopleResults = null; }
+    if (S.view === 'members') paint();
+  });
+  wirePulseCountUp();
   main.querySelectorAll('[data-loadmore]').forEach((n) => n.addEventListener('click', () => {
     S.feedShown += PAGE; paint();
     if (S.mode === 'live') loadMoreLive();
@@ -2315,7 +2530,8 @@ export function render(root, ctx) {
   const pm = location.hash.match(/^#\/community\/profile\/([^/?#]+)/);
   S.view = pm ? 'profile' : 'feed';
   S.profileId = pm ? decodeURIComponent(pm[1]) : null;
-  S.feedFilter = 'all'; S.feedShown = PAGE; S.gateOpen = false; S.composeType = 'post'; S.composerFlash = null;
+  S.feedFilter = 'all'; S.feedShown = PAGE; S.feedSort = 'new'; S.gateOpen = false; S.composeType = 'post'; S.composerFlash = null;
+  pulseCounted = false; pulseAnim++; /* R-1: a fresh hub entry earns one count-up */
   S.commentsOpen = new Set(); S.peopleQuery = ''; S.peopleResults = null;
   paint();
   if (S.view === 'profile') viewProfile(S.profileId);
