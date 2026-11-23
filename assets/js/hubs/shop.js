@@ -1,32 +1,39 @@
-/* SHOP hub v1 (SPEC §3.7) — the shop carried into the fresh build.
-   The live shop page (../shop-build/site/index.html, source commit 87351be)
-   is this hub's design base and functional floor.
+/* SHOP hub v2 — SHOP RESTORE (2026-11-23, founder order 09:45–09:48 MST:
+   "The first 163 faith shop design needs to be here. 163faithshop.com
+   design" + "Just add the 90 to 120 on top").
 
-   DOORS FIRST (HUB BREAKDOWN LAW + the shop's own pattern): browse by TYPE
-   (Hoodies / Shirts / Crewnecks / Joggers / Headwear) and by AUDIENCE
-   (ALL / MENS / WOMENS) → product grid → product dialog.
+   The page is rebuilt in the design language of the FIRST 163faithshop.com
+   storefront (shop-build/design/163faith-store/ — Nov 14–15 prototype):
+   announce strip, giant stacked editorial headline, conviction ticker,
+   numbered section kickers, filterbar + grid, campaign band, category
+   tiles, manifesto with the Proverbs 16:3 verse, full-bleed band,
+   community editorial, FAQ accordion. Fresh code only — the design is the
+   template; no prototype code, concept products, or concept prices cross.
+   Consult: chatcmpl-EnRYO8oE1gmMg8zjueAzvPWtSqJXL (film = hero on top,
+   marquee under it, Shop AI below the filter row, quick-view as a product
+   dialog, FAQ at the bottom, newsletter dropped).
 
-   DATA: assets/data/shop/products.json — extracted VERBATIM from the shop
-   page's own PRODUCTS / CATOF / AUDOF / QUICK_STORE_BASE (names, prices,
-   front images, sizes, garments). Nothing hardcoded here, nothing invented.
-   Images are remote Printful CDN URLs — linked, never inlined or copied.
+   THE FILM ON TOP: the 106.87s shop film (film-shop.mp4 — people wearing
+   real 16:3 FAITH gear) is the FIRST element of the hub, mounted once
+   through the shell's FaithFilm slot. Blink laws hold: the film element
+   is never recreated; catalog data paints into slots below it.
 
-   BUY PATH (standing shop design, binding): every BUY links to the Quick
-   Store ROOT (https://163faith.printful.me) — never per-product links, and
-   there is NO in-hub checkout and NO cart (excluded by the founder freeze,
-   §3.7).
+   DATA: assets/data/shop/products.json — the REAL catalog (13 products,
+   real Printful mockup imagery, real prices), extracted verbatim from the
+   shop page's own PRODUCTS / CATOF / AUDOF / QUICK_STORE_BASE. Nothing
+   hardcoded here, nothing invented.
 
-   AUDIENCE TRUTH: every current piece is tagged "unisex" in the shop page's
-   own AUDOF map. The audience filter is the shop page's own setAud rule —
-   a piece shows for ALL, and for MENS/WOMENS when it is unisex — so Mens
-   and Womens browse both return the full unisex line, stated honestly on
-   the surface, never re-tagged.
+   BUY PATH (standing, binding): every BUY links to the Quick Store ROOT
+   (https://163faith.printful.me) — never per-product links, NO in-hub
+   checkout, NO cart.
 
-   AI SEARCH + AI ASSISTANT: the shop page implements both CLIENT-SIDE
-   (rule-based answers over the real catalog — matchProducts / answerFor /
-   sendChat in its source). That exact behavior is carried here, ported
-   function-for-function over the extracted data. No backend is needed and
-   none is faked. */
+   AUDIENCE TRUTH: every current piece is tagged "unisex" — Mens and
+   Womens browse both show the full unisex line, stated honestly on the
+   surface, never re-tagged.
+
+   AI SEARCH + AI ASSISTANT: client-side, rule-based answers over the real
+   catalog (matchProducts / answerFor / the assistant), carried from v1
+   function-for-function. Labeled wherever it speaks. No backend faked. */
 
 const DATA = 'assets/data/shop/products.json';
 const QUICK_STORE = 'https://163faith.printful.me';
@@ -40,13 +47,7 @@ function injectCss() {
   if (cssDone) return; cssDone = true;
   const st = document.createElement('style');
   st.textContent = `
-  .sh-doors{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px}
-  .sh-door{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);min-height:132px;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;text-align:left;color:var(--bone);width:100%}
-  .sh-door:hover{border-color:var(--gold-dim)}
-  .sh-door .sh-art{position:absolute;inset:0;background:radial-gradient(120% 120% at 20% 0%,rgba(212,175,55,.26),rgba(5,5,5,0) 55%),linear-gradient(160deg,#171204,#0a0a0a 65%)}
-  .sh-door .sh-ico{position:absolute;top:14px;left:16px;font-size:24px;color:var(--gold)}
-  .sh-door h3{position:relative;font-family:var(--serif);font-size:20px}
-  .sh-door p{position:relative;font-size:12.5px;color:var(--mute);margin-top:3px;line-height:1.45}
+  /* ---- carried v1 surfaces (grid, cards, dialog, assistant) ---- */
   .sh-sec{font-family:var(--serif);font-size:20px;color:var(--bone);margin-top:26px}
   .sh-note{font-size:12.5px;color:var(--mute);margin-top:10px;line-height:1.55}
   .sh-note b{color:var(--gold-hi)}
@@ -55,14 +56,16 @@ function injectCss() {
   .sh-chip:hover{border-color:var(--gold)}
   .sh-chip.on{background:linear-gradient(120deg,var(--gold-dim),var(--gold) 45%,var(--gold-hi));color:#141005;font-weight:700;border-color:transparent}
   .sh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-top:18px}
+  @media(max-width:580px){.sh-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}}
   .sh-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-align:left;padding:0;color:var(--bone);width:100%;cursor:pointer}
   .sh-card:hover{border-color:var(--gold-dim)}
-  .sh-card .sh-imgwrap{background:#1a1a1a;aspect-ratio:1;overflow:hidden}
+  .sh-card .sh-imgwrap{position:relative;background:#1a1a1a;aspect-ratio:1;overflow:hidden}
   .sh-card img{width:100%;height:100%;object-fit:cover}
   .sh-card .sh-body{padding:16px 18px 18px}
   .sh-card .sh-tag{font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
   .sh-card h3{font-family:var(--serif);font-size:21px;margin:6px 0 4px;line-height:1.2}
   .sh-card .sh-blurb{color:var(--mute);font-size:13.5px;line-height:1.5;min-height:40px}
+  @media(max-width:580px){.sh-card .sh-blurb{display:none}.sh-card h3{font-size:16px}.sh-card .sh-body{padding:11px 12px 13px}}
   .sh-card .sh-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px}
   .sh-price{font-size:19px;color:var(--gold-hi);font-weight:700}
   .sh-sizes{font-size:12px;color:var(--mute);letter-spacing:.06em}
@@ -74,7 +77,6 @@ function injectCss() {
   .sh-minicard{background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;text-align:left;padding:0;color:var(--bone);cursor:pointer;width:100%}
   .sh-minicard img{aspect-ratio:1;object-fit:cover;width:100%}
   .sh-minicard .mc{padding:10px 12px}.sh-minicard .mc b{font-size:13px;display:block}.sh-minicard .mc span{color:var(--gold);font-size:13px}
-  .sh-back{margin-top:14px;padding:9px 18px;font-size:11.5px}
   dialog.sh-dlg{background:var(--coal);color:var(--bone);border:1px solid var(--gold-dim);border-radius:20px;max-width:880px;width:calc(100% - 28px);padding:0}
   dialog.sh-dlg::backdrop{background:rgba(0,0,0,.82)}
   .sh-pd{display:grid;grid-template-columns:1fr 1fr;position:relative}
@@ -110,6 +112,99 @@ function injectCss() {
   .sh-chat input{flex:1;background:#000;border:1px solid var(--line);border-radius:999px;color:var(--bone);padding:11px 16px;font-size:14.5px;outline:none;min-width:0}
   .sh-chat input:focus{border-color:var(--gold)}
   .sh-chat form button{background:var(--gold);border:none;color:#141005;border-radius:999px;padding:0 18px;font-weight:700;cursor:pointer}
+  /* ---- SHOP RESTORE: the first 163faithshop.com design language ---- */
+  .sr-announce{display:flex;justify-content:space-between;gap:14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px 2px;margin-top:2px;font-size:10px;letter-spacing:.24em;color:var(--mute);text-transform:uppercase}
+  .sr-announce .c{color:var(--gold-hi)}
+  @media(max-width:700px){.sr-announce{justify-content:center}.sr-announce .l,.sr-announce .r{display:none}}
+  .sr-ticker{overflow:hidden;border-bottom:1px solid var(--line);padding:13px 0;margin-top:0}
+  .sr-ticker-track{display:flex;width:max-content;gap:34px;animation:sr-marquee 30s linear infinite}
+  .sr-ticker-track span{font-family:var(--serif);font-size:24px;color:var(--gold);white-space:nowrap}
+  .sr-ticker-track i{color:var(--gold-hi);font-style:normal;font-size:17px;align-self:center}
+  @keyframes sr-marquee{to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.sr-ticker-track{animation:none}}
+  .sr-hero{padding:34px 0 6px}
+  .sr-eyebrow{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+  .sr-eyebrow::before{content:"";width:26px;height:2px;background:var(--gold)}
+  .sr-title{font-family:var(--serif);font-size:clamp(54px,14.5vw,118px);line-height:.96;letter-spacing:-.01em;color:var(--bone);margin:16px 0 14px}
+  .sr-title span{display:block}
+  .sr-title .g{color:var(--gold)}
+  .sr-desc{font-size:15px;line-height:1.6;color:var(--bone);opacity:.88;max-width:520px}
+  .sr-desc strong{color:var(--gold-hi)}
+  .sr-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .sr-edition{display:flex;align-items:center;gap:12px;margin-top:22px;font-size:9.5px;letter-spacing:.26em;color:var(--mute);text-transform:uppercase}
+  .sr-edition::before{content:"";width:22px;height:1px;background:var(--gold-dim)}
+  .sr-kicker{display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.26em;color:var(--mute);text-transform:uppercase;margin-top:44px}
+  .sr-kicker .no{color:var(--gold);font-weight:700}
+  .sr-kicker .hair{flex:1;height:1px;background:var(--line)}
+  @media(max-width:580px){.sr-kicker .hair{display:none}.sr-kicker .tag{margin-left:auto;text-align:right}}
+  .sr-sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:14px 0 6px}
+  .sr-sechead h2{font-family:var(--serif);font-size:clamp(44px,10vw,84px);line-height:.95;color:var(--bone)}
+  .sr-sechead h2 .g{color:var(--gold)}
+  .sr-sechead p{color:var(--mute);font-size:13.5px;line-height:1.55;max-width:300px}
+  @media(max-width:580px){.sr-sechead{display:block}.sr-sechead p{margin-top:10px;max-width:100%}}
+  .sr-micro{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.24em;color:var(--gold-hi);text-transform:uppercase}
+  .sr-micro::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold)}
+  .sr-filterbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:6px;margin-top:16px}
+  .sr-tabs{display:flex;gap:20px;flex-wrap:wrap}
+  .sr-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--mute);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;padding:10px 0 8px;cursor:pointer}
+  .sr-tab sup{color:var(--gold);font-size:9px;margin-left:3px}
+  .sr-tab:hover{color:var(--bone)}
+  .sr-tab.on{color:var(--gold-hi);border-bottom-color:var(--gold)}
+  .sr-sort{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.2em;color:var(--mute);text-transform:uppercase}
+  .sr-sort select{background:#000;color:var(--bone);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;letter-spacing:0;text-transform:none}
+  .sr-count{font-size:10.5px;letter-spacing:.2em;color:var(--gold-hi);text-transform:uppercase}
+  .sr-badge{position:absolute;top:10px;left:10px;z-index:2;background:rgba(5,5,5,.82);border:1px solid var(--gold-dim);color:var(--gold-hi);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;padding:6px 9px;border-radius:7px}
+  .sr-quick{position:absolute;left:0;right:0;bottom:0;z-index:2;background:linear-gradient(0deg,rgba(5,5,5,.88),rgba(5,5,5,0));color:var(--gold-hi);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;padding:20px 12px 9px;display:flex;justify-content:space-between}
+  .sr-foot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:20px;font-size:10px;letter-spacing:.22em;color:var(--mute);text-transform:uppercase}
+  .sr-foot button{background:none;border:none;color:var(--gold-hi);font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;padding:0}
+  .sr-campaign{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:radial-gradient(120% 130% at 85% 0%,rgba(212,175,55,.22),rgba(5,5,5,0) 55%),linear-gradient(150deg,#171204,#070707 70%);margin-top:46px;padding:30px 24px}
+  .sr-campaign .ghost{position:absolute;right:-14px;top:-30px;font-family:var(--serif);font-size:190px;color:rgba(212,175,55,.09);line-height:1;pointer-events:none}
+  .sr-campaign h2{position:relative;font-family:var(--serif);font-size:clamp(46px,11vw,92px);line-height:.95;color:var(--bone);margin:12px 0}
+  .sr-campaign h2 em{color:var(--gold);font-style:normal}
+  .sr-campaign p{position:relative;color:var(--bone);opacity:.85;font-size:14.5px;line-height:1.6;max-width:420px}
+  .sr-campaign img{position:relative;display:block;width:min(300px,72%);aspect-ratio:1;object-fit:cover;border-radius:16px;border:1px solid var(--gold-dim);margin-top:20px}
+  .sr-campaign .sr-buttons{position:relative}
+  .sr-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:18px}
+  @media(max-width:580px){.sr-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}}
+  .sr-tile{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);padding:0;text-align:left;color:var(--bone);cursor:pointer;width:100%}
+  .sr-tile:hover{border-color:var(--gold-dim)}
+  .sr-tile img{width:100%;aspect-ratio:1.15;object-fit:cover;display:block}
+  .sr-tile .no{position:absolute;top:10px;left:12px;font-size:9.5px;letter-spacing:.22em;color:var(--gold-hi);background:rgba(5,5,5,.75);padding:5px 8px;border-radius:6px;text-transform:uppercase}
+  .sr-tile .meta{padding:12px 14px 14px}
+  .sr-tile .meta span{display:block;font-size:10px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
+  .sr-tile .meta strong{display:block;font-family:var(--serif);font-size:16.5px;margin-top:4px;line-height:1.25}
+  .sr-tile .meta small{display:block;color:var(--mute);font-size:12px;margin-top:3px}
+  .sr-manifesto{margin-top:46px;border-top:1px solid var(--line);padding-top:30px}
+  .sr-manifesto h2{font-family:var(--serif);font-size:clamp(46px,11.5vw,96px);line-height:.95;color:var(--bone);margin:12px 0 16px}
+  .sr-manifesto h2 .g{color:var(--gold)}
+  .sr-verse{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.55;color:var(--gold-hi);max-width:560px}
+  .sr-ref{font-size:10px;letter-spacing:.26em;color:var(--mute);text-transform:uppercase;margin-top:10px}
+  .sr-manifesto .body{color:var(--bone);opacity:.87;font-size:14.5px;line-height:1.65;max-width:600px;margin-top:18px}
+  .sr-manifesto .body p+p{margin-top:12px}
+  .sr-signoff{font-family:var(--serif);font-size:21px;line-height:1.35;margin-top:18px;color:var(--bone)}
+  .sr-signoff strong{color:var(--gold-hi)}
+  .sr-founder{display:inline-block;margin-top:16px;font-size:10px;letter-spacing:.24em;color:var(--gold);text-transform:uppercase;border:1px solid var(--gold-dim);border-radius:999px;padding:8px 14px}
+  .sr-bleed{margin-top:46px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0 16px;text-align:center;overflow:hidden}
+  .sr-bleed .word{font-family:var(--serif);font-size:clamp(52px,14vw,150px);line-height:1;color:var(--bone);white-space:nowrap}
+  .sr-bleed .word .g{color:var(--gold)}
+  .sr-bleed .strip{display:flex;justify-content:space-between;gap:12px;font-size:9.5px;letter-spacing:.24em;color:var(--mute);text-transform:uppercase;margin-top:12px}
+  .sr-editorial{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:20px}
+  @media(max-width:700px){.sr-editorial{grid-template-columns:1fr}}
+  .sr-editorial h2{font-family:var(--serif);font-size:clamp(40px,9vw,72px);line-height:.98;color:var(--bone);margin:12px 0}
+  .sr-editorial h2 em{color:var(--gold);font-style:normal}
+  .sr-editorial p{color:var(--bone);opacity:.85;font-size:14.5px;line-height:1.65}
+  .sr-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .sr-art{position:relative;border:1px solid var(--gold-dim);border-radius:20px;background:radial-gradient(110% 110% at 50% 0%,rgba(212,175,55,.2),rgba(5,5,5,0) 60%),#0a0803;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;text-align:center}
+  .sr-art .cross{color:var(--gold);font-size:22px}
+  .sr-art .top,.sr-art .bot{font-size:9.5px;letter-spacing:.28em;color:var(--mute);text-transform:uppercase}
+  .sr-art strong{font-family:var(--serif);font-size:120px;line-height:1;color:var(--gold)}
+  .sr-art strong span{color:var(--bone)}
+  .sr-faq{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-top:12px}
+  .sr-faq summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;font-family:var(--serif);font-size:17.5px;color:var(--bone);list-style:none}
+  .sr-faq summary::-webkit-details-marker{display:none}
+  .sr-faq summary span{color:var(--gold);font-size:20px}
+  .sr-faq p{padding:0 18px 17px;color:var(--mute);font-size:14px;line-height:1.6}
+  .sr-faq p b{color:var(--gold-hi)}
   `;
   document.head.appendChild(st);
 }
@@ -117,19 +212,80 @@ function injectCss() {
 export function render(root) {
   injectCss();
   const S = {
-    view: 'doors', // doors | grid
     products: [], categories: [], quickStore: QUICK_STORE,
-    cat: 'all', aud: 'all', query: '',
+    cat: 'all', aud: 'all', sort: 'featured', query: '',
     dialogSlug: null, dialogSize: null, greeted: false,
   };
   window.__shop = { state: S, ready: false, products: [] };
 
+  const tickerSet = ['FAITH OVER FEAR', 'GOD OVER EVERYTHING', 'NO MORE HIDING', 'LIVE WHAT YOU BELIEVE']
+    .map((t) => `<span>${t}</span><i aria-hidden="true">✦</i>`).join('');
   root.innerHTML = `
-    <p class="kicker">Shop · Wear the Work</p>
-    <h1>Gold on black. <span class="g">Front mark, always.</span></h1>
-    <p class="lede">Real Printful pieces — every front carries the full 16:3 FAITH mark. Printed when you order, fulfilled by Printful. Questions: <a href="mailto:${CONTACT}">${CONTACT}</a></p>
     ${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-shop.mp4', poster: 'assets/video/film-shop-poster.webp', title: 'The line, in motion.', note: 'Shop film · the full 107 seconds' }) : ''}
-    <div data-sh="main"><p class="sh-note">Loading the line…</p></div>
+    <div class="sr-announce"><span class="l">Proverbs 16:3 — Commit the Work.</span><span class="c">Not just a brand. A way to walk.</span><span class="r">Est. in Faith ✦</span></div>
+    <div class="sr-ticker" aria-label="Brand phrases"><div class="sr-ticker-track" aria-hidden="true">${tickerSet}${tickerSet}</div></div>
+    <section class="sr-hero">
+      <div class="sr-eyebrow">The 16:3 Collection</div>
+      <h1 class="sr-title"><span>FAITH</span><span>IS NOT</span><span>A TREND<span class="g">.</span></span></h1>
+      <p class="sr-desc">Not for the sidelines. Not for Sunday only.<br><strong>Built on the Word. Worn in the world.</strong> Real Printful pieces — every front carries the full 16:3 FAITH mark, printed when you order.</p>
+      <div class="sr-buttons">
+        <button type="button" class="btn-gold" data-scroll="collection" style="padding:13px 22px">Shop the Collection ↗</button>
+        <button type="button" class="btn-ghost" data-scroll="story" style="padding:13px 22px">Why 16:3 →</button>
+      </div>
+      <div class="sr-edition"><span>Conviction in every thread</span><span>Proverbs 16:3</span></div>
+    </section>
+    <section data-sr="collection">
+      <div class="sr-kicker"><span class="no">[ 01 ]</span><span>The Collection</span><span class="hair"></span><span class="tag">Designed to make a statement</span></div>
+      <div class="sr-sechead"><div><div class="sr-micro">Wear your conviction</div><h2>THE GEAR<span class="g">.</span></h2></div><p>No quiet graphics. No empty slogans.<br>Statement pieces rooted in something real.</p></div>
+      <div data-sh="filterbar"><p class="sh-note">Loading the line…</p></div>
+      <div data-sh="aislot"></div>
+      <div data-sh="gridslot"><p class="sh-note">Loading the line…</p></div>
+      <div class="sr-foot"><span>More than an outfit. It’s the walk.</span><button type="button" data-scroll="story">See the statement ↗</button></div>
+    </section>
+    <div data-sh="campaign"></div>
+    <section>
+      <div class="sr-kicker"><span class="no">[ 02 ]</span><span>Choose Your Armor</span><span class="hair"></span><span class="tag">No compromise</span></div>
+      <div data-sh="tiles"><p class="sh-note">Loading the line…</p></div>
+    </section>
+    <section class="sr-manifesto" data-sr="story">
+      <div class="sr-kicker" style="margin-top:0"><span class="no">[ 03 ]</span><span>The Reason</span><span class="hair"></span></div>
+      <p class="sh-note" style="letter-spacing:.24em;text-transform:uppercase">The verse that started it all</p>
+      <h2>COMMIT<br>THE WORK<span class="g">.</span></h2>
+      <p class="sr-verse">“Commit thy works unto the LORD, and thy thoughts shall be established.”</p>
+      <p class="sr-ref">Proverbs 16:3 / KJV</p>
+      <div class="body">
+        <p>This is for the people who have been through it. The ones still standing. The ones learning to trust God when nothing makes sense.</p>
+        <p>We don’t put scripture on fabric to follow a trend. We wear the reminder of who we belong to.</p>
+      </div>
+      <p class="sr-signoff">FAITH IS THE FOUNDATION.<br><strong>THE GEAR IS THE EXPRESSION.</strong></p>
+      <span class="sr-founder">Founded by Pastor Jeremy “Chico” Mills</span>
+    </section>
+    <section class="sr-bleed"><div class="word">WALK IN <span class="g">FAITH.</span></div><div class="strip"><span>No performance. Just purpose.</span><span>Proverbs 16:3</span></div></section>
+    <section>
+      <div class="sr-kicker"><span class="no">[ 04 ]</span><span>More Than Merch</span><span class="hair"></span><span class="tag">The community is the culture</span></div>
+      <div class="sr-editorial">
+        <div>
+          <div class="sr-eyebrow">Believe bigger. Walk together.</div>
+          <h2>THE WORD<br>GOES <em>WITH</em><br>YOU.</h2>
+          <p>The gear is one part of 16:3 Faith. The heart of it is a real community — prayer, Scripture, music, and finding God in everyday life.</p>
+          <div class="sr-links">
+            <a class="btn-ghost" href="#/watch" style="padding:11px 18px;text-decoration:none">Watch ↗</a>
+            <a class="btn-ghost" href="#/listen" style="padding:11px 18px;text-decoration:none">Listen ↗</a>
+            <a class="btn-ghost" href="#/community" style="padding:11px 18px;text-decoration:none">The Community ↗</a>
+          </div>
+        </div>
+        <div class="sr-art" aria-label="Graphic inspired by Proverbs 16:3"><span class="cross">✝</span><span class="top">Not for Sunday only.</span><strong>16<span>:</span>3</strong><span class="bot">Commit the work // Trust the Lord</span></div>
+      </div>
+    </section>
+    <section>
+      <div class="sr-kicker"><span class="no">[ 05 ]</span><span>Good to Know</span><span class="hair"></span></div>
+      <div class="sr-sechead"><h2 style="font-size:clamp(38px,8.5vw,64px)">NO GUESSWORK<span class="g">.</span></h2><p>How the line works — the same answers the shop assistant gives, in the open.</p></div>
+      <details class="sr-faq"><summary>How is the gear made?<span>+</span></summary><p>Every piece is <b>made to order</b> — printed when you order it and fulfilled by Printful. Nothing sits in a warehouse; your piece is made for you.</p></details>
+      <details class="sr-faq"><summary>What is the production and delivery timeline?<span>+</span></summary><p>Allow <b>a few days for printing</b>, then standard delivery to US addresses. Because each piece is printed on order, it takes a little longer than off-the-shelf — order a few days ahead of the day you need it.</p></details>
+      <details class="sr-faq"><summary>How do I choose the right size?<span>+</span></summary><p>Tees run <b>S–4XL</b> in a relaxed garment-dyed fit — your normal size is the right call. The hoodie and crewneck run <b>S–5XL</b>; size up if you like a relaxed fit. Joggers run S–2XL and the snapback is one size. Tap any piece to see its exact size run.</p></details>
+      <details class="sr-faq"><summary>Can I return or exchange?<span>+</span></summary><p>Wrong size? Email <b>${CONTACT}</b> and we’ll make it right — exchanges for size are handled personally.</p></details>
+    </section>
+    <p class="sh-note" style="margin-top:30px">Buy path: every piece checks out on the Printful Quick Store — <b>${esc(QUICK_STORE)}</b>. No in-hub checkout. Questions: <a href="mailto:${CONTACT}">${CONTACT}</a></p>
     <button type="button" class="sh-fab" data-sh="fab">✦ Shop Assistant</button>
     <div class="sh-chat" data-sh="chat">
       <header><b>✦ 163 Assistant <span class="ai-tag">AI · Powered by AI</span></b><button type="button" data-sh="chatclose" aria-label="Close assistant">✕</button></header>
@@ -137,11 +293,21 @@ export function render(root) {
       <form data-sh="chatform"><input data-sh="chatin" placeholder="Sizing, gifts, prices…" autocomplete="off" aria-label="Ask the shop assistant"><button type="submit">Ask</button></form>
     </div>`;
   if (window.FaithFilm) window.FaithFilm.wire(root);
-  const main = root.querySelector('[data-sh="main"]');
   const bySlug = (s) => S.products.find((p) => p.slug === s);
   const catLabel = (c) => (S.categories.find(([k]) => k === c) || [, c])[1];
   const audVisible = (p, aud) => aud === 'all' || p.audience === aud || p.audience === 'unisex'; // the shop page's own setAud rule
-  const filtered = () => S.products.filter((p) => (S.cat === 'all' || p.category === S.cat) && audVisible(p, S.aud));
+  const filtered = () => {
+    const list = S.products.filter((p) => (S.cat === 'all' || p.category === S.cat) && audVisible(p, S.aud));
+    if (S.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
+    else if (S.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
+    else if (S.sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+    return list;
+  };
+  const scrollTo = (key) => {
+    const el = root.querySelector(`[data-sr="${key}"]`);
+    if (el) el.scrollIntoView({ behavior: window.FaithFilm && window.FaithFilm.reduced ? 'auto' : 'smooth', block: 'start' });
+  };
+  root.querySelectorAll('[data-scroll]').forEach((b) => b.addEventListener('click', () => scrollTo(b.dataset.scroll)));
 
   /* ---------- AI search — ported from the shop page (client-side) ---------- */
   function matchProducts(q) {
@@ -187,7 +353,7 @@ export function render(root) {
   function cardHTML(p) {
     return `
     <article class="sh-card gold-frame" data-product="${esc(p.slug)}" data-cat="${esc(p.category)}" data-aud="${esc(p.audience)}" tabindex="0" role="button" aria-label="${esc(p.name)} — view product">
-      <div class="sh-imgwrap"><img loading="lazy" data-front src="${esc(p.img)}" alt="${esc(p.name)} — front"></div>
+      <div class="sh-imgwrap"><span class="sr-badge">${esc(p.tag)}</span><img loading="lazy" data-front src="${esc(p.img)}" alt="${esc(p.name)} — front"><span class="sr-quick"><span>Quick view</span><span>+</span></span></div>
       <div class="sh-body">
         <div class="sh-tag">${esc(p.tag)}</div>
         <h3>${esc(p.name)}</h3>
@@ -214,47 +380,87 @@ export function render(root) {
     </div>`;
   }
 
-  function audChipsHTML() {
-    return `<div class="sh-chips" role="group" aria-label="Browse by audience">${[['all', 'All'], ['mens', 'Mens'], ['womens', 'Womens']].map(([f, l]) => `<button type="button" class="sh-chip ${S.aud === f ? 'on' : ''}" data-audfilter="${f}">${l}</button>`).join('')}</div>
-    <p class="sh-note">Every current piece is a <b>unisex</b> cut, tagged exactly as the shop page tags it — so Mens and Womens browse both show the full unisex line. Nothing is re-tagged.</p>`;
-  }
-  function catChipsHTML(includeAll) {
-    const cats = (includeAll ? [['all', 'All pieces']] : []).concat(S.categories);
-    return `<div class="sh-chips" role="group" aria-label="Browse by type">${cats.map(([c, l]) => `<button type="button" class="sh-chip ${S.cat === c ? 'on' : ''}" data-catfilter="${c}">${esc(l)} · ${c === 'all' ? S.products.length : S.products.filter((p) => p.category === c).length}</button>`).join('')}</div>`;
-  }
+  /* ---------- catalog-driven paints (slots below the film; the film
+     element is outside every slot and is never repainted) ---------- */
+  const filterSlot = root.querySelector('[data-sh="filterbar"]');
+  const aiSlot = root.querySelector('[data-sh="aislot"]');
+  const gridSlot = root.querySelector('[data-sh="gridslot"]');
+  const campaignSlot = root.querySelector('[data-sh="campaign"]');
+  const tilesSlot = root.querySelector('[data-sh="tiles"]');
 
-  /* ---------- views ---------- */
-  function viewDoors() {
-    S.view = 'doors';
-    main.innerHTML = `
-      ${searchBlockHTML()}
-      <h3 class="sh-sec">Shop by type</h3>
-      <div class="sh-doors">
-        <button type="button" class="sh-door" data-door-type="all"><span class="sh-art"></span><span class="sh-ico">◆</span><h3>All Pieces</h3><p>${S.products.length} pieces — the whole line</p></button>
-        ${S.categories.map(([c, l]) => `<button type="button" class="sh-door" data-door-type="${c}"><span class="sh-art"></span><span class="sh-ico">◆</span><h3>${esc(l)}</h3><p>${S.products.filter((p) => p.category === c).length} ${S.products.filter((p) => p.category === c).length === 1 ? 'piece' : 'pieces'}</p></button>`).join('')}
+  function paintFilterbar() {
+    const tabs = [['all', 'All Pieces']].concat(S.categories);
+    filterSlot.innerHTML = `
+      <div class="sr-filterbar">
+        <div class="sr-tabs" role="group" aria-label="Filter collection">
+          ${tabs.map(([c, l]) => `<button type="button" class="sr-tab ${S.cat === c ? 'on' : ''}" data-door-type="${c}">${esc(l)}<sup>${c === 'all' ? S.products.length : S.products.filter((p) => p.category === c).length}</sup></button>`).join('')}
+        </div>
+        <label class="sr-sort">Sort <select data-sh="sort" aria-label="Sort products">
+          ${[['featured', 'Featured'], ['price-asc', 'Price: low to high'], ['price-desc', 'Price: high to low'], ['name', 'Name: A–Z']].map(([v, l]) => `<option value="${v}" ${S.sort === v ? 'selected' : ''}>${l}</option>`).join('')}
+        </select></label>
       </div>
-      <h3 class="sh-sec">Shop by audience</h3>
-      <div class="sh-doors">
-        ${[['all', 'All', 'Everyone — the full line'], ['mens', 'Mens', 'Unisex cuts, browsed for men'], ['womens', 'Womens', 'Unisex cuts, browsed for women']].map(([f, l, d]) => `<button type="button" class="sh-door" data-door-aud="${f}"><span class="sh-art"></span><span class="sh-ico">●</span><h3>${l}</h3><p>${d} · ${S.products.filter((p) => audVisible(p, f)).length} pieces</p></button>`).join('')}
-      </div>
-      <p class="sh-note">Buy path: every piece checks out on the Printful Quick Store — <b>${esc(S.quickStore)}</b>. No in-hub checkout. Contact: <a href="mailto:${CONTACT}">${CONTACT}</a></p>`;
-    wire();
-    if (window.FaithMotion) window.FaithMotion.armReveals(root);
+      <div class="sh-chips" role="group" aria-label="Browse by audience">${[['all', 'All'], ['mens', 'Mens'], ['womens', 'Womens']].map(([f, l]) => `<button type="button" class="sh-chip ${S.aud === f ? 'on' : ''}" data-door-aud="${f}">${l}</button>`).join('')}
+      <span class="sr-count" data-sh="count" style="margin-left:auto"></span></div>
+      <p class="sh-note">Every current piece is a <b>unisex</b> cut, tagged exactly as the shop page tags it — so Mens and Womens browse both show the full unisex line. Nothing is re-tagged.</p>`;
+    filterSlot.querySelectorAll('[data-door-type]').forEach((b) => b.addEventListener('click', () => { S.cat = b.dataset.doorType; paintFilterbar(); paintGrid(); }));
+    filterSlot.querySelectorAll('[data-door-aud]').forEach((b) => b.addEventListener('click', () => { S.aud = b.dataset.doorAud; paintFilterbar(); paintGrid(); }));
+    filterSlot.querySelector('[data-sh="sort"]').addEventListener('change', (e) => { S.sort = e.target.value; paintGrid(); });
+    paintCount();
   }
-
-  function viewGrid() {
-    S.view = 'grid';
-    const list = filtered();
+  function paintCount() {
+    const el = filterSlot.querySelector('[data-sh="count"]');
+    if (!el) return;
+    const n = filtered().length;
     const title = S.cat === 'all' ? 'All Pieces' : catLabel(S.cat);
-    main.innerHTML = `
-      <button type="button" class="btn-ghost sh-back" data-act="doors">← All Shop doors</button>
-      ${searchBlockHTML()}
-      <div class="shelf"><h3>${esc(title)} <span class="shelf-count">· ${list.length} ${list.length === 1 ? 'piece' : 'pieces'}${S.aud !== 'all' ? ` · ${S.aud === 'mens' ? 'Mens' : 'Womens'} browse` : ''}</span></h3>
-      ${catChipsHTML(true)}
-      ${audChipsHTML()}
-      <div class="sh-grid" data-sh="grid">${list.length ? list.map(cardHTML).join('') : '<p class="sh-note">No pieces in this browse.</p>'}</div></div>
+    el.textContent = `${title} · ${n} ${n === 1 ? 'piece' : 'pieces'}${S.aud !== 'all' ? ` · ${S.aud === 'mens' ? 'Mens' : 'Womens'} browse` : ''}`;
+  }
+  function paintAi() {
+    aiSlot.innerHTML = searchBlockHTML();
+    const form = aiSlot.querySelector('[data-sh="searchform"]');
+    form.addEventListener('submit', (e) => { e.preventDefault(); const q = form.querySelector('[data-sh="q"]').value.trim(); if (q) { S.query = q; renderAnswer(q); } });
+    aiSlot.querySelectorAll('[data-sh="chip"]').forEach((c) => c.addEventListener('click', () => {
+      const inp = aiSlot.querySelector('[data-sh="q"]'); if (inp) inp.value = c.textContent.trim();
+      S.query = c.textContent.trim(); renderAnswer(S.query);
+    }));
+  }
+  function paintGrid() {
+    const list = filtered();
+    gridSlot.innerHTML = `<div class="sh-grid" data-sh="grid">${list.length ? list.map(cardHTML).join('') : '<p class="sh-note">No pieces in this browse.</p>'}</div>
       <p class="sh-note">Every front carries the full 16:3 FAITH mark. Checkout runs on Printful’s secure store. Questions: <a href="mailto:${CONTACT}">${CONTACT}</a></p>`;
-    wire();
+    gridSlot.querySelectorAll('[data-product]').forEach((card) => {
+      card.addEventListener('click', (e) => { if (e.target.closest('[data-buy]')) return; openProduct(card.dataset.product); });
+      card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProduct(card.dataset.product); } });
+    });
+    paintCount();
+  }
+  function paintCampaign() {
+    const p = bySlug('crowned-heavy-hoodie') || S.products[0];
+    if (!p) return;
+    campaignSlot.innerHTML = `
+    <section class="sr-campaign reveal">
+      <span class="ghost" aria-hidden="true">16:3</span>
+      <div class="sr-eyebrow">Built for life outside the church walls</div>
+      <h2>LOUD<br>WITHOUT<br><em>APOLOGY.</em></h2>
+      <p>Your faith doesn’t clock out when the service ends. Neither should your gear.</p>
+      <img loading="lazy" src="${esc(p.img)}" alt="${esc(p.name)} — front">
+      <div class="sr-buttons"><button type="button" class="btn-gold" data-campaign-all style="padding:13px 22px">Find your piece ↗</button></div>
+    </section>`;
+    campaignSlot.querySelector('[data-campaign-all]').addEventListener('click', () => { S.cat = 'all'; S.aud = 'all'; paintFilterbar(); paintGrid(); scrollTo('collection'); });
+  }
+  function paintTiles() {
+    const tileFor = (c, l, i) => {
+      const p = c === 'all' ? bySlug('crowned-tee') : S.products.find((x) => x.category === c);
+      const n = c === 'all' ? S.products.length : S.products.filter((x) => x.category === c).length;
+      return `<button type="button" class="sr-tile" data-cat-tile="${c}"><span class="no">0${i + 1} / ${c === 'all' ? 'The Whole Line' : esc(catLabel(c))}</span>${p ? `<img loading="lazy" src="${esc(p.img)}" alt="${esc(p.name)} — front">` : ''}<span class="meta"><span>${esc(l)}</span><strong>${c === 'all' ? 'Every piece, one wall' : esc(l) + ' — wear it loud'} ↗</strong><small>${n} ${n === 1 ? 'piece' : 'pieces'}</small></span></button>`;
+    };
+    tilesSlot.innerHTML = `<div class="sr-tiles">${[['all', 'All Pieces']].concat(S.categories).map(([c, l], i) => tileFor(c, l, i)).join('')}</div>`;
+    tilesSlot.querySelectorAll('[data-cat-tile]').forEach((b) => b.addEventListener('click', () => { S.cat = b.dataset.catTile; paintFilterbar(); paintGrid(); scrollTo('collection'); }));
+  }
+  function paintCatalog() {
+    paintFilterbar(); paintAi(); paintGrid(); paintCampaign(); paintTiles();
+    window.__shop.ready = true;
+    window.__shop.products = S.products;
+    if (window.FaithMotion) window.FaithMotion.armReveals(root);
   }
 
   /* ---------- product dialog (the shop page's own dialog pattern) ---------- */
@@ -296,35 +502,15 @@ export function render(root) {
     if (!dlg.open) dlg.showModal();
     window.__shop.dialog = { slug, sizes: p.sizes.slice() };
   }
+  window.__shop.openProduct = openProduct;
 
-  /* ---------- wiring ---------- */
+  /* ---------- AI answer rendering ---------- */
   function renderAnswer(q) {
-    const slot = main.querySelector('[data-sh="answer"]'); if (!slot) return;
+    const slot = aiSlot.querySelector('[data-sh="answer"]'); if (!slot) return;
     const a = answerFor(q);
     slot.innerHTML = `<div class="sh-answer" data-sh="answertext">${a.html}</div>
       <div class="sh-mini">${a.hits.map((p) => `<button type="button" class="sh-minicard" data-mini="${esc(p.slug)}"><img loading="lazy" src="${esc(p.img)}" alt="${esc(p.name)}"><div class="mc"><b>${esc(p.name)}</b><span>${money(p.price)}</span></div></button>`).join('')}</div>`;
     slot.querySelectorAll('[data-mini]').forEach((b) => b.addEventListener('click', () => openProduct(b.dataset.mini)));
-  }
-  function wire() {
-    main.querySelectorAll('[data-door-type]').forEach((b) => b.addEventListener('click', () => { S.cat = b.dataset.doorType; S.aud = 'all'; viewGrid(); }));
-    main.querySelectorAll('[data-door-aud]').forEach((b) => b.addEventListener('click', () => { S.aud = b.dataset.doorAud; S.cat = 'all'; viewGrid(); }));
-    const back = main.querySelector('[data-act="doors"]');
-    if (back) back.addEventListener('click', viewDoors);
-    main.querySelectorAll('[data-catfilter]').forEach((b) => b.addEventListener('click', () => { S.cat = b.dataset.catfilter; viewGrid(); }));
-    main.querySelectorAll('[data-audfilter]').forEach((b) => b.addEventListener('click', () => { S.aud = b.dataset.audfilter; viewGrid(); }));
-    main.querySelectorAll('[data-product]').forEach((card) => {
-      card.addEventListener('click', (e) => { if (e.target.closest('[data-buy]')) return; openProduct(card.dataset.product); });
-      card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openProduct(card.dataset.product); } });
-    });
-    const form = main.querySelector('[data-sh="searchform"]');
-    if (form) form.addEventListener('submit', (e) => { e.preventDefault(); const q = form.querySelector('[data-sh="q"]').value.trim(); if (q) { S.query = q; renderAnswer(q); } });
-    main.querySelectorAll('[data-sh="chip"]').forEach((c) => c.addEventListener('click', () => {
-      const inp = main.querySelector('[data-sh="q"]'); if (inp) inp.value = c.textContent.trim();
-      S.query = c.textContent.trim(); renderAnswer(S.query);
-    }));
-    window.__shop.ready = true;
-    window.__shop.openProduct = openProduct;
-    window.__shop.state = S;
   }
 
   /* ---------- AI assistant — ported from the shop page (client-side) ---------- */
@@ -374,9 +560,9 @@ export function render(root) {
       S.products = d.products; S.categories = d.categories;
       if (d.source && d.source.quickStore) S.quickStore = d.source.quickStore;
       window.__shop.products = S.products;
-      viewDoors();
+      paintCatalog();
     } catch (e) {
-      main.innerHTML = `<div class="placeholder-note"><b>The shop could not be loaded.</b> The catalog data did not answer (${esc(e.message)}). Nothing is simulated in its place — the line keeps selling at 163faithshop.com. Questions: ${CONTACT}</div>`;
+      gridSlot.innerHTML = `<div class="placeholder-note"><b>The shop could not be loaded.</b> The catalog data did not answer (${esc(e.message)}). Nothing is simulated in its place — the line keeps selling at 163faithshop.com. Questions: ${CONTACT}</div>`;
     }
   })();
 }
