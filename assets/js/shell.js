@@ -996,6 +996,16 @@ async function faithAnswer(raw) {
   if (/(suicide|kill myself|self[-\s]?harm|hurt myself|end my life|want to die)/.test(low)) return show(FA_CRISIS);
   if (/(pastoral|talk to (a |the )?pastor|speak to (a |the )?pastor|counsel|crisis|depress|anxiet|grief|addict|abuse)/.test(low)) return show(FA_PASTORAL);
   if (/(doctrine|denomination|calvinis|arminian|once saved|speaking in tongues|predestination|the rapture|end times prophecy)/.test(low)) return show(FA_PASTORAL + ' The Read hub carries the Word itself, word for word.', 'read');
+  /* House identity (amp-up P1-AI-2 cure, 2026-11-22) — composed ONLY from
+     the house's own published words: the meta description ("the futuristic
+     hip-hop church… Commit thy works unto the LORD. — Proverbs 16:3", the
+     seven hubs), the hero line ("One faith. Many voices. A place to
+     belong."), Meet the Pastor (Founder & Pastor Jeremy "Chico" Mills,
+     USAF veteran), and the index honesty list ("Membership is free.").
+     Nothing aspirational, nothing invented. */
+  if (/(what is|what's|who are you|who is|tell me about|about)\s+(16:3|163|this (church|house|site|ministry)|the house|your church)|^(16:3|163)( faith)?[?.!]?$|about 16:3/.test(low)) {
+    return show('<b>16:3 Faith is the futuristic hip-hop church</b> — “Commit thy works unto the LORD” (Proverbs 16:3). One faith. Many voices. A place to belong. The house has seven hubs: <b>Watch · Listen · Read · Pray · Community · Give · Shop</b>. It is pastored by its founder, <b>Pastor Jeremy “Chico” Mills</b>, a USAF veteran. Membership is free.', 'community');
+  }
   const d = await faLoad();
   const counters = d.meta?.counters?.livePulse20261119 || d.meta?.counters || {};
   /* Today's Word — the day's devotional; the verse is quoted only from
