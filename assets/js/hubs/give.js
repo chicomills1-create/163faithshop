@@ -138,7 +138,7 @@ async function postCheckout(door, path, body) {
        server-side (the 401 "session didn't verify" leg below is now
        reachable only on a genuinely dead session), and the terms
        gate's 403 routes the member to the acceptance step + retry. */
-    const doFetch = window.FaithAuth?.apiFetch || fetch;
+    const doFetch = window.FaithAuth?.apiFetch ? window.FaithAuth.apiFetch.bind(window.FaithAuth) : fetch; /* DEFECT 4b cure (2026-11-22): bind — apiFetch reads `this`; unbound extraction threw before any request (see community.js postJson) */
     res = await doFetch(url, opts);
   } catch (e) {
     rec.status = 0; rec.response = { networkError: String(e && e.message || e) };

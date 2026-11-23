@@ -292,13 +292,26 @@ function startSlider(box) {
     dotsBox.querySelectorAll('.hdot').forEach((d, j) => d.classList.toggle('on', j === cur));
   };
   const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+  let resumeTimer = null;
   const play = () => {
+    if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
     stop();
     if (REDUCED || paused || slides.length < 2) return;
     timer = setInterval(() => {
       if (!box.isConnected || document.hidden) { if (!box.isConnected) stop(); return; }
       go(cur + 1);
     }, 5000);
+  };
+  /* Phase 2B live-walk cure (2026-11-22): a pointerdown used to stop
+     the rotation with pointerleave as the ONLY way back — a pointer
+     (or touch) that comes down on the slider and never leaves it
+     parked the rotation dead for the whole visit (the live walk sat
+     ~5 minutes without an advance on exactly this). Interaction now
+     pauses briefly and the rotation resumes on its own after an idle
+     beat; play() still honors the explicit Pause button via `paused`. */
+  const idleResume = () => {
+    if (resumeTimer) clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => { resumeTimer = null; play(); }, 10000);
   };
   dotsBox.querySelectorAll('[data-hdot]').forEach((d) => d.addEventListener('click', (e) => {
     e.stopPropagation(); go(Number(d.dataset.hdot)); play();
@@ -311,7 +324,7 @@ function startSlider(box) {
     pauseBtn.textContent = paused ? 'Play' : 'Pause';
     if (paused) stop(); else play();
   });
-  box.addEventListener('pointerdown', () => stop());
+  box.addEventListener('pointerdown', () => { stop(); idleResume(); });
   box.addEventListener('pointerleave', () => play());
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { stop(); box.querySelectorAll('video.hslide-vid').forEach((v) => v.pause()); }

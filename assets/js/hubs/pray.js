@@ -65,7 +65,7 @@ async function fetchJSON(url, opts = {}, timeoutMs = 6000) {
        gate's 403 routes the member to the acceptance step and retries.
        Reads stay on the plain fetch (public content is guest-open). */
     const isWrite = !!opts.method && String(opts.method).toUpperCase() !== 'GET';
-    const doFetch = isWrite && window.FaithAuth?.apiFetch ? window.FaithAuth.apiFetch : fetch;
+    const doFetch = isWrite && window.FaithAuth?.apiFetch ? window.FaithAuth.apiFetch.bind(window.FaithAuth) : fetch; /* DEFECT 4b cure (2026-11-22): bind — apiFetch reads `this`; the unbound call threw before any request, killing every member write (see community.js postJson) */
     const r = await doFetch(url, { credentials: 'include', signal: ctl.signal, ...opts });
     if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
     return await r.json();

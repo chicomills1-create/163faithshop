@@ -399,7 +399,15 @@ async function fetchBaked(name) { return fetchJson(DATA + name); }
    reported done when the server said so. */
 const isSignedIn = () => { try { return !!(window.Clerk && window.Clerk.user); } catch { return false; } };
 async function postJson(url, body) {
-  const doFetch = window.FaithAuth?.apiFetch || fetch;
+  /* DEFECT 4b cure (2026-11-22, found proving D4): apiFetch is a
+     method on the FaithAuth object and reads `this` (authHeader /
+     signedIn / openTerms). Extracting it unbound and calling it bare
+     threw "Cannot read properties of undefined (reading
+     'authHeader')" before any request — EVERY member write through
+     here (post create, comments, reactions) died instantly with
+     "The house could not be reached". Bind at extraction. The same
+     cure is applied at the pray.js and give.js extraction sites. */
+  const doFetch = window.FaithAuth?.apiFetch ? window.FaithAuth.apiFetch.bind(window.FaithAuth) : fetch;
   let r;
   try {
     r = await doFetch(url, {
@@ -538,6 +546,11 @@ async function loadLive() {
     ]);
     if (bakedWall?.posts?.length) S.wallPosts = ingestPosts(bakedWall.posts);
     const b = ingestPosts(bakedFeed.posts);
+    S.bakedPosts = b; /* Phase 2B live-walk cure (2026-11-22): the baked
+      snapshot's author set is the directory's stable evidence floor —
+      see buildDirectory. The wall's backing set gets REPLACED by the
+      live leg below; the directory's membership must never shrink
+      because of that swap. */
     S.posts = b.filter((p) => p.type !== 'testimony');
     S.testimonies = b.filter((p) => p.type === 'testimony');
     S.bakedMembers = bakedMembers.members || [];
@@ -609,9 +622,21 @@ async function loadLive() {
 function buildDirectory() {
   const byId = new Map();
   (S.bakedMembers || []).forEach((m, i) => byId.set(m.id || `evidenced-${i}`, { ...m, id: m.id || null, key: m.id || `evidenced-${i}` }));
+  /* Phase 2B live-walk cure (2026-11-22): author evidence is read from
+     the UNION of the live-held posts and the baked snapshot, deduped by
+     post id — never from the live set alone. The live leg replaces
+     S.posts with its first slice (25 posts) and rebuilds this directory
+     immediately; an author whose posts sit deeper in the offset chain
+     (the founder's "Chico M." user_3ES0… posts, 8 in the baked feed)
+     vanished from the directory until — unless — the chain walked far
+     enough to re-deliver them, and the chain breaks on any failed
+     slice. Live walk counted 112 twice for exactly this reason; the
+     baked-mode render is 113. The union makes 113 the floor in every
+     mode, from first paint, with post counts over the same union. */
+  const evidence = uniqPosts([...S.posts, ...S.testimonies, ...(S.bakedPosts || [])]);
   const counts = new Map();
-  for (const p of [...S.posts, ...S.testimonies]) if (p.authorId) counts.set(p.authorId, (counts.get(p.authorId) || 0) + 1);
-  for (const p of [...S.posts, ...S.testimonies]) {
+  for (const p of evidence) if (p.authorId) counts.set(p.authorId, (counts.get(p.authorId) || 0) + 1);
+  for (const p of evidence) {
     if (!p.authorId || p.authorId === HOUSE_ID) continue;
     const cur = byId.get(p.authorId) || { id: p.authorId, key: p.authorId, name: p.authorName, avatar: null, verified: false, location: null };
     cur.name = p.authorName || cur.name; cur.avatar = cur.avatar || p.authorAvatar; cur.verified = cur.verified || p.authorVerified;
@@ -866,6 +891,16 @@ const COMPOSE_TYPES = {
   testimony: { icon: '✦', label: 'TESTIMONY', pill: 'Share what God has done…', gate: '<b>Testimonies are shared from member accounts.</b> Join free or sign in (top right) and your testimony posts straight to the Testimony Tape. Until then, read the family\'s testimonies — every one is real and carried word for word.' },
   prayer: { icon: '✛', label: 'PRAYER REQUEST', pill: 'What should the family pray over?', gate: '<b>Prayer requests are posted from member accounts.</b> Join free or sign in (top right) and your request lands on the wall with its own praying count. The Prayer Wall in the Pray hub is open to read right now.', prayBtn: true },
 };
+/* DEFECT 4 cure (2026-11-22, found by the F-CLERK backend proof with
+   live evidence): the composer's UI type "post" is NOT in the
+   production API's create schema — POST /api/community/posts accepts
+   only testimony / prayer / general, and a live {type:"post"} create
+   returned HTTP 400 while {type:"general"} with the same body
+   returned 201. The UI keeps its own labels; the WIRE type is mapped
+   here, at the one place the composer submits. (Pray hub's create
+   already sends "prayer"; comments send no type; reactions are a
+   different field and unaffected.) */
+const COMPOSE_API_TYPE = { post: 'general', testimony: 'testimony', prayer: 'prayer' };
 function composerHtml() {
   const t = COMPOSE_TYPES[S.composeType];
   const tools = `<div class="bk-comp-tools"><span>DROP SOMETHING REAL.</span><div>${Object.entries(COMPOSE_TYPES).map(([k, v]) => `<button type="button" data-composetype="${k}" class="${S.composeType === k ? 'sel' : ''}">${v.icon} <span>${v.label}</span></button>`).join('')}</div></div>`;
@@ -1278,7 +1313,7 @@ function paint() {
     if (!body) { say('Write a line or two first — a sentence is plenty.'); return; }
     sendBtn.disabled = true; say('Sharing…');
     try {
-      const j = await postJson(`${API_BASE}/api/community/posts`, { type: S.composeType, body });
+      const j = await postJson(`${API_BASE}/api/community/posts`, { type: COMPOSE_API_TYPE[S.composeType] || 'general', body });
       if (input) input.value = '';
       S.composerFlash = '<b>Shared.</b> Your post is on the wall — it leads the feed below.';
       const mine = j?.post?.id ? ingestPosts([j.post]) : [];
