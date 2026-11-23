@@ -20,9 +20,20 @@
    artist, track, cover and count below comes from listen-index.json /
    albums/<slug>.json / playable/<slug>.json. The package's sample
    artists, tracks and demo MP3s never ship. Record:
-   fresh-build/records/LISTEN-GRAFT-RECORD-2026-11-19.md. */
+   fresh-build/records/LISTEN-GRAFT-RECORD-2026-11-19.md.
 
-const state = { index: null, playable: new Map(), albums: new Map(), feature: null, scan: null };
+   LISTEN AMP (2026-11-23, founder directive with Kairo side-by-side):
+   the PICK A LANE crates became full cinematic AI-art cards (church
+   register, gold-on-black; art is world-building decoration, never an
+   artist portrait or cover) and every lane opens a room in Kairo's
+   shape — lane-art hero, Play All, a playable shelf from the lane's
+   own data, then its artist cards. Lane membership: the index door
+   field (genre audit) primary + catalog-derived cross-listings in
+   assets/data/listen-lanes.json. ChatGPT consult
+   chatcmpl-EnXX5kYBM9tc7wYCgP2nzw0KkUFAd. Record:
+   fresh-build/records/LISTEN-AMP-BUILD-RECORD-2026-11-23.md. */
+
+const state = { index: null, lanes: null, playable: new Map(), albums: new Map(), feature: null, scan: null };
 window.__listen = { index: null, ready: false, lastArtist: null };
 
 const STYLE = `<style>
@@ -105,16 +116,27 @@ const STYLE = `<style>
 .lsn-ftdur{font-size:11px;color:#9b8e79;font-weight:700;flex:none}
 .lsn-ftact{width:30px;height:30px;border:1px solid #66512e;border-radius:50%;color:var(--gold);display:grid;place-items:center;font-size:11px;flex:none}
 .lsn-wait{padding:22px 18px;color:var(--mute);font-size:13.5px;line-height:1.6}
-/* crates */
-.lsn-crates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}
-.lsn-crate{background:linear-gradient(137deg,#1a1712,#0e0d0b);border:1px solid #3d3325;border-radius:4px;text-align:left;min-height:148px;padding:13px;position:relative;overflow:hidden;color:var(--bone);display:flex;flex-direction:column;align-items:flex-start;transition:transform .2s,border-color .2s;cursor:pointer;font-family:var(--sans);width:100%}
-.lsn-crate:hover{transform:translateY(-3px);border-color:var(--gold)}
-.lsn-crate .g-no{color:#746047;font-size:10px;letter-spacing:1px;font-weight:900}
-.lsn-crate .g-art{font-family:Impact,'Arial Black',sans-serif;font-size:42px;letter-spacing:-2px;color:var(--genre,#d4af37);opacity:.85;margin:2px 0 8px;text-shadow:4px 3px 0 rgba(0,0,0,.5);line-height:1}
-.lsn-crate strong{margin-top:auto;font-size:14px;letter-spacing:.2px;font-weight:800;line-height:1.25}
-.lsn-crate small{color:#9d917d;font-size:10px;margin-top:4px}
-.lsn-crate:after{content:'';width:100px;height:100px;position:absolute;right:-34px;top:-44px;border:1px solid var(--genre,#d4af37);border-radius:50%;opacity:.35}
-.lsn-crate:before{content:'';position:absolute;right:18px;top:13px;width:5px;height:5px;background:var(--genre,#d4af37);border-radius:50%;box-shadow:0 0 14px var(--genre,#d4af37);z-index:1}
+/* lanes — LISTEN AMP (2026-11-23): full cinematic AI-art cards, Kairo's
+   shape in the church register. Lane art is world-building decoration;
+   it never stands in for a real artist portrait or album cover. */
+.lsn-crates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.lsn-lane{position:relative;border:1px solid #3d3325;border-radius:10px;overflow:hidden;padding:0;aspect-ratio:4/3;background:#141109;cursor:pointer;text-align:left;width:100%;font-family:var(--sans);transition:transform .2s,border-color .2s;display:block;color:var(--bone)}
+.lsn-lane:hover{transform:translateY(-3px);border-color:var(--gold)}
+.lsn-lane img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.lsn-laneveil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,0) 42%,rgba(5,5,5,.88) 100%)}
+.lsn-lanemeta{position:absolute;left:13px;right:13px;bottom:11px;display:block}
+.lsn-lanemeta strong{display:block;color:var(--bone);font-size:17px;font-weight:800;letter-spacing:.2px;text-shadow:0 2px 10px rgba(0,0,0,.8);line-height:1.2}
+.lsn-lanemeta small{display:block;color:#e8cf8f;font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-top:3px}
+.lsn-lanemeta small.gathering{color:#b7a888}
+/* lane room (LISTEN AMP) */
+.lsn-roomhero{position:relative;border-radius:14px;overflow:hidden;border:1px solid #4a3a20;min-height:230px;display:flex;align-items:flex-end;margin-top:14px;background:#141109}
+.lsn-roomhero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.lsn-roomveil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.05) 30%,rgba(5,5,5,.92) 100%)}
+.lsn-roomtitle{position:relative;padding:22px}
+.lsn-roomtitle h3{font-family:Impact,'Arial Black',var(--serif);font-size:clamp(34px,5vw,54px);text-transform:uppercase;letter-spacing:-.5px;line-height:1;color:var(--bone);margin:6px 0}
+.lsn-roomtitle p{color:#d8c9a8;font-size:13.5px}
+.lsn-roomsec{margin-top:30px}
+.lsn-roomsec>h4{font-family:var(--serif);font-size:21px;color:var(--bone);margin:0 0 12px}
 /* dig */
 .lsn-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding-bottom:14px;flex-wrap:wrap}
 .lsn-tabs{display:flex;gap:4px;flex-wrap:wrap}
@@ -173,7 +195,7 @@ const STYLE = `<style>
 .lsn-cta h2 em{color:var(--gold);font-style:italic}
 .lsn-cta p{color:#aea18f;max-width:540px;line-height:1.55;font-size:13.5px}
 .lsn-ctabtns{display:flex;flex-direction:column;gap:14px;align-items:stretch;flex:none}
-@media(max-width:1020px){.lsn-crates{grid-template-columns:repeat(4,minmax(0,1fr))}.lsn-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.lsn-voices{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1020px){.lsn-crates{grid-template-columns:repeat(3,minmax(0,1fr))}.lsn-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.lsn-voices{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:920px){.lsn-hero{grid-template-columns:1fr;min-height:0;padding-top:36px}.lsn-visual{height:400px;max-width:640px;width:100%;margin:auto}.lsn-frame{height:370px}.lsn-feature{grid-template-columns:1fr}.lsn-mixes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){
  .lsn-h1{font-size:clamp(54px,14.5vw,80px);letter-spacing:-2px}
@@ -185,13 +207,14 @@ const STYLE = `<style>
  .lsn-show{grid-template-columns:1fr 1fr;min-height:230px;padding:12px;gap:12px}.lsn-showart{min-height:200px}
  .lsn-showtext h3{font-size:29px;margin:8px 0 3px}.lsn-showtext>span{font-size:7.5px}.lsn-showtext p{font-size:10.5px;line-height:1.4;margin:5px 0 11px}
  .lsn-showtext .who{font-size:12px}.lsn-goldbtn{font-size:9px;padding:11px 10px}
- .lsn-crates{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.lsn-crate{min-height:118px;padding:10px}.lsn-crate .g-art{font-size:33px}.lsn-crate strong{font-size:11px}.lsn-crate small{font-size:9px}
+ .lsn-crates{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.lsn-lanemeta strong{font-size:14.5px}.lsn-lanemeta small{font-size:9px}.lsn-lanemeta{left:10px;right:10px;bottom:9px}
+ .lsn-roomhero{min-height:190px}.lsn-roomtitle{padding:16px}.lsn-roomsec{margin-top:24px}
  .lsn-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
  .lsn-mixes{grid-template-columns:1fr;gap:12px}.lsn-mix{min-height:225px}
  .lsn-cta{margin-top:60px;padding:28px 20px;display:block}.lsn-ctabtns{margin-top:18px}
  .lsn-ftrow{padding:10px 12px}.lsn-rothead{padding:13px 14px}
 }
-@media(prefers-reduced-motion:reduce){.lsn-crate,.lsn-grid .acard,.lsn-relcard,.lsn-redbtn,.lsn-goldbtn{transition:none}}
+@media(prefers-reduced-motion:reduce){.lsn-lane,.lsn-grid .acard,.lsn-relcard,.lsn-redbtn,.lsn-goldbtn{transition:none}}
 /* ---------- ARTIST PAGE v2 — clean card + releases by kind (2026-11-22) ---------- */
 .artist-card{display:flex;gap:18px;align-items:center;margin-top:18px;border:1px solid var(--line);border-radius:16px;background:var(--coal);padding:18px}
 .artist-card .acard-art.big{width:110px;height:110px;flex:none;margin:0}
@@ -243,6 +266,15 @@ async function loadIndex() {
   }
   return state.index;
 }
+async function loadLanes() {
+  if (!state.lanes) {
+    try {
+      const r = await fetch('assets/data/listen-lanes.json');
+      state.lanes = r.ok ? await r.json() : { derived: {} };
+    } catch { state.lanes = { derived: {} }; }
+  }
+  return state.lanes;
+}
 async function loadPlayable(slug) {
   if (!state.playable.has(slug)) {
     try {
@@ -278,7 +310,29 @@ function doorHeadlines() {
   }
   return out;
 }
-const doorPlayableSum = (doorId) => state.index.artists.reduce((s, a) => s + (a.door === doorId ? (a.playableRows ?? a.playable ?? 0) : 0), 0);
+/* Lane membership (LISTEN AMP 2026-11-23): the index `door` field —
+   the genre-reference audit — is PRIMARY. listen-lanes.json adds
+   catalog-derived cross-listings for the scaffold lanes that have no
+   genre source (Christmas / Live / Choir / Choirs & Groups / Hymns /
+   Prayer), derived from the catalog's own release titles, track
+   titles, isLive flags and roster names; the rules are stated in that
+   file and in listen-amp-work/derive_lanes.py. Lanes with no honest
+   signal carry no derived members and stay honestly empty. */
+function laneArtists(doorId) {
+  const out = [];
+  const seen = new Set();
+  for (const a of state.index.artists) {
+    if (a.door === doorId) { out.push(a); seen.add(a.slug); }
+  }
+  const der = (state.lanes && state.lanes.derived && state.lanes.derived[doorId]) || [];
+  for (const slug of der) {
+    if (seen.has(slug)) continue;
+    const a = artistBySlug(slug);
+    if (a) { out.push(a); seen.add(slug); }
+  }
+  return out;
+}
+const doorPlayableSum = (doorId) => laneArtists(doorId).reduce((s, a) => s + (a.playable || 0), 0);
 
 function artistCard(a) {
   const art = a.art
@@ -366,7 +420,7 @@ export function render(root, { player }) {
   /* A door's Play All — the v1 mechanic: the door's artists' playable
      songs in index order, capped at 300, queued under the door's name. */
   async function playDoorQueue(doorId, btn) {
-    const artists = state.index.artists.filter((a) => a.door === doorId);
+    const artists = laneArtists(doorId);
     if (btn) btn.textContent = 'Queueing…';
     const queue = [];
     for (const a of artists) {
@@ -447,7 +501,7 @@ export function render(root, { player }) {
         </div>
       </div>
       <div class="lsn-rotation">
-        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${a.playableRows ?? a.playable} PLAYABLE`}</span></div>
+        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${a.playable} PLAYABLE`}</span></div>
         ${rot.length ? rot.map((ti, k) => `
         <button type="button" class="lsn-ftrow" data-track="${esc(feat.tracks[ti].y)}" data-featrow="${k}">
           <span class="lsn-ftnum">${String(k + 1).padStart(2, '0')}</span>
@@ -636,12 +690,12 @@ export function render(root, { player }) {
 
       <section class="lsn-sec" id="lsn-crates" aria-labelledby="lsn-lane-head">
         <div class="lsn-sechead"><div><span class="lsn-eyebrow">02 / Find Your Frequency</span><h2 id="lsn-lane-head">Pick a <em>lane.</em></h2><p>Different sounds. Same foundation.</p></div><span class="lsn-side">${idx.artists.length} artists on the roster</span></div>
-        <div class="lsn-crates">${idx.doors.map((d, i) => `
-          <button type="button" class="lsn-crate" data-door="${esc(d.id)}" style="--genre:${CRATE_COLORS[i % CRATE_COLORS.length]}">
-            <span class="g-no">CRATE / ${String(i + 1).padStart(2, '0')}</span><span class="g-art">${CRATE_GLYPHS[i % CRATE_GLYPHS.length]}</span>
-            <strong>${esc(d.label)}</strong>
-            <small>${d.artists ? `${d.artists} artists` : 'shelf building'}</small>
-          </button>`).join('')}</div>
+        <div class="lsn-crates">${idx.doors.map((d) => { const n = laneArtists(d.id).length; return `
+          <button type="button" class="lsn-lane" data-door="${esc(d.id)}">
+            <img loading="lazy" src="assets/img/lanes/lane-${esc(d.id)}.webp" alt="" onerror="this.remove()">
+            <span class="lsn-laneveil"></span>
+            <span class="lsn-lanemeta"><strong>${esc(d.label)}</strong><small${n ? '' : ' class="gathering"'}>${n ? `${n} artist${n === 1 ? '' : 's'}` : 'Shelf gathering'}</small></span>
+          </button>`; }).join('')}</div>
       </section>
 
       <section class="lsn-sec" id="lsn-dig" aria-labelledby="lsn-dig-head">
@@ -662,7 +716,7 @@ export function render(root, { player }) {
         <div class="lsn-voices">${voices.map((a) => `
           <button type="button" class="lsn-voice" data-artist="${esc(a.slug)}">
             <span class="lsn-voiceart">${a.art ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
-            <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${a.playableRows ?? a.playable} playable</small>
+            <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${a.playable} playable</small>
           </button>`).join('')}</div>
       </section>
 
@@ -693,7 +747,7 @@ export function render(root, { player }) {
         if (!top.length) return '';
         return `<section class="ai-shelf" aria-label="Listen AI Picks">
           <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Listen AI Picks</span><span class="ai-tag">Powered by AI</span></div>
-          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${a.playableRows ?? a.playable} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
+          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${a.playable} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
           <div class="ai-doors">${top.map((a) => `<button type="button" data-artist="${esc(a.slug)}">${esc(a.name)} ↗</button>`).join('')}</div>
         </section>`;
       })()}
@@ -734,23 +788,63 @@ export function render(root, { player }) {
     window.__listen.ready = true;
   }
 
-  async function doorView(doorId) {
+  /* Lane room (LISTEN AMP): the lane art as hero, Play All, a playable
+     shelf drawn from the lane's own playable data, then the lane's
+     artist cards. The shelf fills in place — no repaint of the room. */
+  async function fillRoomShelf(doorId, artists) {
+    const host = viewEl.querySelector('#lsn-roomshelf');
+    if (!host) return;
+    const members = artists.filter((a) => (a.playable || 0) > 0).slice(0, 40);
+    const sets = await Promise.all(members.map((a) => loadPlayable(a.slug)));
+    if (!viewEl.isConnected || view.kind !== 'door' || view.id !== doorId) return;
+    const rows = [];
+    members.forEach((a, i) => {
+      const p = sets[i];
+      if (p && p.tracks) p.tracks.forEach((t, ti) => rows.push({ a, t, ti }));
+    });
+    const shown = rows.slice(0, 24);
+    host.innerHTML = shown.length ? `<div class="trows">${shown.map((r) => `
+        <button type="button" class="trow" data-track="${esc(r.t.y)}" data-roomtrack="${esc(r.a.slug)}:${r.ti}">
+          ${r.a.art ? `<img class="lsn-tcover" loading="lazy" src="${esc(r.a.art)}" alt="" onerror="this.remove()">` : ''}
+          <span class="ttitle">${esc(r.t.t)}</span><span class="lsn-tsub">${esc(r.a.name)}</span>
+          ${r.t.d ? `<span class="tdur">${fmtDur(r.t.d)}</span>` : ''}
+          <span class="tplay">▶</span>
+        </button>`).join('')}</div>
+        ${rows.length > shown.length ? `<p class="lsn-progress" style="margin-top:12px">The first ${shown.length} playable songs in this lane — Play all queues the whole shelf.</p>` : ''}`
+      : `<p class="lsn-wait">This lane's songs are still being bound to the catalog — the artists below carry the sound.</p>`;
+    host.querySelectorAll('[data-roomtrack]').forEach((el) =>
+      el.addEventListener('click', () => {
+        const [slug, ti] = el.dataset.roomtrack.split(':');
+        playArtistFrom(slug, +ti);
+      }));
+    markPlaying();
+  }
+
+  function doorView(doorId) {
     view = { kind: 'door', id: doorId };
-    const idx = state.index;
-    const artists = idx.artists.filter((a) => a.door === doorId);
+    const artists = laneArtists(doorId);
+    const playableN = doorPlayableSum(doorId);
     viewEl.innerHTML = `
-      <button type="button" class="btn-ghost back-btn" data-back>← All doors</button>
-      <div class="shelf"><h3>${esc(doorLabel(doorId))}</h3>
+      <button type="button" class="btn-ghost back-btn" data-back>← All lanes</button>
+      <div class="lsn-roomhero">
+        <img src="assets/img/lanes/lane-${esc(doorId)}.webp" alt="" onerror="this.remove()">
+        <span class="lsn-roomveil"></span>
+        <div class="lsn-roomtitle">
+          <span class="lsn-eyebrow">The Lane / 16:3 Faith Presents</span>
+          <h3>${esc(doorLabel(doorId))}</h3>
+          <p>${artists.length ? `${artists.length} artist${artists.length === 1 ? '' : 's'} in this lane${playableN ? ` · ${playableN} playable songs` : ''}. Every song plays full.` : 'This lane is on the roster — its shelf is still gathering.'}</p>
+        </div>
+      </div>
       ${artists.length ? `
-        <p class="lede">${artists.length} artists behind this door.</p>
-        <button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(doorLabel(doorId))}</button>
-        <div class="cards artist-grid" style="margin-top:16px">${artists.map(artistCard).join('')}</div>`
-      : `<p class="lede">This door's shelf is still being built — its artists are on the roster and appear under All artists as their shelves are assigned. No dead end: the door says so.</p>`}
-      </div>`;
+        <div style="margin-top:18px"><button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(doorLabel(doorId))}</button></div>
+        <section class="lsn-roomsec"><h4>Playable now</h4><div id="lsn-roomshelf"><p class="lsn-wait">Pulling this lane's songs off the shelf…</p></div></section>
+        <section class="lsn-roomsec"><h4>The voices in this lane</h4><div class="cards artist-grid">${artists.map(artistCard).join('')}</div></section>`
+      : `<p class="lede" style="margin-top:18px">This door's shelf is still being built — its artists are on the roster and appear under All artists as their shelves are assigned. No dead end: the door says so.</p>`}`;
     viewEl.querySelector('[data-back]').addEventListener('click', doorsView);
     viewEl.querySelectorAll('[data-artist]').forEach((el) => el.addEventListener('click', () => artistView(el.dataset.artist)));
     const playAllBtn = viewEl.querySelector('[data-playall]');
     if (playAllBtn) playAllBtn.addEventListener('click', () => playDoorQueue(doorId, playAllBtn));
+    if (artists.length) fillRoomShelf(doorId, artists);
     markPlaying();
   }
 
@@ -1045,7 +1139,7 @@ export function render(root, { player }) {
     else renderDig();
   });
 
-  loadIndex().then(doorsView).catch((e) => {
+  Promise.all([loadIndex(), loadLanes()]).then(doorsView).catch((e) => {
     viewEl.innerHTML = `<p class="lede">The Sanctuary index didn't load (${esc(String(e).slice(0, 80))}). The doors will open on a fresh visit once it does.</p>`;
   });
 }
