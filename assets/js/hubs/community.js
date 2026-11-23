@@ -341,6 +341,119 @@ const CSS4 = `
 .bk-doorhero img,.bk-herographics img{border-radius:8px}
 `;
 
+const CSS5 = `
+/* ---------- amp-up phase 2C-1 — THE LOOK (2026-11-22) ---------- */
+/* §1 INDEPENDENT RAILS (desktop): the hub grid gets a definite height
+   inside its own grid area — viewport minus the shell topbar (58px),
+   the hub-root top padding (26px) and breathing room — never 100vh,
+   so no region scrolls under the fixed shell header or the player.
+   Each column is then a true scroll region at height:100% of its
+   grid cell: native overflow only (NO wheel handler, per ops ruling),
+   overscroll contained so a rail hitting its end never chains into
+   the wall. Phone (≤880px) reverts to plain document flow: the rails
+   leave the columns and re-slot (strip + in-thread cards, below). */
+@media(min-width:881px){
+ .bk-shell{height:calc(100dvh - 100px);align-items:stretch}
+ .bk-rail,.bk-side{position:static;height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(212,175,55,.45) transparent;padding-right:6px}
+ .bk-main{height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(212,175,55,.45) transparent;padding-right:2px}
+ .bk-rail::-webkit-scrollbar,.bk-side::-webkit-scrollbar,.bk-main::-webkit-scrollbar{width:6px}
+ .bk-rail::-webkit-scrollbar-thumb,.bk-side::-webkit-scrollbar-thumb,.bk-main::-webkit-scrollbar-thumb{background:rgba(212,175,55,.35);border-radius:3px}
+ .bk-rail::-webkit-scrollbar-track,.bk-side::-webkit-scrollbar-track,.bk-main::-webkit-scrollbar-track{background:transparent}
+}
+/* §4.1 GOLD FRAME — exact spec shadow on every post card; video cards
+   (2C-2's .bk-video) step up to a 2px frame + stronger glow. */
+.bk-card{position:relative;border:1px solid rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(212,175,55,.25),0 6px 24px rgba(0,0,0,.55)}
+.bk-card.testimony{border-color:rgba(212,175,55,.8);box-shadow:0 0 0 1px rgba(212,175,55,.35),0 0 26px rgba(212,175,55,.18),0 6px 24px rgba(0,0,0,.55)}
+.bk-card.bk-video{border:2px solid rgba(212,175,55,.75);box-shadow:0 0 0 1px rgba(212,175,55,.35),0 0 34px rgba(212,175,55,.22),0 6px 24px rgba(0,0,0,.55)}
+/* §4.2 SHINE PASS — one diagonal sweep on entrance; desktop hover
+   re-runs it under a second animation name (a name change restarts
+   it). Transform/opacity only, 600ms, never loops. */
+.bk-card::after{content:"";position:absolute;top:-25%;bottom:-25%;left:0;width:42%;z-index:3;pointer-events:none;opacity:0;transform:translateX(-140%) skewX(-14deg);background:linear-gradient(100deg,transparent,rgba(255,232,160,.13) 50%,transparent);animation:bk-shine .6s ease-out .1s}
+.bk-card:hover::after{animation:bk-shine-hover .6s ease-out}
+@keyframes bk-shine{0%{transform:translateX(-140%) skewX(-14deg);opacity:0}22%{opacity:1}100%{transform:translateX(260%) skewX(-14deg);opacity:0}}
+@keyframes bk-shine-hover{0%{transform:translateX(-140%) skewX(-14deg);opacity:0}22%{opacity:1}100%{transform:translateX(260%) skewX(-14deg);opacity:0}}
+/* §4.3 STORY RINGS — unviewed: animated conic gold ring (the angle
+   custom property rotates the gradient itself); viewed: dim gold,
+   still. Viewed state is written only by a real story open (§4.3
+   ruling) and kept per session. */
+@property --bka{syntax:"<angle>";initial-value:0deg;inherits:false}
+.bk-ring{position:relative;display:inline-grid;place-items:center;border-radius:50%;padding:3px;flex:none;background:conic-gradient(from var(--bka),#d4af37,#ffe9a8,#8a6a24,#f3c34b,#d4af37);animation:bk-ringspin 7s linear infinite}
+.bk-ring.viewed{background:rgba(212,175,55,.28);animation:none}
+.bk-ring .bk-ava{margin-bottom:0}
+@keyframes bk-ringspin{to{--bka:360deg}}
+/* §4.4 REACTION CHIPS — five kinds, saturated, each its own color;
+   the member's own reacted kind glows. Counts are the server's true
+   values (LEG R merge) — this layer only dresses them. */
+.bk-rx{display:inline-flex;align-items:center;gap:2px;border:1px solid #3a352b;border-radius:999px;padding:2px 8px;margin:1px 2px 1px 0}
+.bk-rx .k{font-weight:900}
+.bk-rx-amen{--rxc:#f3c34b}.bk-rx-pray{--rxc:#7cc4ff}.bk-rx-love{--rxc:#ff7d9c}.bk-rx-fire{--rxc:#ff9a3d}.bk-rx-blessing{--rxc:#c39bff}
+.bk-rx .k{color:var(--rxc)}
+.bk-rx-amen.mine{border-color:#f3c34b;box-shadow:0 0 12px rgba(243,195,75,.45)}
+.bk-rx-pray.mine{border-color:#7cc4ff;box-shadow:0 0 12px rgba(124,196,255,.45)}
+.bk-rx-love.mine{border-color:#ff7d9c;box-shadow:0 0 12px rgba(255,125,156,.45)}
+.bk-rx-fire.mine{border-color:#ff9a3d;box-shadow:0 0 12px rgba(255,154,61,.45)}
+.bk-rx-blessing.mine{border-color:#c39bff;box-shadow:0 0 12px rgba(195,155,255,.45)}
+.bk-act.mine-amen{color:#f3c34b;background:#2c2210;box-shadow:inset 0 0 0 1px rgba(243,195,75,.55),0 0 10px rgba(243,195,75,.25)}
+.bk-act.mine-pray{color:#7cc4ff;background:#12202e;box-shadow:inset 0 0 0 1px rgba(124,196,255,.55),0 0 10px rgba(124,196,255,.25)}
+/* §4.5 BADGES — saturated red/gold, soft pulse on opacity only. */
+.bk-tag.pin{background:#a02c1e;border-color:#ff7a5c;color:#ffe9e2;animation:bk-badgepulse 2.4s ease-in-out infinite alternate}
+.bk-badge{display:inline-flex;align-items:center;border-radius:30px;padding:5px 9px;font-size:9px;letter-spacing:.8px;font-weight:900;white-space:nowrap;animation:bk-badgepulse 2.4s ease-in-out infinite alternate}
+.bk-badge-live{background:#a02c1e;border:1px solid #ff7a5c;color:#ffe9e2}
+.bk-badge-new{background:#6d551f;border:1px solid #ffd76a;color:#ffe9a8}
+.bk-badge-presents{background:#3a2c07;border:1px solid #d4af37;color:#f3c34b}
+.bk-reddot{animation:bk-badgepulse 2.4s ease-in-out infinite alternate}
+@keyframes bk-badgepulse{from{opacity:.72}to{opacity:1}}
+/* §1 390px RE-SLOT — right-rail cards ride IN the thread on phone
+   (after the 3rd + 8th member post, inserted at paint/settle only);
+   the below-feed stack yields so nothing renders twice. */
+.bk-inthread{display:none}
+@media(max-width:880px){
+ .bk-inthread{display:block}
+ .bk-feedbelow{display:none}
+ .bk-ring .bk-ava{width:40px;height:40px}
+}
+@media(prefers-reduced-motion:reduce){
+ .bk-card::after{animation:none}
+ .bk-card:hover::after{animation:none}
+ .bk-ring{animation:none}
+ .bk-tag.pin,.bk-badge,.bk-reddot{animation:none}
+}
+`;
+
+const CSS6 = `
+/* ---------- amp-up phase 2C-2 — VIDEO IN THE WALL (2026-11-22) ---------- */
+/* §3 PRESENTS CARD: our poster first under the gold 2px frame (.bk-video,
+   defined in CSS5), the PRESENTS band on top, media in a 16/9 stage. The
+   poster fades on OPACITY ONLY once playback starts; the engaged frame,
+   the end card and the failure door all live inside our frame — YouTube
+   chrome never gets a first (or last) impression. */
+.bk-pv-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px 0}
+.bk-pv-cat{font-size:9px;letter-spacing:1.6px;font-weight:900;color:#cbbd97}
+.bk-pv-title{font-family:Georgia,serif;font-size:19px;line-height:1.25;color:var(--cream);padding:8px 16px 2px}
+.bk-pv-sub{font-size:11px;color:#a6a097;padding:0 16px 12px}
+.bk-pv-stage{position:relative;aspect-ratio:16/9;background:#0a0906;overflow:hidden;margin-top:10px}
+.bk-pv-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .45s ease}
+.bk-pv-mono{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 38%,#3a2c07,#141310 72%);color:var(--gold);font-family:Georgia,serif;font-size:44px;letter-spacing:2px}
+.bk-pv-media{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.bk-pv-card.playing .bk-pv-poster,.bk-pv-card.playing .bk-pv-mono{opacity:0;pointer-events:none}
+.bk-pv-tap{position:absolute;inset:0;display:grid;place-items:center;background:transparent;border:0;cursor:pointer;z-index:2}
+.bk-pv-glyph{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:rgba(10,8,4,.72);border:2px solid rgba(212,175,55,.85);color:#f3c34b;font-size:24px;padding-left:4px;box-shadow:0 0 26px rgba(212,175,55,.3)}
+.bk-pv-card.playing .bk-pv-glyph{opacity:0}
+.bk-pv-card.engaged .bk-pv-tap{display:none}
+.bk-pv-end,.bk-pv-fail{position:absolute;inset:0;z-index:3;display:none;place-items:center;text-align:center;background:linear-gradient(160deg,rgba(24,19,8,.96),rgba(10,9,6,.97));padding:18px}
+.bk-pv-card.ended .bk-pv-end{display:grid}
+.bk-pv-card.failed .bk-pv-fail{display:grid}
+.bk-pv-end h4,.bk-pv-fail h4{font-family:Georgia,serif;font-size:20px;color:var(--cream);margin:8px 0 4px}
+.bk-pv-end p,.bk-pv-fail p{font-size:12px;color:#cbbd97;margin:0 0 14px;line-height:1.55}
+.bk-pv-doors{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bk-pv-door{border:1px solid rgba(212,175,55,.7);color:#f3c34b;background:#241b08;border-radius:8px;padding:10px 16px;font-size:11px;font-weight:900;letter-spacing:1px;cursor:pointer}
+.bk-pv-door:hover{background:#33270f}
+.bk-pv-note{font-size:9px;letter-spacing:1.4px;color:#8a8474;font-weight:900}
+.bk-pv-card.ended .bk-pv-media{opacity:0}
+@media(max-width:480px){.bk-pv-end,.bk-pv-fail{padding:10px}.bk-pv-end h4,.bk-pv-fail h4{font-size:16px;margin:5px 0 2px}.bk-pv-end p,.bk-pv-fail p{font-size:11px;margin:0 0 9px}.bk-pv-doors{flex-wrap:nowrap;gap:8px}.bk-pv-door{padding:8px 10px;font-size:10px;white-space:nowrap}}
+@media(prefers-reduced-motion:reduce){.bk-pv-poster{transition:none}}
+`;
+
 const S = {
   view: 'doors', root: null, navigate: null,
   mode: 'snapshot',            // 'live' once the API answers from this browser
@@ -351,6 +464,11 @@ const S = {
   profileId: null, profileCache: new Map(),
   commentsOpen: new Set(), commentsCache: new Map(),
   peopleQuery: '', peopleResults: null, loadedLive: false,
+  presents: [], presentsLoaded: false,
+  /* 2C-4: reaction session truth (fold-in 2), new-posts pill state,
+     stories viewer state. rxTruth persists in sessionStorage so a
+     reload inside the API's read-lag window still holds the truth. */
+  rxTruth: null, pendingNew: [], newTimer: null, storyViewer: null,
 };
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -428,6 +546,22 @@ async function postJson(url, body) {
   return j || {};
 }
 
+/* 2C-4 fold-in (1): the DELETE transport — same bound FaithAuth
+   apiFetch discipline as postJson (the blink record proved
+   DELETE /api/community/posts/:id → 200 {ok:true}). */
+async function deleteJson(url) {
+  const doFetch = window.FaithAuth?.apiFetch ? window.FaithAuth.apiFetch.bind(window.FaithAuth) : fetch;
+  let r;
+  try { r = await doFetch(url, { method: 'DELETE', credentials: 'include' }); }
+  catch { const e = new Error('The house could not be reached just now — try again.'); e.status = 0; throw e; }
+  let j = null;
+  try { j = await r.json(); } catch { /* non-JSON error body */ }
+  if (!r.ok) { const e = new Error((j && (j.error || j.message)) || `That didn't go through (HTTP ${r.status}).`); e.status = r.status; throw e; }
+  return j || {};
+}
+const myId = () => { try { return window.Clerk?.user?.id || null; } catch { return null; } };
+const isOwnPost = (p) => { const me = myId(); return !!me && !!p?.authorId && (p.authorId === me || personIds(me).has(p.authorId)); };
+
 function normalizePost(p) {
   return {
     id: p.id, type: p.type || 'post',
@@ -469,7 +603,36 @@ const uniqPosts = (arr) => { const seen = new Set(); return arr.filter((p) => { 
    never counts here. The production row itself is an API-side delete,
    flagged as a named step in the M4 cure record — not silently skipped. */
 const EXCLUDED_POST_IDS = new Set(['822bb256-418d-48c9-8d9f-c95daeb9f8b0']);
-const ingestPosts = (arr) => uniqPosts((arr || []).map(normalizePost)).filter((p) => !EXCLUDED_POST_IDS.has(p.id));
+const ingestPosts = (arr) => uniqPosts((arr || []).map(normalizePost)).filter((p) => !EXCLUDED_POST_IDS.has(p.id)).map(applyRxTruth);
+/* ---------- amp-up phase 2C-4 fold-in (2) — REACTION SESSION TRUTH ----------
+   The feed-list read path lags reaction writes by >80s (blink record
+   LEG R): a reload inside the window renders stale counts even though
+   the react RESPONSE was immediate DB truth. Cure, face-side only:
+   every react response's {reactionCounts, myReactionType, prayerCount}
+   is held per post id (sessionStorage 'bk-rx-truth', so the truth
+   survives the reload that would otherwise show the stale list), and
+   every list ingestion merges list-first, session-truth-over-it. The
+   API is untouched; the 'amen' type fix is untouched. */
+function rxTruthMap() {
+  if (!S.rxTruth) {
+    S.rxTruth = new Map();
+    try { const j = JSON.parse(sessionStorage.getItem('bk-rx-truth') || '{}'); for (const [k, v] of Object.entries(j || {})) S.rxTruth.set(k, v); } catch { /* in-memory only */ }
+  }
+  return S.rxTruth;
+}
+function holdRxTruth(post) {
+  if (!post?.id) return;
+  rxTruthMap().set(post.id, { reactionCounts: { ...(post.reactionCounts || {}) }, myReactionType: post.myReactionType ?? null, prayerCount: post.prayerCount ?? null });
+  try { sessionStorage.setItem('bk-rx-truth', JSON.stringify(Object.fromEntries(rxTruthMap()))); } catch { /* in-memory stands */ }
+}
+function applyRxTruth(p) {
+  const t = rxTruthMap().get(p.id);
+  if (!t) return p;
+  p.reactionCounts = { ...t.reactionCounts };
+  p.myReactionType = t.myReactionType;
+  if (typeof t.prayerCount === 'number') p.prayerCount = t.prayerCount;
+  return p;
+}
 /* Counts settle when the held wall is the complete set for the current
    mode: the snapshot after its baked load, the live wall when the
    offset chain exits (exhausted or stalled). Until then count surfaces
@@ -550,6 +713,14 @@ function settlePatch() {
   const cl = S.root.querySelector('.bk-countline');
   if (cl) cl.innerHTML = countersLine();
   S.root.querySelectorAll('.bk-aicard').forEach((n) => { n.outerHTML = aiHighlightsHtml(); });
+  /* 2C-4: PYMK depends on the settled directory — patch it in place
+     the same way (insert/remove/replace the card node, never a
+     repaint). A shape mismatch (card should appear where none was
+     painted inside the rail) falls back to the preserved repaint. */
+  const pymkNow = pymkHtml();
+  const pymkNodes = S.root.querySelectorAll('[data-pymk]');
+  if (pymkNodes.length) pymkNodes.forEach((n) => { if (pymkNow) n.outerHTML = pymkNow; else n.remove(); });
+  else if (pymkNow) { repaintHub(); return; }
   const list = feedList();
   const btn = S.root.querySelector('[data-loadmore]');
   const shouldShow = list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore);
@@ -564,11 +735,17 @@ async function loadLive() {
   if (S.loadedLive) return;
   S.loadedLive = true;
   try {
-    const [bakedFeed, bakedMembers, bakedMeta, bakedGroups, bakedWall] = await Promise.all([
+    const [bakedFeed, bakedMembers, bakedMeta, bakedGroups, bakedWall, presentsShelf] = await Promise.all([
       fetchBaked('feed.json'), fetchBaked('members.json'), fetchBaked('meta.json'), fetchBaked('groups.json').catch(() => null),
       fetchBaked('../pray/wall-snapshot.json').catch(() => null),
+      fetchJson('assets/data/presents-shelf.json').catch(() => null),
     ]);
     if (bakedWall?.posts?.length) S.wallPosts = ingestPosts(bakedWall.posts);
+    /* 2C-2: the Presents shelf loads DATA-ONLY here — no repaint. The
+       first paint that can mix is the slice-1 preserved paint below
+       (or the snapshot-mode closer); chain merges never repaint, so
+       no video card can be inserted mid-read (blink laws). */
+    if (Array.isArray(presentsShelf?.entries) && presentsShelf.entries.length) { S.presents = presentsShelf.entries; S.presentsLoaded = true; }
     const b = ingestPosts(bakedFeed.posts);
     S.bakedPosts = b; /* Phase 2B live-walk cure (2026-11-22): the baked
       snapshot's author set is the directory's stable evidence floor —
@@ -730,9 +907,60 @@ function railHtml() {
     <div class="bk-railbot">A PLACE TO BE REAL.<br>A PEOPLE TO BELONG TO.</div>
   </aside>`;
 }
+/* ---------- amp-up phase 2C-4 — PEOPLE YOU MAY KNOW (§5 ADOPT) ----------
+   Ranked from the real member directory (S.members) by REAL signals
+   against the SIGNED-IN viewer only: (1) a shared circle — the
+   candidate's carried posts carry a groupId the viewer's carried
+   posts also carry ("Shares <circle>"); (2) the same location in
+   carried data — the candidate's directory/post location matches the
+   viewer's ("In <place>"); (3) recently joined — ONLY when a member
+   record actually carries createdAt/joinedAt within the last 14 days
+   ("New to the family"); the baked directory carries no join date, so
+   that signal simply never fires from it (latestAt is post activity
+   and is never dressed as a join date). Never an invented mutual
+   count. A guest has no viewer record → no signals → no card. Zero
+   qualifying candidates → the card does not render. */
+const cityOf = (loc) => String(loc || '').split(',')[0].trim().toLowerCase();
+function pymkList() {
+  const me = myId();
+  if (!me) return [];
+  const myPosts = [...S.posts, ...S.testimonies].filter((p) => p.authorId && personIds(me).has(p.authorId));
+  const myGroups = new Set(myPosts.map((p) => p.groupId).filter(Boolean));
+  const myDir = (S.members || []).find((m) => m.id === me);
+  const myLoc = myDir?.location || myPosts.find((p) => p.authorLocation)?.authorLocation || '';
+  const myCity = cityOf(myLoc);
+  const byAuthor = new Map();
+  for (const p of [...S.posts, ...S.testimonies]) if (p.authorId && p.groupId && !byAuthor.has(p.authorId)) byAuthor.set(p.authorId, p);
+  const out = [];
+  for (const m of S.members || []) {
+    if (!m.id || m.id === HOUSE_ID || m.id === me || personIds(me).has(m.id)) continue;
+    let score = 0, basis = '';
+    const candPost = byAuthor.get(m.id);
+    if (candPost && myGroups.has(candPost.groupId)) {
+      const g = S.groups.find((x) => x.id === candPost.groupId);
+      score = 3; basis = `Shares ${g?.name || 'a shared circle'}`;
+    } else if (myCity && m.location && cityOf(m.location) === myCity) {
+      score = 2; basis = `In ${m.location}`;
+    } else {
+      const joined = m.createdAt || m.joinedAt || null;
+      const jt = joined ? new Date(joined).getTime() : NaN;
+      if (isFinite(jt) && Date.now() - jt >= 0 && Date.now() - jt <= 14 * 864e5) { score = 1; basis = 'New to the family'; }
+    }
+    if (score) out.push({ id: m.id, name: m.name, avatar: m.avatar, basis, score });
+  }
+  return out.sort((a, b) => b.score - a.score || String(a.name).localeCompare(String(b.name))).slice(0, 3);
+}
+function pymkHtml() {
+  const list = pymkList();
+  if (!list.length) return '';
+  return `<section class="panel bk-sidecard bk-pymk" data-pymk><div class="phead"><span class="eyebrow">PEOPLE YOU MAY KNOW</span><span style="color:#8d7a4d;font-size:10px;font-weight:900">◎</span></div>
+  ${list.map((c) => `<button type="button" class="bk-pymkrow" data-profile="${esc(c.id)}">${avatarHtml(c.name, c.avatar, false)}<span><strong>${esc(c.name)}</strong><small>${esc(c.basis)}</small></span></button>`).join('')}
+  <p class="bk-note" style="margin:8px 0 0">Suggested from the family's real directory — the reason is on every card.</p></section>`;
+}
 function sideHtml() {
   return `<aside class="bk-side">
     ${aiHighlightsHtml()}
+    ${pymkHtml()}
     <div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
     <section class="panel bk-tape"><div class="small">THE WEEKLY ROTATION <span>VOL. 01</span></div><h3>FAITH HAS<br><em>A SOUND.</em></h3>
       <div class="bk-disc"><div class="bk-dring">16:3</div></div>
@@ -747,8 +975,90 @@ function sideHtml() {
     <div class="bk-sidefoot">16:3 FAITH © 2026<br>A DIFFERENT KIND OF SUNDAY. EVERY DAY.</div>
   </aside>`;
 }
+const CSS7 = `
+/* ---------- amp-up phase 2C-3 — PROFILES PARITY (§2 + §8d, 2026-11-22) ---------- */
+/* §8d HEADER GRID as ruled: wide cover (200px phone → 320px desktop),
+   avatar overlapping it — CENTERED at phone width, LEFT-ALIGNED on
+   desktop, both from this one grid. The avatar carries the §4 gold
+   ring treatment (static conic gold ring + glow; the animated variant
+   stays the stories tray's heartbeat, per §4.3). Below the header the
+   page splits Facebook's way on desktop: a details column (About /
+   Connections / Photos / Circles) beside the member's own sections
+   (About-them / Testimonies / Prayers / Posts). Phone stacks in the
+   same order. No animation is introduced here; reduced-motion needs
+   nothing extra. */
+.bk-profcover{height:200px}
+.bk-profbody{padding:0 20px 20px;margin-top:-52px;text-align:center}
+.bk-profava{display:inline-grid;place-items:center;border-radius:50%;padding:3px;background:conic-gradient(from 210deg,#d4af37,#ffe9a8,#8a6a24,#f3c34b,#d4af37);box-shadow:0 0 0 1px rgba(212,175,55,.35),0 0 22px rgba(212,175,55,.28),0 8px 20px rgba(0,0,0,.5);line-height:0}
+.bk-profbody .bk-ava{width:104px;height:104px;font-size:26px;border:3px solid #101010}
+.bk-profbody h2{font-size:28px;margin:13px 0 4px}
+.bk-profcountsline{margin-top:11px;font-size:13px;color:#cbbd97;letter-spacing:.3px}
+.bk-profcountsline b{color:var(--gold);font-size:15px}
+.bk-profgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:0 20px;align-items:start}
+.bk-friends{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 6px}
+.bk .bk-friend{border:1px solid #4b4333;border-radius:10px;padding:12px 8px;background:#181715;text-align:center;cursor:pointer;color:var(--cream);width:100%}
+.bk .bk-friend:hover{border-color:var(--gold)}
+.bk-friend .bk-ava{width:52px;height:52px;font-size:15px;margin:0 auto 8px}
+.bk-friend strong{display:block;font-size:11.5px;line-height:1.35}
+.bk-friend small{display:block;color:#a69a84;font-size:9.5px;margin-top:3px;line-height:1.4}
+.bk-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 6px}
+.bk-photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid rgba(212,175,55,.35);display:block;background:#201a13}
+@media(min-width:881px){
+ .bk-profcover{height:320px}
+ .bk-profbody{margin-top:-64px;text-align:left;padding:0 26px 22px}
+ .bk-profbody .bk-ava{width:128px;height:128px;font-size:32px}
+ .bk-profbody h2{font-size:32px}
+ .bk-profgrid{grid-template-columns:300px minmax(0,1fr)}
+}
+`;
+
+const CSS8 = `
+/* ---------- amp-up phase 2C-4 — STICKINESS + TUNING (2026-11-22) ---------- */
+/* STORIES VIEWER (§8c OPS SPEC): fixed full-screen stage over the wall.
+   Motion is opacity/transform only; the progress fill is a transform
+   scaleX (never a width animation). Reduced motion: no auto-advance
+   (tap-only, enforced in JS) and no transitions. */
+.bk-viewer{position:fixed;inset:0;z-index:90;background:rgba(5,4,2,.94);display:flex;flex-direction:column;color:var(--cream)}
+.bk-vsegs{display:flex;gap:5px;padding:14px 14px 0}
+.bk-vseg{flex:1;height:3px;border-radius:2px;background:rgba(212,175,55,.28);overflow:hidden}
+.bk-vseg i{display:block;height:100%;background:#f3c34b;transform:scaleX(0);transform-origin:left}
+.bk-vseg.done i{transform:scaleX(1)}
+.bk-vhead{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.bk-vhead .bk-ava{width:38px;height:38px}
+.bk-vhead b{font-size:14px}
+.bk-vhead small{display:block;color:#a69a84;font-size:10.5px}
+.bk-vclose{margin-left:auto;background:none;border:1px solid rgba(212,175,55,.5);color:var(--gold);border-radius:50%;width:34px;height:34px;font-size:15px;cursor:pointer;flex:none}
+.bk-vstage{flex:1;position:relative;display:flex;flex-direction:column;justify-content:center;padding:10px 26px;max-width:640px;width:100%;margin:0 auto;box-sizing:border-box}
+.bk-vkind{font-size:10px;letter-spacing:1.6px;color:var(--gold);font-weight:900;margin-bottom:12px}
+.bk-vbody{font-size:19px;line-height:1.55;font-family:Georgia,serif}
+.bk-vstage img.bk-postimg{margin-top:16px}
+.bk-vzone{position:absolute;top:0;bottom:0;width:32%;background:none;border:0;cursor:pointer;padding:0}
+.bk-vzone.prev{left:0}.bk-vzone.next{right:0;width:68%}
+.bk-vfoot{padding:14px;display:flex;justify-content:center}
+.bk-vprof{border:1px solid rgba(212,175,55,.6);background:#241b08;color:var(--gold);border-radius:30px;padding:10px 18px;font-weight:900;letter-spacing:.8px;font-size:11px;cursor:pointer}
+/* NEW-POSTS PILL (§5 ADAPT): gold, sticky under the feed head; it
+   exists in the DOM only as a hidden slot until a real re-read lands
+   newer posts — it never renders on a timer or a guess. */
+.bk-newpill{position:sticky;top:8px;z-index:6;display:flex;justify-content:center;pointer-events:none;margin:0 0 4px}
+.bk-newpill[hidden]{display:none}
+.bk-newpill button{pointer-events:auto;border:1px solid #ffd76a;background:linear-gradient(180deg,#8a6a24,#6d551f);color:#ffe9a8;border-radius:30px;padding:9px 18px;font-weight:900;letter-spacing:.8px;font-size:11.5px;cursor:pointer;box-shadow:0 6px 22px rgba(0,0,0,.55)}
+/* PYMK (§5 ADOPT): right-rail card + phone in-thread/below-feed rides. */
+.bk-pymk .bk-pymkrow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #2c2820;padding:10px 0;cursor:pointer;color:var(--cream)}
+.bk-pymk .bk-pymkrow:last-child{border-bottom:0}
+.bk-pymkrow .bk-ava{width:42px;height:42px;flex:none}
+.bk-pymkrow strong{display:block;font-size:12.5px}
+.bk-pymkrow small{display:block;color:var(--gold);font-size:10.5px;margin-top:2px}
+/* DELETE-OWN-POST (fold-in 1): quiet gold text button on own cards. */
+.bk-delpost{margin-left:auto;background:none;border:1px solid #4b4333;border-radius:20px;color:#cbbd97;font-size:9px;font-weight:900;letter-spacing:.8px;padding:5px 9px;cursor:pointer;flex:none}
+.bk-delpost:hover{border-color:#ff7a5c;color:#ff9a86}
+.bk-delconfirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bk-delconfirm button{border-radius:20px;padding:7px 13px;font-size:10px;font-weight:900;letter-spacing:.6px;cursor:pointer}
+.bk-del-yes{background:#a02c1e;border:1px solid #ff7a5c;color:#ffe9e2}
+.bk-del-no{background:none;border:1px solid #4b4333;color:#cbbd97}
+@media(prefers-reduced-motion:reduce){.bk-viewer{transition:none}}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -831,8 +1141,13 @@ function suggestedGroupsCardHtml() {
    as chips). Desktop keeps the full rails; CSS shows this ≤880px. */
 function stripHtml() {
   const chip = (view, label) => `<button type="button" class="bk-stripchip ${S.view === view ? 'on' : ''}" data-view="${view}">${label}</button>`;
+  /* 2C-1 §1 (390px re-slot): the left rail's essence as a shortcut
+     strip — Sanctuary · Directory · Circles · Pray, doors to the same
+     destinations the rail links open (Pray rides the shell hub route,
+     exactly like the rail's Prayer Wall link). The rail's Testimonies
+     door and the real group chips ride after, as in Phase 1. */
   return `<nav class="bk-shortstrip" aria-label="Community shortcuts">
-    ${chip('feed', '⌂ The Feed')}${chip('testimonies', '✦ Testimonies')}${chip('members', '◎ Members')}${chip('groups', '◉ Groups')}
+    ${chip('feed', '⌂ Sanctuary')}${chip('members', '◎ Directory')}${chip('groups', '◉ Circles')}<button type="button" class="bk-stripchip" data-hubgo="pray">✛ Pray</button>${chip('testimonies', '✦ Testimonies')}
     ${S.groups.map((g) => `<button type="button" class="bk-stripchip grp" data-view="groups">${esc(g.name)}</button>`).join('')}
   </nav>`;
 }
@@ -840,7 +1155,7 @@ function stripHtml() {
    the feed instead of disappearing. CSS shows this ≤1240px, where the
    rail itself is display:none. */
 function belowFeedHtml() {
-  return `<div class="bk-feedbelow">${aiHighlightsHtml()}${latestTestCardHtml()}${suggestedGroupsCardHtml()}</div>`;
+  return `<div class="bk-feedbelow">${aiHighlightsHtml()}${pymkHtml()}${latestTestCardHtml()}${suggestedGroupsCardHtml()}</div>`;
 }
 
 /* ---------------- doors ---------------- */
@@ -893,14 +1208,26 @@ function heroHtml() {
     <span class="bk-herostamp">COME AS YOU ARE ✳</span></section>
   <div class="bk-secline"><span>THE COMMUNITY / 001</span><span>REAL PEOPLE. NO PERFECT STORIES.</span></div>`;
 }
-function storiesHtml() {
-  /* P1-2 (amp-up 2026-11-22): the stories row carries MEMBERS now — the
-     family's most recent voices, newest first, one card per person,
-     built from their real latest post/testimony. A slot exists only
-     where a real member's content backs it; nothing is filled with a
-     fake person. "Your Story" stays first as the composer shortcut.
-     Before the wall loads (or if it ever carried nobody), the original
-     house cards stand — labeled house doors, not people. */
+/* 2C-1 §4.3: story viewed state — client-side, per session, written
+   ONLY by a real story open (the tap that opens the member's profile
+   from their story card). Nothing is pre-marked, nothing is inferred
+   from the data: a member nobody opened keeps the animated ring. */
+function viewedStories() {
+  if (!S._viewedStories) {
+    S._viewedStories = new Set();
+    try { (JSON.parse(sessionStorage.getItem('bk-viewed-stories') || '[]') || []).forEach((id) => S._viewedStories.add(id)); } catch { /* private mode: in-memory only */ }
+  }
+  return S._viewedStories;
+}
+function markStoryViewed(id) {
+  if (!id) return;
+  const set = viewedStories(); set.add(id);
+  try { sessionStorage.setItem('bk-viewed-stories', JSON.stringify([...set])); } catch { /* in-memory stands */ }
+}
+/* 2C-4 §8c: the story set — the tray's own data, one story per member,
+   their latest real post, newest first, capped at the tray's 7. The
+   viewer opens THIS set; no story exists without a real post behind it. */
+function storySet() {
   const seen = new Map();
   const all = uniqPosts([...S.testimonies, ...S.posts])
     .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
@@ -909,9 +1236,20 @@ function storiesHtml() {
     seen.set(p.authorId, p);
     if (seen.size >= 7) break;
   }
+  return [...seen.values()];
+}
+function storiesHtml() {
+  /* P1-2 (amp-up 2026-11-22): the stories row carries MEMBERS now — the
+     family's most recent voices, newest first, one card per person,
+     built from their real latest post/testimony. A slot exists only
+     where a real member's content backs it; nothing is filled with a
+     fake person. "Your Story" stays first as the composer shortcut.
+     Before the wall loads (or if it ever carried nobody), the original
+     house cards stand — labeled house doors, not people. */
+  const seen = new Map(storySet().map((p) => [p.authorId, p]));
   const yours = `<button type="button" class="bk-story bk-story-start" data-story="yours"><span class="bk-story-plus">+</span><strong>YOUR STORY</strong><small>LET IT OUT</small></button>`;
   const memberCards = [...seen.values()].map((p) => `
-    <button type="button" class="bk-story" data-profile="${esc(p.authorId)}">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}
+    <button type="button" class="bk-story" data-profile="${esc(p.authorId)}" data-storyopen="${esc(p.authorId)}"><span class="bk-ring ${viewedStories().has(p.authorId) ? 'viewed' : ''}" data-ring="${esc(p.authorId)}">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}</span>
       <span class="bk-story-kind">${p.type === 'testimony' ? '✦ TESTIMONY' : p.type === 'prayer' ? '✛ PRAYER REQUEST' : '✎ POST'} · ${relTime(p.createdAt).toUpperCase()}</span>
       <span class="bk-story-name">${esc(p.authorName)}</span>
       <span class="bk-story-ex">${esc(p.body.slice(0, 110))}</span></button>`).join('');
@@ -966,7 +1304,10 @@ function postCard(p, inProfile = false) {
      their own chips with their real counts — the family's response
      reads as life on the card, not a summary statistic. */
   const RX_KINDS = [['amen', '♥', 'Amen'], ['love', '❤', 'Love'], ['pray', '✛', 'Pray'], ['fire', '🔥', 'Fire'], ['blessing', '✦', 'Blessing']];
-  const rxChips = RX_KINDS.filter(([k]) => rx[k]).map(([k, g, l]) => `<span><span class="k">${g} ${l}</span> ${rx[k]}</span>`).join('');
+  /* 2C-1 §4.4: each kind renders in its own saturated color (.bk-rx-*);
+     the member's own reacted kind (.mine, from the react response's
+     myReactionType — the LEG R truth source) glows. Counts unchanged. */
+  const rxChips = RX_KINDS.filter(([k]) => rx[k]).map(([k, g, l]) => `<span class="bk-rx bk-rx-${k}${p.myReactionType === k ? ' mine' : ''}"><span class="k">${g} ${l}</span> ${rx[k]}</span>`).join('');
   const metaBits = [];
   if (praying && p.type === 'prayer') metaBits.push(`✛ ${praying} praying`);
   const tag = p.type === 'testimony' ? '<span class="bk-tag test">✦ TESTIMONY</span>'
@@ -979,20 +1320,254 @@ function postCard(p, inProfile = false) {
     <div class="bk-postbody"><div class="bk-posthead">
       <span data-profile="${esc(p.authorId || '')}" style="cursor:pointer">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}</span>
       <div class="bk-pid"><b data-profile="${esc(p.authorId || '')}">${esc(p.authorName)}${p.authorVerified ? ' <span class="bk-ver">✦</span>' : ''}</b>
-      <small>${relTime(p.createdAt)}${p.authorLocation ? ' · ' + esc(p.authorLocation) : ''}</small></div>${tag}</div>
+      <small>${relTime(p.createdAt)}${p.authorLocation ? ' · ' + esc(p.authorLocation) : ''}</small></div>${tag}${isOwnPost(p) ? '<button type="button" class="bk-delpost" data-delpost aria-label="Delete your post">DELETE</button>' : ''}</div>
       <p class="bk-posttext">${body}</p>${long && !inProfile ? '<button type="button" class="bk-seemore" data-seemore>See more</button>' : ''}
     </div>${media}
     <div class="bk-postmeta"><span class="amen">${total ? `<span class="bk-rxchips">${rxChips}</span>${metaBits.length ? ' · ' + metaBits.join(' · ') : ''}` : (metaBits.length ? metaBits.join(' · ') : (isSignedIn() ? 'Be the first to say Amen' : 'Be the first to say Amen — reactions open with sign-in'))}</span><span>${p.commentCount} comment${p.commentCount === 1 ? '' : 's'} · ${p.shareCount} share${p.shareCount === 1 ? '' : 's'}</span></div>
     <div class="bk-actions">
-      <button type="button" class="bk-act" data-act="amen"><span class="ic">♥</span>AMEN${rx.amen ? ` · ${rx.amen}` : ''}</button>
+      <button type="button" class="bk-act${p.myReactionType === 'amen' ? ' mine-amen' : ''}" data-act="amen"><span class="ic">♥</span>AMEN${rx.amen ? ` · ${rx.amen}` : ''}</button>
       <button type="button" class="bk-act" data-comments><span class="ic">❝</span>COMMENT${p.commentCount ? ` · ${p.commentCount}` : ''}</button>
-      <button type="button" class="bk-act" data-act="pray"><span class="ic">✛</span>PRAY${praying ? ` · ${praying}` : ''}</button>
+      <button type="button" class="bk-act${p.myReactionType === 'pray' ? ' mine-pray' : ''}" data-act="pray"><span class="ic">✛</span>PRAY${praying ? ` · ${praying}` : ''}</button>
       <button type="button" class="bk-act" data-act="share"><span class="ic">↗</span>SHARE${p.shareCount ? ` · ${p.shareCount}` : ''}</button>
       <button type="button" class="bk-act" data-act="save"><span class="ic">⚑</span>SAVE</button>
     </div>
     <div class="bk-gate" data-actgate></div>
     <div class="bk-comments" data-commentsbox></div>
   </article>`;
+}
+/* 2C-1 §1 (390px re-slot): the right rail's cards ride INTO the
+   thread on phone — FaithGuide AI Highlights after the 3rd member
+   post, Latest Testimonies + Find Your Circle after the 8th. The
+   inserts are part of the paint string (initial paint / settle patch
+   only — chain merges never repaint, so nothing can insert mid-read,
+   per the blink laws). The wrappers are display:none above 880px,
+   where the rail itself carries the same cards; if the visible
+   window is shorter than a slot, the slot lands after the last card
+   so nothing the rail carries disappears on phone. */
+
+/* ---------- amp-up phase 2C-2 — 16:3 FAITH PRESENTS (§3 + §6) ----------
+   The shelf is ops-curated data (assets/data/presents-shelf.json): real
+   titles, real playable references, real presenters — Teaching /
+   Worship / Encouragement only; neither source pool carries Testimony
+   video, so that category ships zero entries and never renders.
+   FEED MIX (§6 law): curated Presents cards interleave at PAINT time
+   only (initial paint / preserved repaint / settle fallback) — chain
+   merges stay data-only and settlePatch never touches these cards, so
+   a playing video element is never recreated by a merge or a settle
+   (blink laws). Ceiling: ≤1 curated per 3 member posts in any rolling
+   window; the first curated card never lands before the 3rd member
+   post; member posts always win position. Scarcity floor: a rendered
+   window holding <6 member posts may fill member, member, video,
+   member, video… — labeling + first-screen law intact either way.
+   PLAYBACK (§3, mirroring watch.js openPlayer's source handling, kept
+   inside this hub): mp4 direct + API-stream fallback · jfp stream
+   fetch · YouTube embed — INLINE in the wall, two modes. Ambient:
+   muted autoplay in view (native <video muted playsinline>; YouTube
+   iframe lazy-mounted on approach with controls=0&autoplay=1&mute=1).
+   Engaged (tap): sound + controls (YouTube reloads with controls=1).
+   End card: our overlay covers the embed with doors to Watch/Listen.
+   Embed drift: any failure degrades to the gold-framed poster + a
+   door — never a raw error box. No outbound YouTube link, no
+   subscribe CTA, no channel promotion anywhere. FULL-SONGS LAW: a
+   music video plays the whole song's video; nothing truncates.
+   PERFORMANCE (§3 budget, law): max 3 live video elements (mounts),
+   preload="none" + poster until in view, ONE shared
+   IntersectionObserver (preload ≥0.25 · play ≥0.5 · pause <0.25);
+   a 4th mount evicts the earliest playing one back to its poster.
+   Reduced motion: no ambient autoplay — poster + tap-to-play only. */
+const PV_REDUCED = (() => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
+const PV_MAX_LIVE = 3;
+const pvLive = []; /* mounted cards, in mount order — the budget ledger */
+let pvObserver = null;
+const pvEntry = (id) => (S.presents || []).find((e) => e.id === id) || null;
+function presentsCardHtml(e) {
+  const poster = e.poster
+    ? `<img class="bk-pv-poster" src="${esc(e.poster)}" alt="" loading="lazy" onerror="this.remove()">`
+    : `<span class="bk-pv-mono" aria-hidden="true">16:3</span>`;
+  return `<article class="bk-card bk-video bk-pv-card" data-presents="${esc(e.id)}">
+    <div class="bk-pv-head"><span class="bk-badge bk-badge-presents">16:3 FAITH PRESENTS · ${esc(String(e.presenter).toUpperCase())}</span><span class="bk-pv-cat">${esc(String(e.category).toUpperCase())}</span></div>
+    <h3 class="bk-pv-title">${esc(e.title)}</h3>
+    <p class="bk-pv-sub">Presented by ${esc(e.presenter)} · ${esc(e.category)} · plays here in the wall</p>
+    <div class="bk-pv-stage" data-pvstage>${poster}
+      <button type="button" class="bk-pv-tap" data-pvtap aria-label="Play ${esc(e.title)} with sound"><span class="bk-pv-glyph">▶</span></button>
+      <div class="bk-pv-end"><div><span class="bk-badge bk-badge-presents">16:3 FAITH PRESENTS</span><h4>Keep watching the house</h4><p>That presentation has ended. The house has more — films and features in Watch, the full songbook in Listen.</p><div class="bk-pv-doors"><button type="button" class="bk-pv-door" data-hubgo="watch">OPEN WATCH ↗</button><button type="button" class="bk-pv-door" data-hubgo="listen">OPEN LISTEN ↗</button></div></div></div>
+      <div class="bk-pv-fail"><div><span class="bk-badge bk-badge-presents">16:3 FAITH PRESENTS</span><h4>This one won't play here just now</h4><p>The stream didn't answer inside the wall. It lives in the house libraries — open one and keep going.</p><div class="bk-pv-doors"><button type="button" class="bk-pv-door" data-hubgo="watch">OPEN WATCH ↗</button><button type="button" class="bk-pv-door" data-hubgo="listen">OPEN LISTEN ↗</button></div></div></div>
+    </div>
+  </article>`;
+}
+/* The §6 mix, computed at render from the real window: returns the
+   member-post cards with Presents cards woven in. `memberCount` is the
+   size of the rendered window (the posts actually shown). */
+function mixPresents(memberCards, memberCount) {
+  const shelf = S.presents || [];
+  if (!shelf.length || !memberCards.length) return memberCards;
+  const scarce = memberCount < 6;
+  const out = [];
+  let placed = 0, sinceVideo = 99, shelfIdx = 0;
+  const place = () => {
+    if (shelfIdx >= shelf.length) return false;
+    out.push(presentsCardHtml(shelf[shelfIdx++])); placed++; sinceVideo = 0; return true;
+  };
+  memberCards.forEach((card, i) => {
+    out.push(card);
+    const seen = i + 1;
+    if (scarce) {
+      /* floor pattern: member, member, video, member, video… */
+      if (seen >= 3 && (seen - 3) % 2 === 0) place();
+    } else if (seen >= 3 && sinceVideo >= 3) {
+      /* ceiling: at most 1 curated per 3 member posts, rolling */
+      place();
+    }
+    sinceVideo++;
+  });
+  return out;
+}
+function pvFail(card) {
+  if (!card || card.classList.contains('ended')) return;
+  pvUnmount(card);
+  delete card.dataset.engaged; card.classList.remove('engaged');
+  card.classList.add('failed');
+}
+function pvMount(card, engaged) {
+  const e = pvEntry(card.dataset.presents); if (!e) return;
+  const stage = card.querySelector('[data-pvstage]'); if (!stage) return;
+  if (stage.querySelector('[data-pvmedia]')) { if (engaged) pvEngage(card); return; }
+  /* Budget: a 4th live element evicts the earliest playing mount. */
+  while (pvLive.length >= PV_MAX_LIVE) { const old = pvLive.find((c) => c !== card) || pvLive[0]; if (!old || old === card) break; pvUnmount(old); }
+  card.classList.remove('failed', 'ended');
+  if (e.source === 'watch-mp4') {
+    const v = document.createElement('video');
+    v.className = 'bk-pv-media'; v.setAttribute('data-pvmedia', 'mp4');
+    v.muted = !engaged; v.playsInline = true; v.loop = false; v.preload = 'auto';
+    if (engaged) v.controls = true;
+    if (e.poster) v.poster = e.poster;
+    v.src = e.ref;
+    v.addEventListener('playing', () => card.classList.add('playing'));
+    v.addEventListener('ended', () => { card.classList.remove('playing'); card.classList.add('ended'); delete card.dataset.engaged; card.classList.remove('engaged'); });
+    v.addEventListener('error', () => {
+      if (e.fallback && !v.dataset.fbk) { v.dataset.fbk = '1'; v.src = API_BASE + e.fallback; return; }
+      pvFail(card);
+    }, true);
+    stage.insertBefore(v, stage.querySelector('.bk-pv-tap'));
+    pvLive.push(card);
+    const pr = v.play(); if (pr && pr.catch) pr.catch(() => { if (!engaged) pvFail(card); });
+  } else if (e.source === 'watch-jfp') {
+    pvLive.push(card);
+    (async () => {
+      try {
+        const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 12000);
+        const r = await fetch(`${API_BASE}/api/sanctuary/jfp-stream/${encodeURIComponent(e.ref)}?lang=en`, { signal: ctl.signal });
+        clearTimeout(to);
+        if (!r.ok) throw new Error('stream ' + r.status);
+        const j = await r.json();
+        if (!j.streamUrl) throw new Error('no stream');
+        if (!card.isConnected || !pvLive.includes(card)) return; /* unmounted while resolving */
+        const v = document.createElement('video');
+        v.className = 'bk-pv-media'; v.setAttribute('data-pvmedia', 'jfp');
+        v.muted = !engaged; v.playsInline = true; v.preload = 'auto';
+        if (engaged) v.controls = true;
+        v.src = j.streamUrl;
+        v.addEventListener('playing', () => card.classList.add('playing'));
+        v.addEventListener('ended', () => { card.classList.remove('playing'); card.classList.add('ended'); delete card.dataset.engaged; card.classList.remove('engaged'); });
+        v.addEventListener('error', () => pvFail(card), true);
+        stage.insertBefore(v, stage.querySelector('.bk-pv-tap'));
+        const pr = v.play(); if (pr && pr.catch) pr.catch(() => { if (!engaged) pvFail(card); });
+      } catch { pvFail(card); }
+    })();
+  } else { /* watch-youtube / listen-youtube */
+    const f = document.createElement('iframe');
+    f.className = 'bk-pv-media'; f.setAttribute('data-pvmedia', 'youtube');
+    f.title = e.title;
+    f.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
+    f.src = `https://www.youtube.com/embed/${encodeURIComponent(e.ref)}?controls=${engaged ? 1 : 0}&autoplay=1&mute=${engaged ? 0 : 1}&playsinline=1&rel=0&modestbranding=1`;
+    let settled = false;
+    f.addEventListener('load', () => { settled = true; card.classList.add('playing'); });
+    setTimeout(() => { if (!settled && card.isConnected && pvLive.includes(card)) pvFail(card); }, 9000);
+    stage.insertBefore(f, stage.querySelector('.bk-pv-tap'));
+    pvLive.push(card);
+  }
+}
+function pvUnmount(card) {
+  const i = pvLive.indexOf(card); if (i >= 0) pvLive.splice(i, 1);
+  const stage = card.querySelector('[data-pvstage]'); if (!stage) return;
+  stage.querySelectorAll('[data-pvmedia]').forEach((m) => { try { if (m.tagName === 'VIDEO') { m.pause(); m.removeAttribute('src'); m.load(); } } catch { /* already gone */ } m.remove(); });
+  card.classList.remove('playing');
+}
+function pvEngage(card) {
+  const e = pvEntry(card.dataset.presents); if (!e) return;
+  if (card.dataset.engaged) return;
+  card.dataset.engaged = '1';
+  card.classList.add('engaged');
+  const media = card.querySelector('[data-pvmedia]');
+  card.classList.remove('ended', 'failed');
+  if (!media) { pvMount(card, true); return; }
+  if (media.tagName === 'VIDEO') {
+    media.muted = false; media.controls = true;
+    const pr = media.play(); if (pr && pr.catch) pr.catch(() => {});
+  } else if (media.tagName === 'IFRAME') {
+    /* Engaged YouTube = reload the embed with controls + sound (§3). */
+    media.src = `https://www.youtube.com/embed/${encodeURIComponent(e.ref)}?controls=1&autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+  }
+}
+function pvObserve(root) {
+  /* A repaint retires the old cards: prune dead mounts from the
+     budget ledger so detached elements never hold a live slot. */
+  for (let i = pvLive.length - 1; i >= 0; i--) if (!pvLive[i].isConnected) pvLive.splice(i, 1);
+  if (!('IntersectionObserver' in window)) return;
+  if (!pvObserver) {
+    pvObserver = new IntersectionObserver((entries) => {
+      for (const en of entries) {
+        const card = en.target;
+        if (!card.isConnected) { pvObserver.unobserve(card); continue; }
+        const stage = card.querySelector('[data-pvstage]');
+        const media = stage?.querySelector('[data-pvmedia]');
+        if (en.intersectionRatio >= 0.5) {
+          if (!media) { if (!PV_REDUCED) pvMount(card, false); }
+          else if (media.tagName === 'VIDEO' && media.paused && !card.classList.contains('ended')) { const pr = media.play(); if (pr && pr.catch) pr.catch(() => {}); }
+        } else if (en.intersectionRatio >= 0.25) {
+          if (!media && !PV_REDUCED) pvMount(card, false); /* approach: lazy-mount, still muted */
+        } else {
+          if (media && media.tagName === 'VIDEO') media.pause();
+          else if (media && media.tagName === 'IFRAME') pvUnmount(card); /* iframes unmount off-screen */
+        }
+      }
+    }, { threshold: [0, 0.25, 0.5, 0.75] });
+  }
+  root.querySelectorAll('[data-presents]').forEach((card) => {
+    card.querySelector('[data-pvtap]')?.addEventListener('click', () => pvEngage(card));
+    pvObserver.observe(card);
+  });
+}
+
+function feedCardsHtml(shown) {
+  const aiSlot = `<div class="bk-inthread" data-inthread="ai">${aiHighlightsHtml()}</div>`;
+  const railSlot = `<div class="bk-inthread" data-inthread="rail">${latestTestCardHtml()}${suggestedGroupsCardHtml()}</div>`;
+  /* 2C-1 slots ride at member positions (AI after the 3rd member post,
+     rail cards after the 8th; end-appended when the window is shorter).
+     2C-2 §6: mixPresents weaves the Presents cards through the member
+     cards under the ceiling / scarcity floor; the in-thread slots are
+     then re-inserted at their member positions in the mixed sequence
+     (they are house cards, never counted as member posts). */
+  const mixed = mixPresents(shown.map((p) => postCard(p)), shown.length);
+  const out = [];
+  let m = 0, aiDone = false, railDone = false;
+  for (const c of mixed) {
+    out.push(c);
+    if (!c.includes('data-presents')) {
+      m++;
+      if (m === 3) { out.push(aiSlot); aiDone = true; }
+      if (m === 8) { out.push(railSlot); railDone = true; }
+    }
+  }
+  if (!aiDone) out.push(aiSlot);
+  if (!railDone) out.push(railSlot);
+  /* 2C-4 PYMK phone placement: its own in-thread wrapper AFTER the
+     last member card — a later in-thread position that displaces
+     neither ruled slot (AI after 3rd, rail after 8th). Desktop and
+     the 881–1240 band carry PYMK in the rail / below-feed stack. */
+  const pymk = pymkHtml();
+  if (pymk) out.push(`<div class="bk-inthread" data-inthread="pymk">${pymk}</div>`);
+  return out.join('');
 }
 function viewFeed() {
   const list = feedList();
@@ -1008,7 +1583,8 @@ function viewFeed() {
       <button type="button" data-feedfilter="prayer" class="${S.feedFilter === 'prayer' ? 'on' : ''}">PRAYER WALL</button>
       <button type="button" data-feedfilter="testimony" class="${S.feedFilter === 'testimony' ? 'on' : ''}">TESTIMONIES</button>
     </div>
-    <div data-feedlist>${shown.map((p) => postCard(p)).join('') || (S.loaded
+    <div class="bk-newpill" data-newpill hidden><button type="button" data-newpillbtn>✦ NEW POSTS</button></div>
+    <div data-feedlist>${shown.length ? feedCardsHtml(shown) : (S.loaded
       ? '<div class="bk-ctx"><h3>Quiet in here.</h3><p>No posts of this kind are in the carried wall. The other doors hold the rest of the family.</p></div>'
       : '<div class="bk-ctx"><h3>Loading the wall…</h3><p>The family\'s posts are on their way — an unloaded wall never reads as an empty one.</p></div>')}</div>
     ${list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
@@ -1042,7 +1618,7 @@ function viewMembers() {
   const list = S.members;
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE FAMILY DIRECTORY</span><h2>Every face <em>matters.</em></h2></div></div>
-  <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> strong — ` : ''}the directory below lists the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'} — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
+  <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> in the family (the community pulse total) · ` : ''}<b style="color:var(--gold)">${list.length} profiles listed</b> in the directory below — the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'}. Two different counts, labeled: the pulse counts every registered member; this directory lists the profiles the wall's pages evidence — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
   <form class="bk-search" data-peoplesearch><input type="search" placeholder="Search the family by name…" value="${esc(S.peopleQuery)}" aria-label="Search members by name"><button type="submit">SEARCH</button></form>
   ${peopleStripHtml()}
   <div class="bk-mgrid">${list.map((m) => m.id ? `
@@ -1085,6 +1661,68 @@ function viewSaved() {
     : `<p><b>Saved posts live in your member account.</b> Bookmarks are personal account state on the community API — a guest has none, and nothing is quietly stored on this device to pretend otherwise.</p>
   <p>Join free or sign in (top right), and the posts you save from the wall will collect here.</p>`}</div>`;
 }
+/* ---------- amp-up phase 2C-3 helpers (§2) ---------- */
+/* Connections: the ONLY connection evidence the carried data holds is
+   shared circles — another member whose own carried posts carry a
+   groupId this member also posted into. Nothing else is dressed as a
+   connection: no directory members, no payload friendCount, no
+   invented mutuals. Returns directory-backed people (real name +
+   avatar/monogram) with the shared circle's real name. */
+function profileConnections(ids, theirPosts) {
+  const gids = new Set(theirPosts.map((p) => p.groupId).filter(Boolean));
+  if (!gids.size) return [];
+  const byAuthor = new Map();
+  for (const p of [...S.posts, ...S.testimonies, ...(S.wallPosts || [])]) {
+    if (!p.groupId || !gids.has(p.groupId) || !p.authorId || ids.has(p.authorId) || byAuthor.has(p.authorId)) continue;
+    const g = S.groups.find((x) => x.id === p.groupId);
+    byAuthor.set(p.authorId, { id: p.authorId, name: p.authorName, avatar: p.authorAvatar, circle: g?.name || 'a shared circle' });
+  }
+  return [...byAuthor.values()].map((c) => {
+    const dir = (S.members || []).find((m) => m.id === c.id) || (S.bakedMembers || []).find((m) => m.id === c.id);
+    return { ...c, name: dir?.name || c.name, avatar: dir?.avatar || c.avatar };
+  }).slice(0, 9);
+}
+/* Photos: media carried on the member's OWN posts/testimonies only —
+   the same post set the profile renders. No media → empty array →
+   the caller omits the section entirely (honest absence). */
+function profilePhotos(posts) {
+  const urls = [];
+  for (const p of posts) for (const m of p.media || []) if (m?.url && !urls.includes(m.url)) urls.push(m.url);
+  return urls.slice(0, 9);
+}
+/* Member-scoped themes: wallThemes' discipline (4+ letters, function
+   words removed, a word rises only when the member actually wrote it
+   at least twice) over ONE member's own post bodies. */
+function memberThemes(posts, n = 3) {
+  const counts = new Map();
+  for (const p of posts) {
+    for (const w of String(p.body || '').toLowerCase().replace(/[^a-z\s']/g, ' ').split(/\s+/)) {
+      const word = w.replace(/^'+|'+$/g, '');
+      if (word.length < 4 || THEME_STOP.has(word)) continue;
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+  }
+  return [...counts.entries()].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, n).map(([w]) => w);
+}
+/* FaithGuide "ABOUT THEM" (§2): a labeled-AI card computed ONLY from
+   the member's own public posts/testimonies in the carried set —
+   their counts by kind, the words that literally repeat in their own
+   post text, their newest post's age. No biography, no facts from
+   anywhere else. A member with no carried posts gets NO card. */
+function aboutThemHtml(name, posts) {
+  if (!posts.length) return '';
+  const first = name.split(' ')[0];
+  const test = posts.filter((p) => p.type === 'testimony').length;
+  const prayers = posts.filter((p) => p.type === 'prayer').length;
+  const themes = memberThemes(posts, 3);
+  const newest = [...posts].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))[0];
+  const kinds = [`<b>${posts.length} post${posts.length === 1 ? '' : 's'}</b> in the carried wall`];
+  if (test) kinds.push(`<b>${test} testimon${test === 1 ? 'y' : 'ies'}</b>`);
+  if (prayers) kinds.push(`<b>${prayers} prayer request${prayers === 1 ? '' : 's'}</b>`);
+  return `<section class="bk-aicard"><span class="bk-ailabel">✦ FAITHGUIDE · ABOUT THEM</span>
+    <p>${esc(first)} has shared ${kinds.join(' — ')}.${themes.length ? ` Words that keep rising in ${esc(first)}'s own posts: <b>${themes.map(esc).join(', ')}</b>.` : ''}${newest ? ` Newest voice here: ${relTime(newest.createdAt)}.` : ''}</p><span class="bk-ainote">POWERED BY AI · SUMMARIZES THIS MEMBER'S OWN PUBLIC POSTS ONLY — NOTHING INVENTED</span></section>`;
+}
+
 async function viewProfile(id) {
   const ids = personIds(id);
   const carried = [...S.posts, ...S.testimonies].filter((p) => ids.has(p.authorId));
@@ -1114,46 +1752,79 @@ async function viewProfile(id) {
     : (prof ? profCountsHtml(prof, carriedMeta) : carriedMeta);
   const name = prof?.displayName || name0;
   const el = S.root.querySelector('[data-prof]'); if (!el) return;
+  /* ---------- amp-up phase 2C-3 — PROFILES PARITY (§2) ----------
+     The header grid (§8d as ruled) is ONE builder for every profile:
+     wide cover (the member's real cover, else the Phase 1 AI cover
+     art — atmosphere only, labeled, never a fabricated photo of the
+     person), the avatar overlapping it inside the §4 gold ring (real
+     avatar or honest monogram), the name, and the counts line —
+     posts · testimonies · prayers lifted, every number computed from
+     the member's carried record (the chosen post set above), zero
+     when the record carries none, never padded, never the payload's
+     follower/friend totals dressed as this line. */
+  const theirTestAll = posts.filter((p) => p.type === 'testimony');
+  const theirPrayersAll = uniqPosts([...posts.filter((p) => p.type === 'prayer'), ...S.wallPosts.filter((p) => ids.has(p.authorId))]);
+  const prayingTotalAll = theirPrayersAll.reduce((a, p) => a + (p.prayerCount || 0), 0);
+  const countsLine = `<div class="bk-profcountsline"><b>${posts.length}</b> post${posts.length === 1 ? '' : 's'} · <b>${theirTestAll.length}</b> testimon${theirTestAll.length === 1 ? 'y' : 'ies'} · <b>${prayingTotalAll}</b> prayers lifted</div>`;
+  const headerHtml = (coverUrl, avatarUrl, verified, metaLine) => {
+    const cov = coverUrl || aiCoverFor(id);
+    return `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(cov)}')">${coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>'}</div><div class="bk-profbody">
+    <span class="bk-profava">${avatarHtml(name, avatarUrl, id === HOUSE_ID)}</span>
+    <h2>${esc(name)}${verified ? ' <span class="bk-ver">✦</span>' : ''}</h2>
+    ${metaLine ? `<div class="meta">${metaLine}</div>` : ''}
+    ${countsLine}
+  </div></div>`;
+  };
   if (id === HOUSE_ID && prof) {
-    el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(prof.coverUrl || aiCoverFor(HOUSE_ID))}')">${prof.coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>'}</div><div class="bk-profbody">
-      <span data-profile="${HOUSE_ID}" style="cursor:pointer">${avatarHtml(name, prof.avatarUrl, true)}</span>
-      <h2>${esc(name)} <span class="bk-ver">✦</span></h2><div class="meta">${esc(prof.headline || '')}${prof.location ? ' · ' + esc(prof.location) : ''}</div>
-      ${countsHtml}
-      ${prof.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:14px 0 0">${linkify(prof.bio)}</p>` : ''}
-    </div></div>
+    el.innerHTML = `${headerHtml(prof.coverUrl, prof.avatarUrl, true, `${esc(prof.headline || '')}${prof.location ? ' · ' + esc(prof.location) : ''}`)}
+    ${prof.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:0 0 14px">${linkify(prof.bio)}</p>` : ''}
+    ${aboutThemHtml(name, posts)}
     <h3 class="bk-secttl">From the <em>house</em></h3>${posts.map((p) => postCard(p, true)).join('')}`;
     wirePosts(el); return;
   }
-  /* P1-7 + P1-8 (amp-up 2026-11-22): the profile is a full page —
-     AI cover dressing when the member has no real cover, a structured
-     About block, Testimonies as their own section, a Prayer section
-     from the wall's real data, and their Circles. Every number below
-     comes from the carried wall or the profile payload; a section
-     with no data says so plainly instead of inventing content. */
-  const cover = prof?.coverUrl || aiCoverFor(id);
-  const coverNote = prof?.coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>';
-  const theirTest = posts.filter((p) => p.type === 'testimony');
+  /* P1-7 + P1-8 (amp-up 2026-11-22) + 2C-3 (§2): the profile is a full
+     page in two columns on desktop — DETAILS (only carried facts; a
+     field with no data does not render) · CONNECTIONS (real shared
+     circles only) · PHOTOS (the member's own post media only; the
+     section does not render at all when there is none) · CIRCLES —
+     beside the member's own voice: the FaithGuide ABOUT THEM card,
+     TESTIMONIES and PRAYERS LIFTED (first-class since Phase 1), and
+     their POSTS. Every number comes from the carried wall or the
+     profile payload; a section with no data says so plainly instead
+     of inventing content. */
+  const theirTest = theirTestAll;
   const theirPosts = posts.filter((p) => p.type !== 'testimony' && p.type !== 'prayer');
-  const theirPrayers = uniqPosts([...posts.filter((p) => p.type === 'prayer'), ...S.wallPosts.filter((p) => ids.has(p.authorId))]);
-  const prayingTotal = theirPrayers.reduce((a, p) => a + (p.prayerCount || 0), 0);
+  const theirPrayers = theirPrayersAll;
+  const prayingTotal = prayingTotalAll;
   const groupIds = [...new Set(posts.map((p) => p.groupId).filter(Boolean))];
   const theirGroups = S.groups.filter((g) => groupIds.includes(g.id));
+  const connections = profileConnections(ids, posts);
+  const photos = profilePhotos(posts);
   const loc = prof?.location || first?.authorLocation || baked?.location || '';
   const aboutRows = [
     prof?.headline ? `<div><b>HEADLINE</b><span>${esc(prof.headline)}</span></div>` : '',
     loc ? `<div><b>LOCATION</b><span>${esc(loc)}</span></div>` : '',
     prof?.createdAt ? `<div><b>MEMBER SINCE</b><span>${fmtDate(prof.createdAt)}</span></div>` : '',
+    theirGroups.length ? `<div><b>CIRCLES</b><span>${theirGroups.map((g) => esc(g.name)).join(' · ')}</span></div>` : '',
     prof?.bio ? `<div><b>ABOUT</b><span>${linkify(prof.bio)}</span></div>` : '',
   ].join('');
   const signedInSelf = !!(window.Clerk?.user?.id && window.Clerk.user.id === id);
-  el.innerHTML = `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(cover)}')">${coverNote}</div><div class="bk-profbody">
-    ${avatarHtml(name, prof?.avatarUrl || first?.authorAvatar || baked?.avatar, false)}
-    <h2>${esc(name)}${(prof?.isVerified || first?.authorVerified || baked?.verified) ? ' <span class="bk-ver">✦</span>' : ''}</h2>
-    <div class="meta">${esc(loc)}${prof?.createdAt ? ' · Member since ' + fmtDate(prof.createdAt) : ''}</div>
-    ${countsHtml}
-    ${signedInSelf ? '<p class="bk-note" style="margin-top:10px">This is your profile, and you are signed in — this page is your public family face. Profile editing is the next member build; nothing here is simulated.</p>' : ''}
-  </div></div>
+  const metaLine = [loc, prof?.createdAt ? 'Member since ' + fmtDate(prof.createdAt) : ''].filter(Boolean).map(esc).join(' · ');
+  el.innerHTML = `${headerHtml(prof?.coverUrl, prof?.avatarUrl || first?.authorAvatar || baked?.avatar, !!(prof?.isVerified || first?.authorVerified || baked?.verified), metaLine)}
+  ${signedInSelf ? '<p class="bk-note" style="margin:0 0 14px">This is your profile, and you are signed in — this page is your public family face. Profile editing is the next member build; nothing here is simulated.</p>' : ''}
+  <div class="bk-profgrid"><div class="bk-profcol">
   ${aboutRows ? `<h3 class="bk-secttl">About <em>${esc(name.split(' ')[0])}</em></h3><div class="bk-about">${aboutRows}</div>` : ''}
+  <h3 class="bk-secttl">Their <em>connections</em></h3>
+  ${connections.length
+    ? `<div class="bk-friends">${connections.map((c) => `<button type="button" class="bk-friend" data-profile="${esc(c.id)}">${avatarHtml(c.name, c.avatar, c.id === HOUSE_ID)}<strong>${esc(c.name)}</strong><small>Shares ${esc(c.circle)}</small></button>`).join('')}</div>`
+    : '<div class="bk-ctx"><p>No connections yet — the family is still finding them.</p></div>'}
+  ${photos.length ? `<h3 class="bk-secttl">Their <em>photos</em></h3><div class="bk-photos">${photos.map((u) => `<img src="${esc(u)}" alt="Photo from this member's own post" loading="lazy">`).join('')}</div>` : ''}
+  <h3 class="bk-secttl">Their <em>circles</em></h3>
+  ${theirGroups.length
+    ? theirGroups.map((g) => `<button type="button" class="bk-mini" data-view="groups" style="border:1px solid #353027;border-radius:10px;padding:10px 12px;margin-bottom:8px;width:100%"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · posting here from this member's wall</small></span></button>`).join('')
+    : '<div class="bk-ctx"><p>Group membership is member-account data — it opens with sign-in. The circles themselves are all on the Groups door.</p></div>'}
+  </div><div class="bk-profcol">
+  ${aboutThemHtml(name, posts)}
   <h3 class="bk-secttl">Their <em>testimonies</em></h3>
   ${prof?.testimony ? `<div class="bk-proftest">“${esc(prof.testimony)}”</div>` : ''}
   ${theirTest.length ? theirTest.map((p) => postCard(p, true)).join('') : (prof?.testimony ? '' : '<div class="bk-ctx"><p>No testimony posts by this member are in the carried wall.</p></div>')}
@@ -1162,14 +1833,150 @@ async function viewProfile(id) {
     ? `<b>${theirPrayers.length} prayer request${theirPrayers.length === 1 ? '' : 's'}</b> from ${esc(name.split(' ')[0])} on the wall, with <b>${prayingTotal} prayers lifted</b> over them by the family.`
     : `No prayer requests from ${esc(name.split(' ')[0])} are in the carried wall — the Prayer Wall in the Pray hub carries the family's live requests.`}</p></div>
   ${theirPrayers.map((p) => postCard(p, true)).join('')}
-  <h3 class="bk-secttl">Their <em>circles</em></h3>
-  ${theirGroups.length
-    ? theirGroups.map((g) => `<button type="button" class="bk-mini" data-view="groups" style="border:1px solid #353027;border-radius:10px;padding:10px 12px;margin-bottom:8px;width:100%"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · posting here from this member's wall</small></span></button>`).join('')
-    : '<div class="bk-ctx"><p>Group membership is member-account data — it opens with sign-in. The circles themselves are all on the Groups door.</p></div>'}
   <h3 class="bk-secttl">Posts by <em>${esc(name.split(' ')[0])}</em></h3>
-  ${theirPosts.length ? theirPosts.map((p) => postCard(p, true)).join('') : '<div class="bk-ctx"><p>No posts by this member are in the carried pages.</p></div>'}`;
+  ${theirPosts.length ? theirPosts.map((p) => postCard(p, true)).join('') : '<div class="bk-ctx"><p>No posts by this member are in the carried pages.</p></div>'}
+  </div></div>`;
   wirePosts(el);
   el.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); window.scrollTo(0, 0); }));
+}
+
+/* ---------- amp-up phase 2C-4 — STORIES VIEWER (§8c OPS SPEC) ----------
+   Tapping a story ring opens the member's actual post full-screen:
+   segmented progress (one segment per story in the tray set), 5s
+   auto-advance (never under reduced motion — tap-only there), paused
+   on press-and-hold, left/right tap zones, swipe-down or ✕ to close,
+   Esc/arrows on desktop. Every story SHOWN is written back through
+   2C-1's markStoryViewed, and its ring dims in place — no repaint. */
+const STORY_MS = 5000;
+function storyProgress(v) {
+  const seg = v.el?.querySelectorAll('.bk-vseg i')[v.idx];
+  if (seg) seg.style.transform = `scaleX(${Math.min(1, v.elapsed / STORY_MS)})`;
+}
+function renderStory(v) {
+  const p = v.set[v.idx]; if (!p) { closeStoryViewer(); return; }
+  markStoryViewed(p.authorId);
+  [...(S.root?.querySelectorAll('.bk-ring') || [])].find((r) => r.dataset.ring === p.authorId)?.classList.add('viewed');
+  v.elapsed = 0;
+  const kind = p.type === 'testimony' ? '✦ TESTIMONY' : p.type === 'prayer' ? '✛ PRAYER REQUEST' : '✎ POST';
+  const media = (p.media || []).map((m) => m?.url ? `<img class="bk-postimg" src="${esc(m.url)}" alt="" loading="lazy">` : '').join('');
+  v.el.innerHTML = `
+    <div class="bk-vsegs">${v.set.map((_, i) => `<span class="bk-vseg${i < v.idx ? ' done' : ''}"><i></i></span>`).join('')}</div>
+    <div class="bk-vhead">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}<span><b>${esc(p.authorName)}</b><small>${relTime(p.createdAt)}${p.authorLocation ? ' · ' + esc(p.authorLocation) : ''}</small></span>
+      <button type="button" class="bk-vclose" data-vclose aria-label="Close stories">✕</button></div>
+    <div class="bk-vstage" data-vstage>
+      <div class="bk-vkind">${kind}</div>
+      <p class="bk-vbody">${linkify(p.body)}</p>${media}
+      <button type="button" class="bk-vzone prev" data-vprev aria-label="Previous story"></button>
+      <button type="button" class="bk-vzone next" data-vnext aria-label="Next story"></button>
+    </div>
+    <div class="bk-vfoot"><button type="button" class="bk-vprof" data-vprof>VIEW ${esc(p.authorName.split(' ')[0].toUpperCase())}'S PROFILE ›</button></div>`;
+  v.el.querySelector('[data-vclose]')?.addEventListener('click', () => closeStoryViewer());
+  v.el.querySelector('[data-vprev]')?.addEventListener('click', () => storyGo(v, -1));
+  v.el.querySelector('[data-vnext]')?.addEventListener('click', () => storyGo(v, 1));
+  v.el.querySelector('[data-vprof]')?.addEventListener('click', () => { const id = p.authorId; closeStoryViewer(); openProfile(id); });
+  const stage = v.el.querySelector('[data-vstage]');
+  stage?.addEventListener('pointerdown', () => { v.paused = true; });
+  stage?.addEventListener('pointerup', () => { v.paused = false; });
+  stage?.addEventListener('pointerleave', () => { v.paused = false; });
+  let ty = null;
+  v.el.addEventListener('touchstart', (e) => { ty = e.touches[0]?.clientY ?? null; }, { passive: true });
+  v.el.addEventListener('touchend', (e) => { if (ty != null && (e.changedTouches[0]?.clientY ?? ty) - ty > 70) closeStoryViewer(); ty = null; }, { passive: true });
+}
+function storyGo(v, d) {
+  const n = v.idx + d;
+  if (n < 0) return;
+  if (n >= v.set.length) { closeStoryViewer(); return; }
+  v.idx = n; renderStory(v);
+}
+function openStoryViewer(authorId) {
+  const set = storySet();
+  if (!set.length || !S.root) return;
+  let idx = set.findIndex((p) => p.authorId === authorId);
+  if (idx < 0) idx = 0;
+  closeStoryViewer();
+  const el = document.createElement('div');
+  el.className = 'bk-viewer'; el.setAttribute('data-viewer', '');
+  const v = { set, idx, elapsed: 0, paused: false, el, timer: null, key: null };
+  S.storyViewer = v;
+  S.root.appendChild(el);
+  renderStory(v);
+  v.key = (e) => {
+    if (e.key === 'Escape') closeStoryViewer();
+    else if (e.key === 'ArrowRight') storyGo(v, 1);
+    else if (e.key === 'ArrowLeft') storyGo(v, -1);
+  };
+  document.addEventListener('keydown', v.key);
+  v.timer = setInterval(() => {
+    if (!el.isConnected) { closeStoryViewer(); return; }
+    if (v.paused || PV_REDUCED) return;
+    v.elapsed += 50; storyProgress(v);
+    if (v.elapsed >= STORY_MS) storyGo(v, 1);
+  }, 50);
+}
+function closeStoryViewer() {
+  const v = S.storyViewer; if (!v) return;
+  if (v.timer) clearInterval(v.timer);
+  if (v.key) document.removeEventListener('keydown', v.key);
+  v.el?.remove();
+  S.storyViewer = null;
+}
+
+/* ---------- amp-up phase 2C-4 — NEW-POSTS PILL (§5 ADAPT) ----------
+   The lightest honest signal: a periodic re-read of the live head
+   slice (45s, live mode + feed view only). The pill appears ONLY
+   when that re-read carries posts the wall does not hold and they
+   are at least as new as the rendered head — never on a timer
+   alone, never in snapshot mode. Tapping it merges the held posts
+   at the head and lands them via the preserved paint (blink law:
+   film + chrome survive; scroll goes to the new head on purpose —
+   that IS the tap's request). */
+async function checkNewPosts() {
+  if (S.mode !== 'live' || S.view !== 'feed' || document.hidden) return;
+  try {
+    const j = await fetchJson(`${API_BASE}/api/community/posts?limit=25`);
+    const live = ingestPosts(j.posts);
+    const held = new Set([...S.posts, ...S.testimonies].map((p) => p.id));
+    const head = [...S.posts, ...S.testimonies].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))[0];
+    const fresh = live.filter((p) => !held.has(p.id) && (!head || String(p.createdAt) >= String(head.createdAt)));
+    if (!fresh.length) return;
+    S.pendingNew = fresh;
+    const wrap = S.root?.querySelector('[data-newpill]');
+    if (wrap) {
+      wrap.querySelector('[data-newpillbtn]').textContent = `✦ ${fresh.length} NEW POST${fresh.length === 1 ? '' : 'S'} — TAP TO SEE`;
+      wrap.hidden = false;
+    }
+  } catch { /* a failed re-read shows nothing — no simulated liveness */ }
+}
+function applyPendingNew() {
+  if (!S.pendingNew.length) return;
+  const fresh = [...S.pendingNew].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+  S.pendingNew = [];
+  for (const p of fresh) {
+    const list = p.type === 'testimony' ? S.testimonies : S.posts;
+    if (!list.some((x) => x.id === p.id)) list.unshift(p);
+  }
+  S.feedShown = Math.max(S.feedShown, PAGE);
+  paint(true);
+  window.scrollTo(0, 0);
+  const nm = S.root?.querySelector('.bk-main'); if (nm) nm.scrollTop = 0;
+}
+
+/* ---------- amp-up phase 2C-4 fold-in (1) — DELETE OWN POST ----------
+   Own posts only (signed-in identity vs post author, split-account
+   aware via personIds). A confirm step gates the DELETE call; on
+   200 the post leaves every held list and its card is removed IN
+   PLACE — no repaint (blink law). On failure the card stays and the
+   member reads the server's own words. */
+async function memberDeletePost(card, gate, post, yesBtn) {
+  yesBtn.disabled = true;
+  try {
+    await deleteJson(`${API_BASE}/api/community/posts/${encodeURIComponent(post.id)}`);
+    for (const k of ['posts', 'testimonies', 'wallPosts']) S[k] = (S[k] || []).filter((p) => p.id !== post.id);
+    card.remove();
+  } catch (err) {
+    gate.innerHTML = `<b>That delete didn't go through.</b> ${esc(err.message)} Your post is still on the wall.`;
+    gate.classList.add('open');
+  }
 }
 
 /* ---------------- comments ---------------- */
@@ -1278,6 +2085,7 @@ async function memberReact(card, gate, act, post, btn) {
     }
     if (typeof r.prayerCount === 'number') post.prayerCount = r.prayerCount;
     if ('myReactionType' in r) post.myReactionType = r.myReactionType;
+    holdRxTruth(post); /* 2C-4 fold-in (2): the response is session truth from here on */
     repaintCard(card, post);
   } catch (err) {
     gate.innerHTML = `<b>That tap didn't land.</b> ${esc(err.message)}`;
@@ -1288,7 +2096,18 @@ async function memberReact(card, gate, act, post, btn) {
 
 function findPost(id) { return [...S.posts, ...S.testimonies, ...(S.wallPosts || [])].find((p) => p.id === id); }
 function wirePosts(scope) {
-  scope.querySelectorAll('[data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
+  scope.querySelectorAll('[data-profile]').forEach((n) => { if (n.closest('[data-storyopen]')) return; n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }); });
+  /* 2C-4 fold-in (1): delete-own-post — the confirm step renders in
+     the card's own gate strip and gates the DELETE call. */
+  scope.querySelectorAll('[data-delpost]').forEach((btn) => btn.addEventListener('click', () => {
+    const card = btn.closest('[data-post]'); const post = findPost(card?.dataset.post);
+    const gate = card?.querySelector('[data-actgate]');
+    if (!post || !gate || !isOwnPost(post)) return;
+    gate.innerHTML = `<span class="bk-delconfirm"><b>Delete this post?</b><span>It leaves the wall for good.</span><button type="button" class="bk-del-yes" data-delyes>DELETE IT</button><button type="button" class="bk-del-no" data-delno>KEEP IT</button></span>`;
+    gate.dataset.kind = 'delete'; gate.classList.add('open');
+    gate.querySelector('[data-delno]')?.addEventListener('click', () => { gate.classList.remove('open'); gate.innerHTML = ''; });
+    gate.querySelector('[data-delyes]')?.addEventListener('click', (e) => memberDeletePost(card, gate, post, e.currentTarget));
+  }));
   scope.querySelectorAll('[data-comments]').forEach((btn) => btn.addEventListener('click', () => {
     const card = btn.closest('[data-post]'); const post = findPost(card?.dataset.post); if (post) toggleComments(card, post);
   }));
@@ -1339,6 +2158,10 @@ function paint(keepScroll = false) {
      paint the collapsed intermediate. Navigation paints (tab taps)
      keep the old behavior. */
   const y = keepScroll ? window.scrollY : 0;
+  /* 2C-1: on desktop the wall is its own scroll region (.bk-main) —
+     a preserved repaint restores its scrollTop exactly as it does
+     the window's on phone. */
+  const mainY = keepScroll ? (S.root.querySelector('.bk-main')?.scrollTop || 0) : 0;
   const oldFilm = keepScroll ? S.root.querySelector('[data-hubfilm]') : null;
   const oldFilmSrc = oldFilm?.querySelector('video source')?.getAttribute('src') || null;
   const mains = { doors: viewFeed, feed: viewFeed, testimonies: viewTestimonies, members: viewMembers, groups: viewGroups, messages: viewMessages, saved: viewSaved };
@@ -1348,6 +2171,7 @@ function paint(keepScroll = false) {
     if (newFilm && newFilm.querySelector('video source')?.getAttribute('src') === oldFilmSrc) newFilm.replaceWith(oldFilm);
   }
   if (y) window.scrollTo(0, y);
+  if (mainY) { const nm = S.root.querySelector('.bk-main'); if (nm) nm.scrollTop = mainY; }
   if (window.FaithFilm) window.FaithFilm.wire(S.root);
   if (window.FaithMotion) window.FaithMotion.armReveals(S.root);
   const main = S.root.querySelector('.bk-main');
@@ -1431,6 +2255,19 @@ function paint(keepScroll = false) {
     if (S.view === 'members') paint();
   });
   wirePosts(main);
+  pvObserve(main);
+  /* 2C-1 §4.3 + 2C-4 §8c: a story tap opens the full-screen viewer
+     (wirePosts skips these buttons' profile binding). Opening the
+     viewer is the real story open that writes the viewed state; the
+     viewer marks each story it shows and dims its ring in place. */
+  main.querySelectorAll('button.bk-story[data-storyopen]').forEach((n) => n.addEventListener('click', () => {
+    openStoryViewer(n.getAttribute('data-storyopen'));
+  }));
+  /* 2C-4: PYMK rows in the desktop right rail ride openProfile too
+     (wirePosts covers the main column's copies). */
+  S.root.querySelectorAll('.bk-side [data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
+  /* 2C-4: the new-posts pill tap lands the held posts at the head. */
+  main.querySelectorAll('[data-newpillbtn]').forEach((n) => n.addEventListener('click', () => applyPendingNew()));
 }
 /* LOAD MORE's live leg (2026-11-19 feed-count cure): fetch the next
    slice at the standing cursor. This is the resume path for a chain
@@ -1482,8 +2319,14 @@ export function render(root, ctx) {
        even then it paints preserved (film + scroll), never raw. */
     if (!S.settlePainted) paint(true);
   });
+  /* 2C-4: the new-posts pill's honest signal — a 45s live head
+     re-read, feed view only (checkNewPosts self-guards). */
+  if (S.newTimer) clearInterval(S.newTimer);
+  S.pendingNew = [];
+  S.newTimer = setInterval(() => { checkNewPosts(); }, 45000);
   window.__community = {
     version: 'faithbook-graft', mode: () => S.mode, state: () => S,
+    checkNewPosts: () => checkNewPosts(), openStoryViewer: (id) => openStoryViewer(id),
     openFeed: () => { S.view = 'feed'; paint(); }, openTestimonies: () => { S.view = 'testimonies'; paint(); },
     openMembers: () => { S.view = 'members'; paint(); }, openGroups: () => { S.view = 'groups'; paint(); },
     openProfile: (id) => openProfile(id), openDoors: () => { S.view = 'feed'; paint(); },
