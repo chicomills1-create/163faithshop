@@ -638,8 +638,31 @@ window.FaithFilm = {
   wire(scope) {
     if (!scope || MOTION_REDUCED || typeof IntersectionObserver !== 'function') return;
     scope.querySelectorAll('[data-hubfilm] video').forEach((v) => {
+      /* Phase 2B live-walk cure (2026-11-22): a rejected play() or a
+         media error used to leave the poster up SILENTLY forever (the
+         live walk watched two film slots sit static for minutes with
+         nothing logged). Playback failure now retries with a reload
+         between attempts (max 3) and logs every failure; the poster
+         remains the honest still face only after the retries are
+         spent — never a silent dead slot. */
+      let tries = 0, onScreen = false;
+      const attempt = () => {
+        if (!onScreen) return;
+        const p = v.play();
+        if (p && typeof p.catch === 'function') p.catch((err) => retry('play() rejected: ' + (err?.name || err)));
+      };
+      const retry = (why) => {
+        if (tries >= 3) { console.warn('[FaithFilm] playback failed after 3 retries; poster stands —', why, v.currentSrc || v.querySelector('source')?.src || ''); return; }
+        tries += 1;
+        console.warn(`[FaithFilm] playback retry ${tries}/3 —`, why);
+        setTimeout(() => { if (!v.isConnected) return; try { v.load(); } catch { /* load is best-effort */ } attempt(); }, 1200 * tries);
+      };
+      v.addEventListener('error', () => retry('media error ' + (v.error?.code ?? '')), { passive: true });
+      const srcEl = v.querySelector('source');
+      if (srcEl) srcEl.addEventListener('error', () => retry('source failed to load'), { passive: true });
       const io = new IntersectionObserver((es) => es.forEach((e) => {
-        if (e.isIntersecting) { v.play().catch(() => {}); } else { v.pause(); }
+        onScreen = e.isIntersecting;
+        if (e.isIntersecting) { attempt(); } else { v.pause(); }
       }), { threshold: 0.15 });
       io.observe(v);
     });
