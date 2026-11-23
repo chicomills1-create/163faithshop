@@ -330,6 +330,15 @@ const CSS4 = `
 .bk-profcover{position:relative;height:132px}
 .bk-profcovnote{position:absolute;right:10px;bottom:8px;font-size:8.5px;letter-spacing:1.4px;color:#e8d9ac;font-weight:900;background:rgba(10,8,4,.6);padding:4px 8px;border-radius:4px}
 .bk-mini .bk-ava{width:36px;height:36px;font-size:10px}
+/* ---------- amp-up phase 2B (2026-11-22) ---------- */
+/* GOLD FRAME on the wall's post cards (founder law 17:57): every post
+   pops in a gold frame — border, warm glow, deeper shadow. */
+.bk-card{border:1px solid rgba(212,175,55,.55);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 0 20px rgba(212,175,55,.13),0 15px 30px rgba(0,0,0,.35)}
+.bk-card.testimony{border-color:rgba(212,175,55,.8);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 0 26px rgba(212,175,55,.2),0 15px 30px rgba(0,0,0,.35)}
+.bk-gcoverimg{width:calc(100% + 32px);margin:-16px -16px 12px;height:110px;object-fit:cover;display:block;border-bottom:1px solid rgba(212,175,55,.4)}
+.bk-artbanner{width:100%;height:170px;object-fit:cover;border-radius:12px;margin:0 0 16px;display:block}
+.bk-ctx .bk-artbanner{height:150px;margin-top:4px}
+.bk-doorhero img,.bk-herographics img{border-radius:8px}
 `;
 
 const S = {
@@ -609,43 +618,18 @@ function buildDirectory() {
     cur.location = cur.location || p.authorLocation; cur.postsInPull = counts.get(p.authorId) || 0;
     byId.set(p.authorId, cur);
   }
-  /* Canonical-identity merge (2026-11-19 cure): the same person can stand
-     in the data under more than one account id — Chico M. and Julie P.
-     each arrived under two ids, one per source the directory merges — and
-     keying on id alone listed them twice. One person = one card: entries
-     sharing a normalized display name merge into the entry with the most
-     recent activity (their current account; for Chico M. that is the
-     founder's own profile), with counts aggregated across all their ids
-     and the merged id set kept on the card for profile matching. */
-  const byName = new Map();
-  for (const e of byId.values()) {
-    const k = normName(e.name) || e.key;
-    if (!byName.has(k)) byName.set(k, []);
-    byName.get(k).push(e);
-  }
-  const people = [];
-  for (const group of byName.values()) {
-    if (group.length === 1) { people.push(group[0]); continue; }
-    const ranked = [...group].sort((a, b) =>
-      String(b.latestAt || '').localeCompare(String(a.latestAt || '')) ||
-      (b.posts || 0) - (a.posts || 0) ||
-      (b.verified ? 1 : 0) - (a.verified ? 1 : 0));
-    const head = ranked[0];
-    const merged = { ...head };
-    merged.ids = ranked.map((e) => e.id).filter(Boolean);
-    const capPosts = group.reduce((a, e) => a + (e.posts || 0), 0);
-    merged.posts = capPosts || undefined;
-    let pull = 0, hasPull = false;
-    for (const e of group) if (e.id && counts.has(e.id)) { pull += counts.get(e.id); hasPull = true; }
-    if (hasPull) merged.postsInPull = pull; else delete merged.postsInPull;
-    merged.verified = group.some((e) => e.verified);
-    merged.avatar = head.avatar || group.map((e) => e.avatar).find(Boolean) || null;
-    merged.location = head.location || group.map((e) => e.location).find(Boolean) || null;
-    const badges = []; for (const e of group) for (const bd of (e.badges || [])) if (!badges.includes(bd)) badges.push(bd);
-    merged.badges = badges;
-    merged.latestAt = group.map((e) => e.latestAt).filter(Boolean).sort().pop() || head.latestAt || null;
-    people.push(merged);
-  }
+  /* Directory keying (AMP-UP Phase 2B CP6, 2026-11-22 — supersedes the
+     2026-11-19 name-merge for THIS surface): the directory lists one
+     card per member ID — every profile the carried directory holds
+     (112) renders its own card. The old merge keyed on normalized
+     display name, which collapsed two DIFFERENT members who share a
+     name (Julie P. ×2, Andrialynn0525 ×2 — separate accounts, separate
+     profiles in members.json) into a single card: 110 cards for 112
+     profiles. Split-account aggregation still lives where it belongs
+     — in personIds(), which merges a person's ids when their PROFILE
+     is opened — not in the directory listing. Post counts stay per-id
+     (counts map above), matching the card's own profile. */
+  const people = [...byId.values()];
   return people.sort((a, b2) => (b2.postsInPull || b2.posts || 0) - (a.postsInPull || a.posts || 0) || String(a.name).localeCompare(String(b2.name)));
 }
 
@@ -721,6 +705,20 @@ const AI_COVERS = [
   'assets/img/community/covers/cover-dawn.webp',
 ];
 const aiCoverFor = (key) => { let h = 0; for (const c of String(key || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AI_COVERS[h % AI_COVERS.length]; };
+
+/* G-3 (amp-up phase 2B): generated cover art for the 7 real groups —
+   one shared gold-on-black church system, a distinct motif per group
+   (consult ruling (b)), keyed by the group's real name. A group with
+   no mapped art keeps its monogram — art never invents a group. */
+const GROUP_ART = {
+  'Women of Faith': 'assets/img/community/groups/group-women.webp',
+  'Men of Faith': 'assets/img/community/groups/group-men.webp',
+  'Testimonies & Encouragement': 'assets/img/community/groups/group-testimonies.webp',
+  'New to the Faith': 'assets/img/community/groups/group-new.webp',
+  'Worship & New Music': 'assets/img/community/groups/group-worship.webp',
+  'Bible Study & Discussion': 'assets/img/community/groups/group-bible.webp',
+  'Prayer Warriors': 'assets/img/community/groups/group-prayer.webp',
+};
 
 /* P1-AI-1 themes: the most repeated content words (4+ letters, function
    words removed) across the wall's own real post bodies. A word rises
@@ -812,7 +810,7 @@ function viewDoors() {
       <img class="art" src="assets/img/community/${art}" alt="" aria-hidden="true"><span class="shade"></span>
       <span class="in"><span class="no">${no}</span><h3>${title}</h3><p>${text}</p><span class="cnt">${cnt}</span></span>
     </button>`;
-  return `<div class="bk-doorhero"><img src="assets/img/community/mixtape.svg" alt="16:3 Faith — The Block mixtape artwork">
+  return `<div class="bk-doorhero"><img src="assets/img/community/doors-hero.webp" alt="The doors of the house opening into golden light as a family walks in">
       <div><span class="eyebrow">COMMUNITY · THE SANCTUARY</span><h1>The family <em>talks here.</em></h1>
       <p>The Sanctuary — the 16:3 Faith wall. Real posts, real people, real testimonies: read everything, get to know the family, and when member sign-in joins this house, post like home.</p></div></div>
     <div class="bk-doors">
@@ -827,7 +825,7 @@ function viewDoors() {
 
 /* ---------------- feed pieces ---------------- */
 function heroHtml() {
-  return `<section class="bk-hero"><div class="bk-herographics"><span class="bk-herogrid"></span><span class="bk-herotape">THE BLOCK · VOL. 01</span><img src="assets/img/community/mixtape.svg" alt="16:3 Faith The Block mixtape artwork"></div>
+  return `<section class="bk-hero reveal"><div class="bk-herographics"><span class="bk-herogrid"></span><span class="bk-herotape">THE BLOCK · THE FAMILY WALL</span><img src="assets/img/community/feed-header.webp" alt="The family around a shared table outside the church in golden evening light"></div>
     <div class="bk-heroc"><div class="bk-heroeb"><span class="bk-sq"></span>16:3 PRESENTS <b>///</b> THE SANCTUARY</div>
     <h1>FAITH GOT<br><span>A FEED.</span></h1><p>More than followers. More like family.<br>Real stories, real prayer, real people.</p>
     <div class="bk-herobot"><button type="button" class="bk-redbtn" data-composefocus>PULL UP &amp; POST <span>↗</span></button><span>THIS IS YOUR CORNER OF THE INTERNET.</span></div></div>
@@ -931,7 +929,7 @@ function viewFeed() {
   const srcNote = S.mode === 'live'
     ? `Live from the community API as you read — the family's wall, in the API's own order. Tap a name for the member's profile; comments open right on the card.`
     : `Captured production feed (2026-10-21/22 guest pages) — real posts, in the API's own order. The wall loads live wherever the API answers. Tap a name for the member's profile; comments open right on the card.`;
-  return `${heroHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
+  return `${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-community.mp4', poster: 'assets/video/film-community-poster.webp', title: 'The family, moving.', note: 'Community film · first movement' }) : ''}${heroHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
   <section class="bk-feedsec"><div class="bk-feedhead"><div><span class="eyebrow">THE TIMELINE</span><h2>The <em>family feed.</em></h2></div><span class="bk-feedtruth">SHOW UP AS YOU ARE. ♡</span></div>
     <p class="bk-note">${srcNote}</p>
     <div class="bk-filters" role="group" aria-label="Filter posts">
@@ -952,6 +950,7 @@ function viewTestimonies() {
   const list = uniqPosts(S.testimonies);
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">STORIES OF GRACE</span><h2>The <em>testimony tape.</em></h2></div></div>
+  <img class="bk-artbanner gold-frame" src="assets/img/community/testimony-art.webp" alt="A lit candle and an open journal in a quiet church corner" loading="lazy">
   <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.${S.mode === 'live' && S.feedHasMore ? ' The wall is still arriving — the LOAD MORE button at the end of the tape pulls the next pages in.' : ''}</p>
   ${list.map((p) => postCard(p)).join('') || (S.loaded
     ? '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts the testimonies this build carries — none are in the carried pages yet.</p></div>'
@@ -990,7 +989,7 @@ function viewGroups() {
   <div class="bk-feedhead"><div><span class="eyebrow">THE SMALL CIRCLES</span><h2>Find your <em>people.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'The live group list from the community API, read as you opened this door.' : 'The verified group list, captured live from the community API on 2026-11-19 (the live API did not answer from this network).'} ${isSignedIn() ? 'You are signed in — group joining wires to your account with the member build; the circles themselves are the live list below.' : 'Joining a group is a member action — join free or sign in (top right) and the circles open to your account.'}</p>
   <div class="bk-mgrid">${S.groups.map((g) => `
-    <div class="bk-gcard"><span class="bk-gcover">${esc(initials(g.name))}</span>
+    <div class="bk-gcard">${GROUP_ART[g.name] ? `<img class="bk-gcoverimg" src="${GROUP_ART[g.name]}" alt="" aria-hidden="true" loading="lazy">` : ''}<span class="bk-gcover">${esc(initials(g.name))}</span>
       <h3>${esc(g.name)}</h3><div class="meta">${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group · led by the 16:3 Faith house</div>
       <p>${esc(g.description || '')}</p>
       <button type="button" class="bk-goldbtn" style="width:auto;padding:9px 16px;margin-top:4px" data-joingate>JOIN GROUP</button>
@@ -1000,7 +999,7 @@ function viewGroups() {
 function viewMessages() {
   const member = isSignedIn();
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
-  <div class="bk-ctx"><span class="eyebrow">INBOX</span><h3 style="margin-top:8px">Stay <em style="color:var(--gold)">connected.</em></h3>
+  <div class="bk-ctx"><img class="bk-artbanner gold-frame" src="assets/img/community/empty-state.webp" alt="One empty church pew in warm golden light — a seat saved for you" loading="lazy"><span class="eyebrow">INBOX</span><h3 style="margin-top:8px">Stay <em style="color:var(--gold)">connected.</em></h3>
   ${member
     ? `<p><b>You're signed in — and the honest word is the inbox is the next member build.</b> The message routes are live on the community API, but this wall does not fake threads: no sample conversations stand in for yours. When the inbox lands, it opens on this account.</p>`
     : `<p><b>Messages are member-to-member.</b> The message routes are live on the community API and answer “Please sign in” to guests (verified 2026-11-19) — so there is no inbox to show a guest, and this house does not fake one: no sample conversations, no demo threads.</p>
@@ -1009,7 +1008,7 @@ function viewMessages() {
 function viewSaved() {
   const member = isSignedIn();
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
-  <div class="bk-ctx"><span class="eyebrow">YOUR BOOKMARKS</span><h3 style="margin-top:8px">Keep it <em style="color:var(--gold)">close.</em></h3>
+  <div class="bk-ctx"><img class="bk-artbanner gold-frame" src="assets/img/community/empty-state.webp" alt="One empty church pew in warm golden light — a seat saved for you" loading="lazy"><span class="eyebrow">YOUR BOOKMARKS</span><h3 style="margin-top:8px">Keep it <em style="color:var(--gold)">close.</em></h3>
   ${member
     ? `<p><b>You're signed in — your saved shelf is account state, and it is not wired on this wall yet.</b> Nothing is quietly stored on this device to pretend otherwise; when the shelf lands, the posts you save collect here under this account.</p>`
     : `<p><b>Saved posts live in your member account.</b> Bookmarks are personal account state on the community API — a guest has none, and nothing is quietly stored on this device to pretend otherwise.</p>
@@ -1246,6 +1245,8 @@ function paint() {
      the record; every 'doors' state resolves to the feed. */
   const mains = { doors: viewFeed, feed: viewFeed, testimonies: viewTestimonies, members: viewMembers, groups: viewGroups, messages: viewMessages, saved: viewSaved };
   S.root.innerHTML = frame(S.view === 'profile' ? '<div data-prof><div class="bk-ctx"><h3>Profile</h3><p>Loading…</p></div></div>' : (mains[S.view] || viewDoors)());
+  if (window.FaithFilm) window.FaithFilm.wire(S.root);
+  if (window.FaithMotion) window.FaithMotion.armReveals(S.root);
   const main = S.root.querySelector('.bk-main');
   S.root.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => {
     const t0 = n.dataset.t0 != null ? performance.now() : null;

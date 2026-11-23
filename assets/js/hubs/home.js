@@ -142,6 +142,14 @@ const HW_STYLE = `<style>
 .hslide.on{opacity:1;pointer-events:auto}
 .hslide-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hslide.on .hslide-img{animation:hkenburns 16s ease-in-out infinite alternate}
+/* PHASE 2B (CP-E2): the hero loop — a real cinematic video layer over
+   the still photo (the photo is first paint + the reduced-motion
+   face). The video fades in when it can play; only the active
+   slide's video runs (startSlider drives play/pause). */
+.hslide-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease;pointer-events:none}
+.hslide-vid.on{opacity:1}
+.hslide.on .hslide-vid{animation:hkenburns 16s ease-in-out infinite alternate}
+.showcard-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:hkenburns 22s ease-in-out infinite alternate}
 @keyframes hkenburns{from{transform:scale(1)}to{transform:scale(1.07)}}
 .hslide-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.42),rgba(5,5,5,0) 32%,rgba(5,5,5,0) 42%,rgba(5,5,5,.9))}
 .hslide-type{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:20px 22px 60px}
@@ -174,7 +182,7 @@ const HW_STYLE = `<style>
 .motion .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion: reduce){
   .hslide{transition:none}
-  .hslide.on .hslide-img,.showcard-img{animation:none}
+  .hslide.on .hslide-img,.showcard-img,.showcard-vid,.hslide.on .hslide-vid{animation:none}
   .hslide.on .hslide-in{animation:none}
   .motion .reveal{opacity:1;transform:none;transition:none}
 }
@@ -275,6 +283,12 @@ function startSlider(box) {
   const go = (i) => {
     cur = (i + slides.length) % slides.length;
     slides.forEach((s, j) => s.classList.toggle('on', j === cur));
+    /* CP-E2: only the active slide's loop runs. */
+    slides.forEach((s, j) => {
+      const v = s.querySelector('video.hslide-vid');
+      if (!v) return;
+      if (j === cur && !document.hidden) v.play().catch(() => {}); else v.pause();
+    });
     dotsBox.querySelectorAll('.hdot').forEach((d, j) => d.classList.toggle('on', j === cur));
   };
   const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
@@ -299,7 +313,10 @@ function startSlider(box) {
   });
   box.addEventListener('pointerdown', () => stop());
   box.addEventListener('pointerleave', () => play());
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else play(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { stop(); box.querySelectorAll('video.hslide-vid').forEach((v) => v.pause()); }
+    else { play(); go(cur); }
+  });
   play();
 }
 
@@ -321,7 +338,7 @@ async function fillShowcase(sliderBox, showBox) {
 
   const slides = [];
   if (word) slides.push(slideEl({
-    img: 'assets/img/home/tile-read.webp', alt: 'A young woman with long braids reading an open book in warm window light',
+    img: 'assets/img/home/word-slide.webp', alt: 'An open Bible on a wooden table in golden sanctuary light',
     kicker: "Today's Word — Read", head: esc(word.title), line: `“${excerpt(word.verse, 150)}” — ${word.reference} (KJV)`,
     cta: 'Read the Word', hub: 'read',
   }));
@@ -332,7 +349,7 @@ async function fillShowcase(sliderBox, showBox) {
     cta: 'Open Listen', hub: 'listen',
   }));
   if (testimony) slides.push(slideEl({
-    img: testimony.authorAvatar || 'assets/img/home/tile-community.webp', alt: 'The Community wall — friends around a shared table',
+    img: testimony.authorAvatar || 'assets/img/home/testimony-slide.webp', alt: 'The congregation in worship — raised hands in golden sanctuary light',
     kicker: 'Newest Testimony — The Wall', head: esc(testimony.authorName || 'A member of the house'),
     line: excerpt(testimony.body, 180), cta: 'Visit the Community', hub: 'community',
   }));
@@ -347,9 +364,16 @@ async function fillShowcase(sliderBox, showBox) {
   /* Showcase row — cinematic cards, slower Ken Burns than the slider,
      picks offset from the slider's so the row never repeats it. */
   const cards = [];
-  const card = ({ img, alt, chip, title, sub, hub }) => `
-    <button class="showcard" type="button" data-showhub="${hub}" aria-label="${esc(chip)}: ${esc(title)}">
-      <img class="showcard-img" src="${esc(img)}" alt="${esc(alt)}" loading="lazy">
+  /* CP-E2 cure: the showcase face is the hub's cinematic LOOP
+     (atmosphere) — the chip/title/sub still name the real pick, and
+     the pick's own posters/covers live untouched inside its hub.
+     The loop's poster is the still face (and the reduced-motion
+     face); no image repeats anywhere on the home face anymore. */
+  const card = ({ chip, title, sub, hub }) => `
+    <button class="showcard gold-frame" type="button" data-showhub="${hub}" aria-label="${esc(chip)}: ${esc(title)}">
+      <img class="showcard-img" src="assets/video/loop-${hub}-poster.webp" alt="" aria-hidden="true" loading="lazy">
+      ${REDUCED ? '' : `<video class="showcard-vid" muted loop playsinline autoplay preload="metadata" poster="assets/video/loop-${hub}-poster.webp" aria-hidden="true"><source src="assets/video/loop-${hub}.mp4" type="video/mp4"></video>`}
+      <span class="glow-sweep" aria-hidden="true"></span>
       <span class="showcard-shade"></span>
       <span class="showcard-type">
         <span class="showcard-chip">${esc(chip)}</span>
@@ -367,6 +391,14 @@ async function fillShowcase(sliderBox, showBox) {
       <div class="showcase-row">${cards.join('')}</div>`;
     showBox.hidden = false;
     showBox.querySelectorAll('[data-showhub]').forEach((el) => el.addEventListener('click', () => { location.hash = `#/${el.dataset.showhub}`; }));
+    /* CP-E2: showcase loops play only while their card is on screen. */
+    if (!REDUCED && typeof IntersectionObserver === 'function') {
+      const vio = new IntersectionObserver((es) => es.forEach((e) => {
+        const v = e.target.querySelector('video.showcard-vid'); if (!v) return;
+        if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+      }), { threshold: 0.2 });
+      showBox.querySelectorAll('.showcard').forEach((c) => vio.observe(c));
+    }
   }
 }
 
@@ -385,9 +417,11 @@ export function render(root, { navigate }) {
   root.innerHTML = `
     ${HW_STYLE}
     <div class="${REDUCED ? '' : 'motion'}">
-    <section class="hslider" data-hslider aria-roledescription="carousel" aria-label="Featured in the house">
+    <section class="hslider gold-frame" data-hslider aria-roledescription="carousel" aria-label="Featured in the house">
       <button type="button" class="hslide on" data-hub="home" aria-label="16:3 Faith — the house">
         <img class="hslide-img" src="assets/img/home/hero-movement.webp" alt="Five friends laughing together on a city street at night, in black streetwear with gold trim" fetchpriority="high">
+        ${REDUCED ? '' : `<video class="hslide-vid" muted loop playsinline autoplay preload="metadata" poster="assets/video/loop-hero-poster.webp" aria-hidden="true" oncanplay="this.classList.add('on')"><source src="assets/video/loop-hero.mp4" type="video/mp4"></video>`}
+        <span class="glow-sweep" aria-hidden="true"></span>
         <span class="hslide-shade"></span>
         <span class="hslide-type">
           <span class="hero-mark">16:3 <b>FAITH</b></span>
@@ -409,6 +443,7 @@ export function render(root, { navigate }) {
       ${TILES.map((t) => `
         <button class="tile${t.wide ? ' wide' : ''}" type="button" data-hub="${t.hub}">
           <img class="tile-img" src="${t.img}" alt="${esc(t.alt)}" loading="lazy">
+          <span class="glow-sweep" aria-hidden="true"></span>
           <span class="tile-shade"></span>
           <span class="tile-num">${t.num}</span>
           <span class="tile-name"><h3>${t.name}</h3><p>${t.blurb}</p></span>

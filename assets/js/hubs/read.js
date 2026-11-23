@@ -196,6 +196,7 @@ const STYLE = `<style>
 .rd-qcard strong{font-size:21px;font-weight:1000;letter-spacing:-.5px;font-family:Impact,'Arial Narrow',var(--sans);text-transform:uppercase}
 .rd-qcard small{font-size:12px;line-height:1.5;color:#b9afa0}
 .rd-qarrow{position:absolute;right:18px;bottom:16px;font-size:19px;color:var(--gold)}
+.rd-qtile{width:100%;height:76px;object-fit:cover;border-radius:8px;border:1px solid rgba(212,175,55,.35);display:block}
 /* section heads */
 .rd-sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;margin:6px 0 20px;flex-wrap:wrap}
 .rd-sech2{font-family:Impact,'Arial Narrow',var(--sans);font-size:clamp(36px,4.8vw,58px);line-height:.98;letter-spacing:-1.6px;font-weight:1000;text-transform:uppercase;margin:14px 0 10px;color:var(--bone)}
@@ -291,26 +292,28 @@ function doorsHTML() {
     if (pos && pos.bookName) cont = `<div class="rd-card" data-testid="continue-reading"><span class="rd-meta">CONTINUE READING</span><h3>${esc(pos.bookName)} ${pos.chapter}${pos.verse ? ':' + pos.verse : ''}</h3><p class="rd-note">Pick up right where you left off.</p><div class="rd-bar"><button class="rd-btn goldb" data-act="continue">Continue reading</button></div></div>`;
   } catch { /* no saved position */ }
   return shellHTML(`
-    <section class="rd-hero">
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/home/word-slide.webp', title: 'The Word, alive.', note: 'Read film · in production' }) : ''}
+    <section class="rd-hero reveal">
       <div>
         <p class="rd-pretag"><span class="rd-star">✳</span> 16:3 FAITH / READING SESSION 001</p>
-        <p class="rd-vinyl">SIDE A <span>///</span> THE WORD</p>
+        <p class="rd-vinyl">THE WORD <span>///</span> STILL SPEAKS</p>
         <h1 class="rd-h1">THE WORD<br><em>STILL</em> <span>SPEAKS.</span></h1>
         <p class="rd-herodesc">Life gets loud. The Word doesn't have to. Scripture for the mornings you can barely get up. Words for the nights you can't sleep. A seat at the table for the ones still figuring faith out.</p>
         <div class="rd-cta"><button class="rd-goldbtn" data-act="open-bible">OPEN THE BIBLE <span>↗</span></button><button class="rd-ghost" data-act="open-word">TODAY'S WORD <span>↗</span></button></div>
         <p class="rd-herfoot"><span class="rd-pulse"></span> NOT JUST VERSES TO POST. WORDS TO LIVE BY.</p>
       </div>
-      <div class="rd-heroart"><img src="assets/img/read/read-hero.svg" alt="Original black and gold illustrated scripture book and cassette tape, The Word Still Speaks"><div class="rd-stamp">SIDE A<br>NO SKIPS<br>VOL. 0163</div><div class="rd-artcorner">✦ ORIGINAL READING SESSION</div></div>
+      <div class="rd-heroart"><img src="assets/img/read/tile-bible.webp" alt="An open Bible on a church lectern in a shaft of golden light"><div class="rd-stamp">THE WORD<br>STILL<br>SPEAKS</div><div class="rd-artcorner">✦ ORIGINAL READING SESSION</div></div>
     </section>
     <div class="rd-tape"><span>FAITH FOR THE REAL WORLD</span><b>✶</b><span>THE WORD STILL SPEAKS</span><b>✶</b><span>READ IT. FEEL IT. LIVE IT.</span><b>✶</b><span>16:3 FAITH</span></div>
     <form class="hub-search" data-form="search"><input type="search" name="q" placeholder="Search the Bible — try “John 3:16”" aria-label="Search the Bible"><button class="rd-btn goldb" type="submit">Search</button></form>
     <p class="rd-status" data-role="status"></p>
-    <div class="rd-qcards">
-      <button class="rd-qcard" data-door="bible"><span class="rd-qnum">01 / OPEN THE WORD</span><span class="rd-qicon">✝</span><strong>THE BIBLE.</strong><small>All 66 books · the full KJV text · read-aloud narration</small><span class="rd-qarrow">↗</span></button>
-      <button class="rd-qcard" data-door="books"><span class="rd-qnum">02 / THE LIBRARY</span><span class="rd-qicon">▤</span><strong>THE BOOKS.</strong><small>God Over Everything — the one book, both volumes, and a free 5-day sample</small><span class="rd-qarrow">↗</span></button>
-      <button class="rd-qcard" data-door="devotionals"><span class="rd-qnum">03 / DAILY FUEL</span><span class="rd-qicon">✦</span><strong>DEVOTIONALS.</strong><small>The daily archive — every entry with reflection &amp; prayer</small><span class="rd-qarrow">↗</span></button>
-      <button class="rd-qcard" data-door="word"><span class="rd-qnum">04 / RIGHT NOW</span><span class="rd-qicon">◷</span><strong>TODAY'S WORD.</strong><small>One verse, one thought, one way to carry it forward</small><span class="rd-qarrow">↗</span></button>
-    </div>${cont}`);
+    <div class="rd-qcards reveal">
+      <button class="rd-qcard" data-door="bible"><img class="rd-qtile" src="assets/img/read/tile-bible.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">01 / OPEN THE WORD</span><span class="rd-qicon">✝</span><strong>THE BIBLE.</strong><small>All 66 books · the full KJV text · read-aloud narration</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="books"><img class="rd-qtile" src="assets/img/read/tile-books.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">02 / THE LIBRARY</span><span class="rd-qicon">▤</span><strong>THE BOOKS.</strong><small>God Over Everything — the one book, both volumes, and a free 5-day sample</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="devotionals"><img class="rd-qtile" src="assets/img/read/tile-devotionals.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">03 / DAILY FUEL</span><span class="rd-qicon">✦</span><strong>DEVOTIONALS.</strong><small>The daily archive — every entry with reflection &amp; prayer</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="word"><img class="rd-qtile" src="assets/img/read/tile-word.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">04 / RIGHT NOW</span><span class="rd-qicon">◷</span><strong>TODAY'S WORD.</strong><small>One verse, one thought, one way to carry it forward</small><span class="rd-qarrow">↗</span></button>
+    </div>
+    <div data-rd-ai></div>${cont}`);
 }
 
 function setStatus(root, msg) { const el = root.querySelector('[data-role="status"]'); if (el) el.textContent = msg || ''; }
@@ -699,6 +702,34 @@ async function showWord(root) {
   });
 }
 
+/* CP4 — Read AI Insights (consult ruling (e)): an explainer keyed to
+   the DAY'S VERSE — the same devotional entry Today's Word carries,
+   from the same data file. Factual and supportive only: the entry's
+   own title, reference and verse text (carried KJV), the archive's
+   real size. No interpretation is generated, no scripture invented. */
+async function fillRdAi(root) {
+  const box = root.querySelector('[data-rd-ai]');
+  if (!box) return;
+  try {
+    const r = await fetch('assets/data/read/devotionals.json');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const entries = Array.isArray(d.entries) ? d.entries : [];
+    const today = new Date();
+    const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const e = entries.filter((x) => x.date <= iso).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+    if (!e || !box.isConnected) return;
+    box.innerHTML = `<section class="ai-shelf" aria-label="Read AI Insights">
+      <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Read AI Insights</span><span class="ai-tag">Powered by AI</span></div>
+      <p>Today's word is <b>${esc(e.title)}</b> — <b>${esc(e.reference)} (KJV)</b>: “${esc(e.verse)}” It stands in a daily archive of <b>${entries.length} entries</b>, published day by day since April 20, 2026 — one verse, one thought, one way to carry it forward.</p>
+      <div class="ai-doors"><button type="button" data-rdgo="word">Read today's word ↗</button><button type="button" data-rdgo="devotionals">The devotional archive ↗</button></div>
+    </section>`;
+    box.querySelectorAll('[data-rdgo]').forEach((b) => b.addEventListener('click', () => {
+      if (b.dataset.rdgo === 'word') showWord(root); else showDevotionals(root);
+    }));
+  } catch { /* the shelf simply stays empty — the doors above carry the hub */ }
+}
+
 /* ---- Doors ---- */
 function showDoors(root) {
   stopNarration();
@@ -720,6 +751,8 @@ function showDoors(root) {
     try { const pos = JSON.parse(localStorage.getItem(LS_POS) || 'null'); if (pos) showChapter(root, pos.bookNr, pos.chapter, pos.verse); } catch { /* noop */ }
   });
   wireSearch(root);
+  if (window.FaithFilm) window.FaithFilm.wire(root);
+  fillRdAi(root);
 }
 
 export function render(root) {

@@ -318,7 +318,9 @@ export function render(root, { player }) {
       <p class="kicker">Listen · The Sanctuary</p>
       <div class="hub-search"><input type="search" id="listen-search" placeholder="Search artists, albums & songs" aria-label="Search the Sanctuary"></div>
     </div>
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/listen/sanctuary.webp', title: 'The sound, alive.', note: 'Listen film · in production' }) : ''}
     <div id="listen-view"><p class="lede">Opening the Sanctuary…</p></div>`;
+  if (window.FaithFilm) window.FaithFilm.wire(root);
 
   const viewEl = root.querySelector('#listen-view');
   const searchEl = root.querySelector('#listen-search');
@@ -608,9 +610,9 @@ export function render(root, { player }) {
       .sort((x, y) => (y.playable || 0) - (x.playable || 0))[0];
     if (extra) voices.push(extra);
     viewEl.innerHTML = `
-      <section class="lsn-hero">
+      <section class="lsn-hero reveal">
         <div>
-          <div class="lsn-pretag"><span class="ast">✳</span>16:3 Faith Radio <span class="slash">///</span> Side A / Vol. 001</div>
+          <div class="lsn-pretag"><span class="ast">✳</span>16:3 Faith Radio <span class="slash">///</span> The Sanctuary / One House</div>
           <h1 class="lsn-h1">Faith<br>has a <span>sound.</span></h1>
           <p class="lsn-lede">From the block to the church doors. Gospel, worship, hip-hop and songs for the nights when you need something real.</p>
           <div class="lsn-herobtns">
@@ -621,7 +623,7 @@ export function render(root, { player }) {
         </div>
         <div class="lsn-visual" aria-hidden="true">
           <div class="lsn-ring"></div>
-          <div class="lsn-frame"><img class="lsn-tape" src="assets/img/listen/mixtape.svg" alt=""><div class="lsn-ribbon">THE SOUNDTRACK TO THE WALK</div><div class="lsn-stamp">NO<br>SKIPS.</div></div>
+          <div class="lsn-frame"><img class="lsn-tape" src="assets/img/listen/sanctuary.webp" alt=""><div class="lsn-ribbon">THE SOUNDTRACK TO THE WALK</div><div class="lsn-stamp">ALL<br>PRAISE.</div></div>
           <div class="lsn-corner">✦ SELECTED BY THE HOUSE / 16:3</div>
         </div>
       </section>
@@ -679,6 +681,23 @@ export function render(root, { player }) {
           </div>`).join('')}</div>
       </section>
 
+      ${(() => {
+        /* CP4 — Listen AI Picks (labeled AI presence): computed from
+           the roster's own numbers only — the deepest playable shelves
+           and the deepest lane. No taste is invented; the counts are
+           the catalog's. */
+        const top = [...idx.artists].filter((a) => (a.playable || 0) > 0)
+          .sort((x, y) => (y.playable || 0) - (x.playable || 0)).slice(0, 3);
+        const deepDoor = idx.doors.map((d) => ({ d, n: doorPlayableSum(d.id) }))
+          .sort((x, y) => y.n - x.n)[0];
+        if (!top.length) return '';
+        return `<section class="ai-shelf" aria-label="Listen AI Picks">
+          <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Listen AI Picks</span><span class="ai-tag">Powered by AI</span></div>
+          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${a.playable} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
+          <div class="ai-doors">${top.map((a) => `<button type="button" data-artist="${esc(a.slug)}">${esc(a.name)} ↗</button>`).join('')}</div>
+        </section>`;
+      })()}
+
       <section class="lsn-cta">
         <div><span class="lsn-eyebrow">This is your place, too.</span><h2>Got a song in<br><em>your spirit?</em></h2><p>We're building a space for faith-rooted voices and listeners. No algorithms telling you what you should believe. Just music and community.</p></div>
         <div class="lsn-ctabtns">
@@ -711,6 +730,7 @@ export function render(root, { player }) {
       el.addEventListener('click', () => doorView(el.dataset.mixopen)));
     renderDig();
     fillFeature();
+    if (window.FaithMotion) window.FaithMotion.armReveals(viewEl);
     window.__listen.ready = true;
   }
 

@@ -345,7 +345,7 @@ const STYLE2 = `<style>
 .gv-gate p{color:var(--mute);line-height:1.6;font-size:14.5px;max-width:520px;margin:8px auto}
 </style>`;
 
-function mount(root, html) { S.mountSeq += 1; root.innerHTML = STYLE + STYLE2 + html; return S.mountSeq; }
+function mount(root, html) { S.mountSeq += 1; root.innerHTML = STYLE + STYLE2 + html; if (window.FaithFilm) window.FaithFilm.wire(root); return S.mountSeq; }
 function header(kicker, title, lede) {
   return `<p class="kicker">${kicker}</p><h1>${title}</h1><p class="lede">${lede}</p>`;
 }
@@ -456,8 +456,9 @@ function faqHTML() {
 function showDoors(root) {
   S.view = 'doors'; S.error = null;
   mount(root, `
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/give/give-header.webp', title: 'Open hands. Open doors.', note: 'Give film · in production' }) : ''}
     <div class="gv-topline"><span><b>16:3</b> Faith / The Giving Sessions <i>///</i> Vol. 0163</span><span>Church is what we build together <i>✦</i> Sow it forward</span></div>
-    <section class="gv-hero">
+    <section class="gv-hero reveal">
       <div>
         <p class="gv-eyebrow"><span class="gv-star">✦</span>The Giving Sessions <span class="gv-faint">/ Side A</span></p>
         <h2 class="gv-h1">Faith<br>In <span>Motion.</span></h2>
@@ -465,12 +466,12 @@ function showDoors(root) {
         <div class="gv-herobtns"><button type="button" class="gv-goldbtn" data-act="to-offering">Sow Into the Mission <span>&nearr;</span></button><button type="button" class="gv-underlink" data-act="to-mission">See the Mission <span>&rarr;</span></button></div>
         <p class="gv-herfoot"><i></i>REAL PEOPLE. REAL NEEDS. A HOUSE WITH OPEN DOORS.</p>
       </div>
-      <div class="gv-artwrap"><img src="assets/img/give/giving-cover.svg" alt="Sow It Forward — the 16:3 Faith giving sessions cover: open hands and a growing seed in black, gold and rust red"><div class="gv-stamp">16:3 / VOL. 001<br>LOVE IN ACTION</div><div class="gv-scratch">GIVE / LIVE THE WORD</div></div>
+      <div class="gv-artwrap"><img src="assets/img/give/give-header.webp" alt="Open hands giving and receiving in warm golden light over a harvest table"><div class="gv-stamp">16:3 / VOL. 001<br>LOVE IN ACTION</div><div class="gv-scratch">GIVE / LIVE THE WORD</div></div>
     </section>
     <div class="gv-tape"><span>Give With Purpose</span><strong>✦</strong><span>Love Is the Whole Point</span><strong>✦</strong><span>No One Left at the Door</span></div>
     ${statusLineHTML()}
     ${honestyLineHTML()}
-    <section class="gv-sec" id="gv-offering">
+    <section class="gv-sec reveal" id="gv-offering">
       <p class="gv-eyebrow">01 / The Offering</p>
       <div class="gv-sechead"><div><h2>Make Room<br><em>For More.</em></h2><p>Every gift is a decision to show up. Choose what makes sense for you. Nobody has to give to belong here.</p></div><span class="gv-stamp2">THE GIVING<br>SESSION <b>01/03</b></span></div>
       <div class="gv-doors">
@@ -479,6 +480,10 @@ function showDoors(root) {
       </div>
       <p class="gv-note">Both doors run on the same secure checkout, and both open together — the standing note above is the honest state of both until checkout is switched on.</p>
       <div class="gv-side3">${heartCardHTML()}${scriptureCardHTML()}${trustCardHTML()}</div>
+    </section>
+    <section class="ai-shelf" aria-label="Give AI Recommendations">
+      <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Give AI Recommendations</span><span class="ai-tag">Powered by AI</span></div>
+      <p>Two doors, honestly stated: a <b>one-time gift of $1 to $1,000</b> — open to everyone, no account needed — or <b>partnership at ${PARTNER_MONTHLY} a month</b> for members. New here? A one-time gift is the simple first step. This house is home? Partnership is the steady one. Online checkout opens soon (the note at the top is the true state), and nobody has to give to belong here.</p>
     </section>
     ${missionHTML()}
     <section class="gv-sec" id="gv-partner-sec">

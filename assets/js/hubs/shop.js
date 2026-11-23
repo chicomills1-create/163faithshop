@@ -128,13 +128,15 @@ export function render(root) {
     <p class="kicker">Shop · Wear the Work</p>
     <h1>Gold on black. <span class="g">Front mark, always.</span></h1>
     <p class="lede">Real Printful pieces — every front carries the full 16:3 FAITH mark. Printed when you order, fulfilled by Printful. Questions: <a href="mailto:${CONTACT}">${CONTACT}</a></p>
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-shop.mp4', poster: 'assets/video/film-shop-poster.webp', title: 'The line, in motion.', note: 'Shop film · the full 107 seconds' }) : ''}
     <div data-sh="main"><p class="sh-note">Loading the line…</p></div>
     <button type="button" class="sh-fab" data-sh="fab">✦ Shop Assistant</button>
     <div class="sh-chat" data-sh="chat">
-      <header><b>✦ 163 Assistant</b><button type="button" data-sh="chatclose" aria-label="Close assistant">✕</button></header>
+      <header><b>✦ 163 Assistant <span class="ai-tag">AI · Powered by AI</span></b><button type="button" data-sh="chatclose" aria-label="Close assistant">✕</button></header>
       <div class="log" data-sh="log"></div>
       <form data-sh="chatform"><input data-sh="chatin" placeholder="Sizing, gifts, prices…" autocomplete="off" aria-label="Ask the shop assistant"><button type="submit">Ask</button></form>
     </div>`;
+  if (window.FaithFilm) window.FaithFilm.wire(root);
   const main = root.querySelector('[data-sh="main"]');
   const bySlug = (s) => S.products.find((p) => p.slug === s);
   const catLabel = (c) => (S.categories.find(([k]) => k === c) || [, c])[1];
@@ -184,7 +186,7 @@ export function render(root) {
   function sizeRange(p) { return p.sizes.length > 1 ? `${p.sizes[0]} – ${p.sizes[p.sizes.length - 1]}` : p.sizes[0]; }
   function cardHTML(p) {
     return `
-    <article class="sh-card" data-product="${esc(p.slug)}" data-cat="${esc(p.category)}" data-aud="${esc(p.audience)}" tabindex="0" role="button" aria-label="${esc(p.name)} — view product">
+    <article class="sh-card gold-frame" data-product="${esc(p.slug)}" data-cat="${esc(p.category)}" data-aud="${esc(p.audience)}" tabindex="0" role="button" aria-label="${esc(p.name)} — view product">
       <div class="sh-imgwrap"><img loading="lazy" data-front src="${esc(p.img)}" alt="${esc(p.name)} — front"></div>
       <div class="sh-body">
         <div class="sh-tag">${esc(p.tag)}</div>
@@ -198,9 +200,9 @@ export function render(root) {
 
   function searchBlockHTML() {
     return `
-    <div class="aisearch" style="background:linear-gradient(160deg,#141105,#0a0a0a 55%);border:1px solid var(--line);border-radius:20px;padding:22px;margin-top:22px">
-      <h3 style="font-family:var(--serif);font-size:22px;color:var(--gold-hi)">✦ Ask the Shop</h3>
-      <p class="sh-note" style="margin-top:4px">AI search that answers — sizing, gifts, prices, and the right piece for the moment. It answers from the real catalog, right here in the hub.</p>
+    <div class="aisearch reveal" style="background:linear-gradient(160deg,#141105,#0a0a0a 55%);border:1px solid var(--line);border-radius:20px;padding:22px;margin-top:22px">
+      <h3 style="font-family:var(--serif);font-size:22px;color:var(--gold-hi)">✦ Ask the Shop <span class="ai-tag">Powered by AI</span></h3>
+      <p class="sh-note" style="margin-top:4px">AI search that answers — sizing, gifts, prices, and the right piece for the moment. It answers from the real catalog, right here in the hub. <b>FaithGuide · Shop AI Recommendations</b> — the same assistant, labeled wherever it speaks.</p>
       <form class="hub-search" data-sh="searchform" style="margin:14px 0 0">
         <input type="search" data-sh="q" style="min-width:0" placeholder="What’s warm for winter? A gift under $50? Something in 3XL?" aria-label="Ask the shop">
         <button class="btn-gold" type="submit" style="flex:none;padding:13px 18px">Answer</button>
@@ -237,6 +239,7 @@ export function render(root) {
       </div>
       <p class="sh-note">Buy path: every piece checks out on the Printful Quick Store — <b>${esc(S.quickStore)}</b>. No in-hub checkout. Contact: <a href="mailto:${CONTACT}">${CONTACT}</a></p>`;
     wire();
+    if (window.FaithMotion) window.FaithMotion.armReveals(root);
   }
 
   function viewGrid() {

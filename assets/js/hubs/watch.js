@@ -240,6 +240,7 @@ function ensureStyle() {
   .w-save.saved{background:var(--gold);color:#17110b;border-color:var(--gold)}
   /* movement closing panel — typographic art side (no package concept art) */
   .w-move{display:grid;grid-template-columns:.9fr 1.1fr;margin:52px 0 8px;border:1px solid #363025;border-radius:14px;overflow:hidden;background:#14120e}
+  .w-artbanner{width:100%;height:190px;object-fit:cover;border-radius:14px;margin:34px 0 0;display:block}
   .w-move-art{position:relative;min-height:300px;background:radial-gradient(120% 130% at 18% 0%,#2a2110 0%,#14120e 55%);display:flex;align-items:center;justify-content:center;overflow:hidden}
   .w-move-art .w-move-big{font-family:var(--sans);font-weight:900;font-size:clamp(90px,14vw,170px);letter-spacing:-.04em;color:rgba(212,175,55,.13);line-height:1}
   .w-stamp{position:absolute;top:24px;left:26px;border:2px solid var(--gold);font-size:12px;font-weight:900;color:var(--gold);transform:rotate(-9deg);padding:7px 12px;letter-spacing:.18em;text-align:center;line-height:1.5;background:rgba(5,5,5,.35)}
@@ -418,6 +419,7 @@ function renderDoors() {
   const heroDoor = hero ? (doorsMeta.find((d) => d.slug === hero.door) || {}) : {};
   rootEl.innerHTML = `
   <section data-view="doors">
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/watch/watch-header.webp', title: 'Stories that stay with you.', note: 'Watch film · in production' }) : ''}
     ${hero ? `<div class="w-hero" data-hero>
       <img data-hero-poster src="${esc(hero.poster || '')}" alt="${esc(hero.title)}" onerror="this.closest('[data-hero]').classList.add('w-hero-noposter')">
       <div class="w-hero-shade"></div>
@@ -442,7 +444,7 @@ function renderDoors() {
       </div>
       <div class="w-hero-bottom"><span>16:3 / THE WATCH ROOM</span><span>THE FEATURED SCREENING</span></div>
     </div>` : ''}
-    <div class="w-browse-head">
+    <div class="w-browse-head reveal">
       <div>
         <p class="kicker">The Channel / 16:3 Watch</p>
         <h1>Stories that <span class="g">carry the faith.</span></h1>
@@ -458,7 +460,19 @@ function renderDoors() {
     ${railHtml('mylist', 'My List', 'On this device — saved by you, stored only here', mine)}
     ${railHtml('featured', 'Featured', 'From the 16:3 Faith Watch library', featured)}
     ${doors.filter((d) => doorTitles(d.slug).length > 0).map((d) => railHtml(d.slug, d.name, d.blurb, doorTitles(d.slug), { door: d.slug })).join('')}
-    <section class="w-move">
+    <img class="w-artbanner gold-frame" src="assets/img/watch/watch-header.webp" alt="The congregation watching a great light in the dark — a faith film night" loading="lazy">
+    ${(() => {
+      /* CP4 — Watch AI Suggestions (labeled AI presence): computed
+         from the library's own shelves — the featured screening, the
+         deepest door, and the featured shelf. Nothing is rated or
+         ranked that the catalog itself does not carry. */
+      const deep = doors.map((d) => ({ d, n: doorTitles(d.slug).length })).sort((a, b) => b.n - a.n)[0];
+      return `<section class="ai-shelf" aria-label="Watch AI Suggestions">
+        <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Watch AI Suggestions</span><span class="ai-tag">Powered by AI</span></div>
+        <p>From the library's own shelves${hero ? `: tonight's featured screening is <b>${esc(hero.title)}</b>` : ''}${deep && deep.n ? `; the deepest door is <b>${esc(deep.d.name)}</b> with <b>${deep.n} title${deep.n === 1 ? '' : 's'}</b>` : ''}${featured.length ? `; the Featured shelf carries <b>${featured.length}</b> hand-picked ${featured.length === 1 ? 'title' : 'titles'}` : ''}. Pick a door above and settle in.</p>
+      </section>`;
+    })()}
+    <section class="w-move reveal">
       <div class="w-move-art" aria-hidden="true">
         <span class="w-stamp">SIDE B<br>03:16</span>
         <span class="w-move-big">16:3</span>
@@ -478,6 +492,7 @@ function renderDoors() {
       ? '<b>Live library connected.</b> Shelves are served by the Faith cinema catalog.'
       : '<b>Library snapshot.</b> Showing the verified catalog snapshot; the live Faith catalog connects automatically when reachable.'}</p>
   </section>`;
+  if (window.FaithFilm) window.FaithFilm.wire(rootEl);
   const heroBtn = rootEl.querySelector('[data-watch-hero]');
   if (heroBtn && hero) heroBtn.addEventListener('click', () => openPlayer(hero, hero.episodes?.[0] || null));
   const infoBtn = rootEl.querySelector('[data-hero-info]');

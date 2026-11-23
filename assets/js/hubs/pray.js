@@ -228,7 +228,8 @@ const STYLE = `<style>
 .pr-hero-foot .small-line{height:1px;background:var(--pr-gold);width:26px}
 .pr-hero-art{position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 48%,#543519a1,transparent 60%)}
 .pr-hero-art:before{content:"";position:absolute;width:340px;height:340px;border:2px dashed #b78639;border-radius:50%;transform:translate(60px,16px);opacity:.2}
-.pr-hero-cover{position:relative;width:94%;max-height:320px;object-fit:contain;filter:drop-shadow(0 12px 18px #0009);transform:rotate(-3deg)}
+.pr-hero-cover{position:relative;width:94%;height:320px;object-fit:cover;border-radius:10px;filter:drop-shadow(0 12px 18px #0009);transform:rotate(-3deg)}
+.pr-door-art{display:block;width:calc(100% + 44px);margin:-22px -22px 14px;height:84px;object-fit:cover;border-bottom:1px solid rgba(212,175,55,.35)}
 .pr-sticker{position:absolute;top:14px;right:18px;transform:rotate(13deg);font-size:12px;line-height:1.1;font-weight:1000;letter-spacing:1.2px;background:#d43d2a;border:2px dashed #ffcba2;color:#fff1dd;border-radius:50%;height:78px;width:78px;display:grid;place-items:center;text-align:center}
 .pr-art-vol{position:absolute;bottom:14px;right:18px;font-size:9px;color:#e2c98b;letter-spacing:2px;font-weight:850}
 @media(max-width:740px){.pr-hero{grid-template-columns:1fr}.pr-hero-copy{padding:28px 20px 22px}.pr-hero h1{font-size:clamp(56px,15vw,80px)}.pr-hero-art{min-height:190px}.pr-hero-cover{width:88%;max-height:210px}.pr-sticker{height:58px;width:58px;font-size:9px;right:12px;top:8px}}
@@ -402,7 +403,7 @@ const STYLE2 = `<style>
 .pr-page-head p{color:#ad9e8d;font-size:13px;line-height:1.6;max-width:560px}
 </style>`;
 
-function mount(root, html) { S.mountSeq += 1; root.innerHTML = `<div class="pr-wrap">${STYLE}${STYLE2}${html}</div>`; return S.mountSeq; }
+function mount(root, html) { S.mountSeq += 1; root.innerHTML = `<div class="pr-wrap">${STYLE}${STYLE2}${html}</div>`; if (window.FaithFilm) window.FaithFilm.wire(root); return S.mountSeq; }
 
 let toastTimer = null;
 function toast(root, msg) {
@@ -687,10 +688,11 @@ function showDoors(root) {
   S.view = 'doors';
   const c = S.counters;
   mount(root, `
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/pray/pray-dawn.webp', title: 'Leave it on the wall.', note: 'Pray film · in production' }) : ''}
     <div class="pr-topline"><span>16:3 FAITH <b>///</b> THE PRAYER ROOM</span><span class="pr-top-r">EVERYBODY&rsquo;S CARRYING SOMETHING. NOBODY HAS TO CARRY IT ALONE.</span></div>
-    <section class="pr-hero">
+    <section class="pr-hero reveal">
       <div class="pr-hero-copy">
-        <div class="pr-eyebrow"><span class="tiny-red">✳</span> 16:3 FAITH PRESENTS <span class="slashes">///</span> VOL. 0163 · SIDE A</div>
+        <div class="pr-eyebrow"><span class="tiny-red">✳</span> 16:3 FAITH PRESENTS <span class="slashes">///</span> THE PRAYER ROOM</div>
         <h1><span class="w">LEAVE IT</span><span class="w">ON THE</span><em>WALL.</em></h1>
         <p>Some nights you don&rsquo;t have the words. That&rsquo;s alright. Leave your prayer here. Somebody in the family will stand with you.</p>
         <div class="pr-hero-actions">
@@ -700,18 +702,22 @@ function showDoors(root) {
         <div class="pr-hero-foot"><span class="small-line"></span> COME AS YOU ARE. NO PERFECT PEOPLE REQUIRED.</div>
       </div>
       <div class="pr-hero-art">
-        <img class="pr-hero-cover" src="assets/img/pray/poster-prayer.svg" alt="The Prayer Room cover art — a lit candle, 16:3 Faith devotional mixtape poster">
+        <img class="pr-hero-cover" src="assets/img/pray/pray-hands.webp" alt="Folded hands in prayer resting on an open Bible in golden window light">
         <span class="pr-sticker">PRAY<br>LOUD.</span>
         <span class="pr-art-vol">THE AFTER-HOURS SESSION / 001</span>
       </div>
     </section>
     <div class="pr-tape"><span>✝ &nbsp; THIS IS WHAT FAMILY LOOKS LIKE</span><span>SPEAK REAL. SHOW LOVE. PRAY OFTEN.</span></div>
-    <div class="pr-doors">
-      <button class="pr-door" data-door="wall" type="button"><span class="pr-door-n">01 / COME IN</span><span class="pr-door-sym">✛</span><strong>THE WALL<span>.</span></strong><small>Read what the family&rsquo;s carrying — ${c ? c.requests : '…'} requests open now, newest first. Stand with someone today.</small><span class="pr-door-arrow">EXPLORE THE WALL ↗</span></button>
-      <button class="pr-door hl" data-door="request" type="button"><span class="pr-door-n">02 / LET IT OUT</span><span class="pr-door-sym">✎</span><strong>LEAVE A PRAYER<span>.</span></strong><small>Public wall or private to the team. You decide where it goes.</small><span class="pr-chip">Members only — sign-in required</span><span class="pr-door-arrow">WRITE YOUR REQUEST ↗</span></button>
-      <button class="pr-door" data-door="lifted" type="button"><span class="pr-door-n">03 / GIVE THANKS</span><span class="pr-door-sym">♥</span><strong>PRAYERS LIFTED<span>.</span></strong><small>${c ? c.lifted : '…'} prayers lifted — the requests the family has lifted, and the ones marked answered.</small><span class="pr-door-arrow">SEE WHAT&rsquo;S BEEN LIFTED ↗</span></button>
+    <div class="pr-doors reveal">
+      <button class="pr-door" data-door="wall" type="button"><img class="pr-door-art" src="assets/img/pray/pray-candle.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">01 / COME IN</span><span class="pr-door-sym">✛</span><strong>THE WALL<span>.</span></strong><small>Read what the family&rsquo;s carrying — ${c ? c.requests : '…'} requests open now, newest first. Stand with someone today.</small><span class="pr-door-arrow">EXPLORE THE WALL ↗</span></button>
+      <button class="pr-door hl" data-door="request" type="button"><img class="pr-door-art" src="assets/img/pray/pray-hands.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">02 / LET IT OUT</span><span class="pr-door-sym">✎</span><strong>LEAVE A PRAYER<span>.</span></strong><small>Public wall or private to the team. You decide where it goes.</small><span class="pr-chip">Members only — sign-in required</span><span class="pr-door-arrow">WRITE YOUR REQUEST ↗</span></button>
+      <button class="pr-door" data-door="lifted" type="button"><img class="pr-door-art" src="assets/img/pray/pray-dawn.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">03 / GIVE THANKS</span><span class="pr-door-sym">♥</span><strong>PRAYERS LIFTED<span>.</span></strong><small>${c ? c.lifted : '…'} prayers lifted — the requests the family has lifted, and the ones marked answered.</small><span class="pr-door-arrow">SEE WHAT&rsquo;S BEEN LIFTED ↗</span></button>
     </div>
     ${countersHTML()}
+    <section class="ai-shelf" aria-label="Pray AI Prayer Guide">
+      <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · AI Prayer Guide</span><span class="ai-tag">Powered by AI</span></div>
+      <p>The room is carrying <b>${c ? c.requests : '…'} prayer requests</b>, and the family has lifted <b>${c ? c.lifted : '…'}</b> of them. New here? Start with <b>one quiet minute</b> — the guided prayer walks three short steps (${GUIDED.map((g) => esc(g.title)).join(' · ')}), each with its verse. Or open the Wall and stand with one person by name. No perfect words required.</p>
+    </section>
     ${extrasHTML()}
     <button type="button" class="pr-journal-door" data-goto="journal"><b>PRAYER JOURNAL</b><p>Words between you and God alone. The journal lives only on this page, only while you&rsquo;re here — nothing is sent anywhere, nothing is saved when you leave.</p></button>
     <div class="pr-bottomtape"><span>16:3 FAITH / THE PRAYER ROOM</span><span>CHURCH ISN&rsquo;T JUST WHERE YOU GO. IT&rsquo;S WHO SHOWS UP.</span><span>THE FAMILY IS HERE. ♥</span></div>`);
