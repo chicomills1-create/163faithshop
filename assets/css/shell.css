@@ -340,3 +340,100 @@ button.trow:hover .tplay,.trow.playing .tplay{opacity:1}
 .fa-go{margin-top:11px;border:1px solid #765921;background:transparent;border-radius:5px;padding:9px 14px;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.5px;cursor:pointer}
 .fa-go:hover{background:#312411}
 @media(max-width:640px){#fa-form{padding-left:12px}.fa-btn{padding:9px 13px}}
+
+/* ===== AMP-UP PHASE 2B (2026-11-22) — shared systems =====
+   GOLD FRAME (founder law 17:57: "videos, posts... make them pop!
+   like gold framing! WE ARE NOT BORING FACEBOOK! BUT 16:3 FAITH!"):
+   the house treatment for film slots, video/loop surfaces and post
+   cards — a real gold border, a warm outer glow, an inset top light,
+   and a hover/active pop (lift + glow intensifies). Transform/opacity
+   only; the glow is box-shadow, which does not trigger layout. */
+.gold-frame{border:1px solid rgba(212,175,55,.6)!important;
+  box-shadow:0 0 0 1px rgba(0,0,0,.65),0 0 22px rgba(212,175,55,.16),inset 0 1px 0 rgba(243,210,122,.28),0 18px 42px rgba(0,0,0,.55);
+  transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.gold-frame:hover,.gold-frame:active{border-color:var(--gold)!important;
+  box-shadow:0 0 0 1px rgba(0,0,0,.65),0 0 34px rgba(212,175,55,.34),inset 0 1px 0 rgba(243,210,122,.4),0 22px 48px rgba(0,0,0,.6)}
+a.gold-frame:hover,button.gold-frame:hover{transform:translateY(-3px)}
+@media (prefers-reduced-motion: reduce){.gold-frame{transition:none}a.gold-frame:hover,button.gold-frame:hover{transform:none}}
+
+/* Glow sweep — a slow gold sheen that travels across a surface (hero
+   loops, tiles, showcase). Pure transform/opacity; killed under
+   reduced motion. Pointer-transparent, aria-hidden by construction. */
+.glow-sweep{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit}
+.glow-sweep::after{content:'';position:absolute;top:-20%;bottom:-20%;left:-35%;width:45%;
+  background:linear-gradient(100deg,transparent,rgba(243,210,122,.14) 45%,rgba(243,210,122,.26) 50%,rgba(243,210,122,.14) 55%,transparent);
+  transform:translateX(0) skewX(-8deg);animation:glowsweep 7.5s ease-in-out infinite alternate}
+@keyframes glowsweep{from{transform:translateX(0) skewX(-8deg)}to{transform:translateX(330%) skewX(-8deg)}}
+@media (prefers-reduced-motion: reduce){.glow-sweep::after{animation:none;opacity:0}}
+
+/* HUB FILM SLOT (CP-F1) — one cinematic film at the top of every hub:
+   16:9, gold-framed, muted autoplay loop, poster first paint, pauses
+   off-screen (shell.js FaithFilm.wire), reduced motion = the poster
+   as a still frame. The caption chip names the presentation — the
+   film is atmosphere; the hub's real content lives below it. */
+.hubfilm{position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:16/9;max-height:430px;margin-bottom:22px}
+.hubfilm video,.hubfilm img.hubfilm-still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hubfilm-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.34),rgba(5,5,5,0) 34%,rgba(5,5,5,0) 55%,rgba(5,5,5,.82));pointer-events:none}
+.hubfilm-cap{position:absolute;left:16px;bottom:13px;right:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;pointer-events:none}
+.hubfilm-brand{font-size:10px;letter-spacing:.3em;color:var(--gold-hi);text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+.hubfilm-title{font-family:var(--serif);font-size:clamp(17px,3.4vw,24px);color:#fff;line-height:1.15;margin-top:4px;text-shadow:0 2px 14px rgba(0,0,0,.75)}
+.hubfilm-note{flex:none;font-size:9.5px;letter-spacing:.18em;color:rgba(239,233,220,.85);text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+@media(max-width:560px){.hubfilm-note{display:none}}
+
+/* Face-wide entrance reveals (CP5) — the Phase 2A motion language,
+   shared: sections rise in once as they enter the viewport. The
+   .motion wrapper class is set by each hub only when the visitor
+   has not asked for reduced motion. */
+.motion .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+.motion .reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.motion .reveal{opacity:1;transform:none;transition:none}}
+
+/* Per-hub AI presence (CP4) — one labeled shelf/section per hub, with
+   a small Powered-by-AI tag (consult ruling (d): label the shelf,
+   never every card). */
+.ai-tag{display:inline-block;font-size:9px;letter-spacing:.22em;color:var(--gold);border:1px solid var(--gold-dim);
+  border-radius:999px;padding:3px 9px;text-transform:uppercase;white-space:nowrap}
+.ai-shelf{margin-top:26px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,#141105,#0a0a0a 60%);padding:18px 20px}
+.ai-shelf-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.ai-shelf-title{font-size:11.5px;letter-spacing:.3em;color:var(--gold-hi);text-transform:uppercase}
+.ai-shelf p{font-size:14.5px;line-height:1.6;color:var(--bone)}
+.ai-shelf p b{color:var(--gold-hi)}
+.ai-shelf .ai-doors{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ai-shelf .ai-doors button{background:none;border:1px solid var(--gold-dim);color:var(--gold-hi);border-radius:999px;
+  padding:8px 15px;font-size:12px;letter-spacing:.08em;cursor:pointer}
+.ai-shelf .ai-doors button:hover{border-color:var(--gold);background:rgba(212,175,55,.08)}
+
+/* FAITHGUIDE — the persistent AI host (CP4, consult ruling (c)): a
+   quiet gold button, bottom-right; its panel carries FAQs, door
+   shortcuts, feature notes and the pastoral routing line. It is NOT
+   a route into Faith Answers. Dismissal of the greeting bubble is
+   remembered (localStorage) — the button itself always stays. */
+#faithguide{position:fixed;right:16px;bottom:calc(var(--bottombar-h) + 16px);z-index:65;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+@media(min-width:861px){#faithguide{bottom:20px}}
+#fg-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(120deg,#241a05,#171204);border:1px solid var(--gold);
+  color:var(--gold-hi);border-radius:999px;padding:11px 18px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 18px rgba(212,175,55,.22);cursor:pointer}
+#fg-btn:hover{box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 28px rgba(212,175,55,.4)}
+#fg-btn .fg-spark{color:var(--gold);font-size:14px}
+.fg-bubble{max-width:250px;background:var(--coal);border:1px solid var(--gold-dim);border-radius:14px;padding:12px 14px;
+  font-size:13px;line-height:1.5;color:var(--bone);box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.fg-bubble b{color:var(--gold-hi)}
+.fg-bubble button{display:block;margin-top:8px;background:none;border:none;color:var(--gold);font-size:11.5px;
+  letter-spacing:.1em;text-transform:uppercase;padding:0;cursor:pointer}
+#fg-panel{width:min(330px,calc(100vw - 32px));max-height:min(70vh,560px);overflow-y:auto;background:var(--coal);
+  border:1px solid var(--gold-dim);border-radius:18px;padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+#fg-panel[hidden],.fg-bubble[hidden]{display:none}
+#fg-panel h3{font-family:var(--serif);font-size:19px;color:var(--bone)}
+#fg-panel h3 span{color:var(--gold)}
+#fg-panel .fg-sub{font-size:10px;letter-spacing:.24em;color:var(--gold);text-transform:uppercase;margin-top:3px}
+#fg-panel p{font-size:13.5px;line-height:1.6;color:var(--mute);margin-top:10px}
+#fg-panel p b{color:var(--bone)}
+#fg-panel .fg-q{font-size:13.5px;color:var(--gold-hi);margin-top:14px;font-weight:700}
+#fg-panel .fg-doors{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+#fg-panel .fg-doors button{background:none;border:1px solid var(--gold-dim);color:var(--gold-hi);border-radius:999px;
+  padding:7px 13px;font-size:11.5px;letter-spacing:.06em;cursor:pointer}
+#fg-panel .fg-doors button:hover{border-color:var(--gold)}
+#fg-panel .fg-close{margin-top:16px;width:100%;background:none;border:1px solid var(--gold-dim);color:var(--gold-hi);
+  border-radius:999px;padding:10px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+body.player-on #faithguide{bottom:calc(var(--bottombar-h) + var(--player-h) + 20px)}
+@media(min-width:861px){body.player-on #faithguide{bottom:calc(var(--player-h) + 28px)}}
