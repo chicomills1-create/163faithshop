@@ -278,7 +278,7 @@ function doorHeadlines() {
   }
   return out;
 }
-const doorPlayableSum = (doorId) => state.index.artists.reduce((s, a) => s + (a.door === doorId ? (a.playable || 0) : 0), 0);
+const doorPlayableSum = (doorId) => state.index.artists.reduce((s, a) => s + (a.door === doorId ? (a.playableRows ?? a.playable ?? 0) : 0), 0);
 
 function artistCard(a) {
   const art = a.art
@@ -447,7 +447,7 @@ export function render(root, { player }) {
         </div>
       </div>
       <div class="lsn-rotation">
-        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${a.playable} PLAYABLE`}</span></div>
+        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${a.playableRows ?? a.playable} PLAYABLE`}</span></div>
         ${rot.length ? rot.map((ti, k) => `
         <button type="button" class="lsn-ftrow" data-track="${esc(feat.tracks[ti].y)}" data-featrow="${k}">
           <span class="lsn-ftnum">${String(k + 1).padStart(2, '0')}</span>
@@ -662,7 +662,7 @@ export function render(root, { player }) {
         <div class="lsn-voices">${voices.map((a) => `
           <button type="button" class="lsn-voice" data-artist="${esc(a.slug)}">
             <span class="lsn-voiceart">${a.art ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
-            <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${a.playable} playable</small>
+            <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${a.playableRows ?? a.playable} playable</small>
           </button>`).join('')}</div>
       </section>
 
@@ -693,7 +693,7 @@ export function render(root, { player }) {
         if (!top.length) return '';
         return `<section class="ai-shelf" aria-label="Listen AI Picks">
           <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Listen AI Picks</span><span class="ai-tag">Powered by AI</span></div>
-          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${a.playable} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
+          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${a.playableRows ?? a.playable} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
           <div class="ai-doors">${top.map((a) => `<button type="button" data-artist="${esc(a.slug)}">${esc(a.name)} ↗</button>`).join('')}</div>
         </section>`;
       })()}

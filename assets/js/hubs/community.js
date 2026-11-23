@@ -257,6 +257,7 @@ const CSS3 = `
 .bk .bk-mcard.static{cursor:default}
 .bk .bk-mcard.static:hover{border-color:#4b4333}
 .bk-gcard{border:1px solid #4b4333;border-radius:10px;padding:16px;background:#181715}
+.bk-gcard.bk-gfocus{outline:2px solid var(--gold);outline-offset:2px}
 .bk-gcard .bk-gcover{width:46px;height:46px;font-size:17px;margin-bottom:13px}
 .bk-gcard h3{font-family:Georgia,serif;font-size:18px;margin:0 0 7px;color:var(--cream)}
 .bk-gcard .meta{font-size:10.5px;color:#a69a84;letter-spacing:.4px}
@@ -464,6 +465,7 @@ const S = {
   profileId: null, profileCache: new Map(),
   commentsOpen: new Set(), commentsCache: new Map(),
   peopleQuery: '', peopleResults: null, loadedLive: false,
+  focusGroup: null, pulseLive: false, pulseSettled: false,
   presents: [], presentsLoaded: false,
   /* 2C-4: reaction session truth (fold-in 2), new-posts pill state,
      stories viewer state. rxTruth persists in sessionStorage so a
@@ -780,7 +782,7 @@ async function loadLive() {
       fetchJson(`${API_BASE}/api/community/pulse`).catch(() => null),
       fetchJson(`${API_BASE}/api/community/groups`).catch(() => null),
     ]);
-    if (pulse) S.counters = { members: pulse.members, testimonies: pulse.testimonies, prayerRequests: pulse.prayerRequests, prayersLifted: pulse.prayersLifted };
+    if (pulse) { S.counters = { members: pulse.members, testimonies: pulse.testimonies, prayerRequests: pulse.prayerRequests, prayersLifted: pulse.prayersLifted }; S.pulseLive = true; }
     if (groups?.groups?.length) { S.groups = groups.groups; S.loaded = true; }
     S.members = buildDirectory();
     /* Offset chain (2026-11-19 feed-count cure): the first slice is only
@@ -827,9 +829,10 @@ async function loadLive() {
        the rail show the testimonies actually carried and listed —
        one stable number each, no climbing partials (M4 cure). */
     S.chainSettled = true;
+    S.pulseSettled = true;
     settlePatch(); /* BLINK CURE: settle lands as a patch, never a repaint. */
     S.settlePainted = true; /* render()'s closer must not repaint over it */
-  } catch { /* snapshot mode stands, labeled in the UI */ }
+  } catch { S.pulseSettled = true; /* snapshot mode stands, labeled in the UI */ }
 }
 
 function buildDirectory() {
@@ -883,7 +886,14 @@ function countersLine() {
      record. Members and prayer cells stay pulse: no served-set
      equivalent exists for them. */
   const t = countsSettled() ? S.testimonies.length : '…';
-  return `<b>${c.members}</b> members · <b>${t}</b> testimonies<br><b>${c.prayerRequests}</b> prayer requests · <b>${c.prayersLifted}</b> prayers lifted`;
+  /* 2026-11-23 cure: the pulse cells print only once the pulse question
+     is settled — live numbers when the pulse answered, the capture's own
+     numbers when it provably did not — never a baked paint that a live
+     paint then contradicts mid-visit (2026-11-23 walk: 126→128 members,
+     21→25 lifted flips across loads). */
+  const settled = S.pulseLive || S.pulseSettled;
+  const m = settled ? c.members : '…', pr = settled ? c.prayerRequests : '…', pl = settled ? c.prayersLifted : '…';
+  return `<b>${m}</b> members · <b>${t}</b> testimonies<br><b>${pr}</b> prayer requests · <b>${pl}</b> prayers lifted`;
 }
 function railHtml() {
   const v = S.view;
@@ -901,7 +911,7 @@ function railHtml() {
       ${link('saved', '⚑', 'Saved Posts', '<em>SIGN-IN</em>')}
     </div>
     <div class="bk-railgroup"><div class="bk-railt">YOUR CIRCLES</div>
-      ${S.groups.slice(0, 3).map((g) => `<button type="button" class="bk-circle" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span>${esc(g.name)}</span></button>`).join('')}
+      ${S.groups.slice(0, 3).map((g, gi) => `<button type="button" class="bk-circle" data-view="groups" data-gfocus="${gi}"><span class="bk-gcover">${esc(initials(g.name))}</span><span>${esc(g.name)}</span></button>`).join('')}
     </div>
     <div class="bk-quote"><div class="sc">“</div><p>Church is not just a building. It's who shows up for you when life gets loud.</p><span>THE 16:3 WAY.</span></div>
     <div class="bk-railbot">A PLACE TO BE REAL.<br>A PEOPLE TO BELONG TO.</div>
@@ -1133,7 +1143,7 @@ function latestTestCardHtml() {
 /* P1-10: suggested groups — the real 7, with their real member counts. */
 function suggestedGroupsCardHtml() {
   return `<section class="panel bk-sidecard"><div class="phead"><span class="eyebrow">FIND YOUR CIRCLE</span><span class="x">✦</span></div>
-      ${S.groups.slice(0, 4).map((g) => `<button type="button" class="bk-mini" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group</small></span><span class="plus">+</span></button>`).join('')}
+      ${S.groups.slice(0, 4).map((g, gi) => `<button type="button" class="bk-mini" data-view="groups" data-gfocus="${gi}"><span class="bk-gcover">${esc(initials(g.name))}</span><span class="mi"><strong>${esc(g.name)}</strong><small>${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group</small></span><span class="plus">+</span></button>`).join('')}
       <button type="button" class="bk-textlink" data-view="groups">EXPLORE ALL GROUPS ↗</button></section>`;
 }
 /* P1-9: phone shortcut strip — the hub's doors as a horizontal strip
@@ -1148,7 +1158,7 @@ function stripHtml() {
      door and the real group chips ride after, as in Phase 1. */
   return `<nav class="bk-shortstrip" aria-label="Community shortcuts">
     ${chip('feed', '⌂ Sanctuary')}${chip('members', '◎ Directory')}${chip('groups', '◉ Circles')}<button type="button" class="bk-stripchip" data-hubgo="pray">✛ Pray</button>${chip('testimonies', '✦ Testimonies')}
-    ${S.groups.map((g) => `<button type="button" class="bk-stripchip grp" data-view="groups">${esc(g.name)}</button>`).join('')}
+    ${S.groups.map((g, gi) => `<button type="button" class="bk-stripchip grp" data-view="groups" data-gfocus="${gi}">${esc(g.name)}</button>`).join('')}
   </nav>`;
 }
 /* P1-9: on phone/narrow widths the right rail's content stacks BELOW
@@ -1615,10 +1625,14 @@ function peopleStripHtml() {
       : '<p class="bk-note" style="margin:0">No member matches that name in the live search.</p>'}</div>`;
 }
 function viewMembers() {
-  const list = S.members;
+  /* 2026-11-23 cure: an active search filters the directory grid itself
+     (same name/location predicate as the results strip) — a search that
+     left the grid untouched read as a search that did nothing. */
+  const q = S.peopleQuery.trim().toLowerCase();
+  const list = q ? S.members.filter((mm) => (mm.name + ' ' + (mm.location || '')).toLowerCase().includes(q)) : S.members;
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE FAMILY DIRECTORY</span><h2>Every face <em>matters.</em></h2></div></div>
-  <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> in the family (the community pulse total) · ` : ''}<b style="color:var(--gold)">${list.length} profiles listed</b> in the directory below — the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'}. Two different counts, labeled: the pulse counts every registered member; this directory lists the profiles the wall's pages evidence — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
+  <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> in the family (the community pulse total) · ` : ''}<b style="color:var(--gold)">${list.length} profiles listed</b>${q ? ` for “${esc(S.peopleQuery.trim())}” — clear the search to see everyone` : ''} in the directory below — the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'}. Two different counts, labeled: the pulse counts every registered member; this directory lists the profiles the wall's pages evidence — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
   <form class="bk-search" data-peoplesearch><input type="search" placeholder="Search the family by name…" value="${esc(S.peopleQuery)}" aria-label="Search members by name"><button type="submit">SEARCH</button></form>
   ${peopleStripHtml()}
   <div class="bk-mgrid">${list.map((m) => m.id ? `
@@ -1635,8 +1649,8 @@ function viewGroups() {
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE SMALL CIRCLES</span><h2>Find your <em>people.</em></h2></div></div>
   <p class="bk-note">${S.mode === 'live' ? 'The live group list from the community API, read as you opened this door.' : 'The verified group list, captured live from the community API on 2026-11-19 (the live API did not answer from this network).'} ${isSignedIn() ? 'You are signed in — group joining wires to your account with the member build; the circles themselves are the live list below.' : 'Joining a group is a member action — join free or sign in (top right) and the circles open to your account.'}</p>
-  <div class="bk-mgrid">${S.groups.map((g) => `
-    <div class="bk-gcard">${GROUP_ART[g.name] ? `<img class="bk-gcoverimg" src="${GROUP_ART[g.name]}" alt="" aria-hidden="true" loading="lazy">` : ''}<span class="bk-gcover">${esc(initials(g.name))}</span>
+  <div class="bk-mgrid">${S.groups.map((g, gi) => `
+    <div class="bk-gcard${S.focusGroup === gi ? ' bk-gfocus' : ''}" id="bk-group-${gi}">${GROUP_ART[g.name] ? `<img class="bk-gcoverimg" src="${GROUP_ART[g.name]}" alt="" aria-hidden="true" loading="lazy">` : ''}<span class="bk-gcover">${esc(initials(g.name))}</span>
       <h3>${esc(g.name)}</h3><div class="meta">${g.memberCount} member${g.memberCount === 1 ? '' : 's'} · ${g.isPublic === false ? 'Private' : 'Public'} group · led by the 16:3 Faith house</div>
       <p>${esc(g.description || '')}</p>
       <button type="button" class="bk-goldbtn" style="width:auto;padding:9px 16px;margin-top:4px" data-joingate>JOIN GROUP</button>
@@ -2178,7 +2192,9 @@ function paint(keepScroll = false) {
   S.root.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => {
     const t0 = n.dataset.t0 != null ? performance.now() : null;
     S.view = n.dataset.view; S.gateOpen = false;
+    S.focusGroup = n.dataset.gfocus != null ? Number(n.dataset.gfocus) : null;
     paint();
+    if (S.focusGroup != null) { const gel = S.root.querySelector(`#bk-group-${S.focusGroup}`); if (gel) requestAnimationFrame(() => gel.scrollIntoView({ block: 'center', behavior: 'smooth' })); }
     if (t0 != null) { const ms = String(Math.round((performance.now() - t0) * 10) / 10); S.root.dataset.doorMs = ms; const hr = S.root.closest('#hub-root'); if (hr && hr !== S.root) hr.dataset.doorMs = ms; }
   }));
   S.root.querySelectorAll('[data-hubgo]').forEach((n) => n.addEventListener('click', () => goHub(n.dataset.hubgo)));
