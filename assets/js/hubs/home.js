@@ -101,8 +101,18 @@ function countUp(el, to) {
 async function fillCounters(box, note) {
   const paint = (c, source) => {
     if (!box.isConnected) return;
-    box.innerHTML = COUNTER_LABELS.map(([k, label]) => `<div class="counter"><b data-count="${c[k]}">0</b><span>${label}</span></div>`).join('');
-    box.querySelectorAll('[data-count]').forEach((el) => countUp(el, Number(el.dataset.count)));
+    /* BLINK CURE (2026-11-22): the strip's structure is already on
+       the page from first paint — update the value nodes in place
+       (count-up included) instead of rebuilding the box when the
+       totals land. The rebuild remains only as the fallback if the
+       painted structure is ever not the expected one. */
+    const bs = box.querySelectorAll('.counter b');
+    if (bs.length === COUNTER_LABELS.length) {
+      COUNTER_LABELS.forEach(([k], i) => { bs[i].dataset.count = c[k]; countUp(bs[i], Number(c[k])); });
+    } else {
+      box.innerHTML = COUNTER_LABELS.map(([k, label]) => `<div class="counter"><b data-count="${c[k]}">0</b><span>${label}</span></div>`).join('');
+      box.querySelectorAll('[data-count]').forEach((el) => countUp(el, Number(el.dataset.count)));
+    }
     if (note) note.textContent = `Totals · one source: ${source}`;
   };
   try {

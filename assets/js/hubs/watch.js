@@ -756,7 +756,11 @@ async function tryLive() {
     }
     catalog = [...live, ...catalog.filter((t) => !(liveById.get(t.id) || liveByKey.get(keyOf(t))))];
     liveState = 'live';
-    if (playerEl) pendingLiveRender = true; else renderView();
+    /* BLINK CURE (2026-11-22): the live merge re-renders with scroll
+       KEPT — renderView() defaulted to scrollTo(0,0), so the catalog
+       landing seconds after entry yanked a browsing reader back to
+       the top (the "resetting" the founder reported). */
+    if (playerEl) pendingLiveRender = true; else renderView(true);
   } catch { /* snapshot stands — honest state already rendered */ }
 }
 

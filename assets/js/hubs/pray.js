@@ -110,6 +110,27 @@ async function loadCounters() {
   }
 }
 function countersHTML() {
+  /* BLINK CURE (2026-11-22): the strip always renders inside a
+     display:contents slot so late counters can be patched into the
+     slot (patchCounters) instead of re-mounting the whole view —
+     the old flow repainted the entire doors page when the pulse
+     landed, a full-page blink seconds after entry. */
+  return `<span data-counters-slot style="display:contents">${countersInner()}</span>`;
+}
+function patchCounters(root) {
+  if (!S.counters) return;
+  const slot = root.querySelector('[data-counters-slot]');
+  if (slot) slot.innerHTML = countersInner();
+  root.querySelectorAll('[data-pcount]').forEach((el) => {
+    const v = S.counters[el.dataset.pcount];
+    if (Number.isFinite(v)) el.textContent = String(v);
+  });
+}
+function patchWallSource(root) {
+  const el = root.querySelector('.pr-status .src');
+  if (el) el.textContent = S.wall.source || 'gathering…';
+}
+function countersInner() {
   const c = S.counters;
   if (!c) return '';
   return `<div class="pr-counters" data-testid="counters">
@@ -709,14 +730,14 @@ function showDoors(root) {
     </section>
     <div class="pr-tape"><span>✝ &nbsp; THIS IS WHAT FAMILY LOOKS LIKE</span><span>SPEAK REAL. SHOW LOVE. PRAY OFTEN.</span></div>
     <div class="pr-doors reveal">
-      <button class="pr-door" data-door="wall" type="button"><img class="pr-door-art" src="assets/img/pray/pray-candle.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">01 / COME IN</span><span class="pr-door-sym">✛</span><strong>THE WALL<span>.</span></strong><small>Read what the family&rsquo;s carrying — ${c ? c.requests : '…'} requests open now, newest first. Stand with someone today.</small><span class="pr-door-arrow">EXPLORE THE WALL ↗</span></button>
+      <button class="pr-door" data-door="wall" type="button"><img class="pr-door-art" src="assets/img/pray/pray-candle.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">01 / COME IN</span><span class="pr-door-sym">✛</span><strong>THE WALL<span>.</span></strong><small>Read what the family&rsquo;s carrying — <span data-pcount="requests">${c ? c.requests : '…'}</span> requests open now, newest first. Stand with someone today.</small><span class="pr-door-arrow">EXPLORE THE WALL ↗</span></button>
       <button class="pr-door hl" data-door="request" type="button"><img class="pr-door-art" src="assets/img/pray/pray-hands.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">02 / LET IT OUT</span><span class="pr-door-sym">✎</span><strong>LEAVE A PRAYER<span>.</span></strong><small>Public wall or private to the team. You decide where it goes.</small><span class="pr-chip">Members only — sign-in required</span><span class="pr-door-arrow">WRITE YOUR REQUEST ↗</span></button>
-      <button class="pr-door" data-door="lifted" type="button"><img class="pr-door-art" src="assets/img/pray/pray-dawn.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">03 / GIVE THANKS</span><span class="pr-door-sym">♥</span><strong>PRAYERS LIFTED<span>.</span></strong><small>${c ? c.lifted : '…'} prayers lifted — the requests the family has lifted, and the ones marked answered.</small><span class="pr-door-arrow">SEE WHAT&rsquo;S BEEN LIFTED ↗</span></button>
+      <button class="pr-door" data-door="lifted" type="button"><img class="pr-door-art" src="assets/img/pray/pray-dawn.webp" alt="" aria-hidden="true" loading="lazy"><span class="pr-door-n">03 / GIVE THANKS</span><span class="pr-door-sym">♥</span><strong>PRAYERS LIFTED<span>.</span></strong><small><span data-pcount="lifted">${c ? c.lifted : '…'}</span> prayers lifted — the requests the family has lifted, and the ones marked answered.</small><span class="pr-door-arrow">SEE WHAT&rsquo;S BEEN LIFTED ↗</span></button>
     </div>
     ${countersHTML()}
     <section class="ai-shelf" aria-label="Pray AI Prayer Guide">
       <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · AI Prayer Guide</span><span class="ai-tag">Powered by AI</span></div>
-      <p>The room is carrying <b>${c ? c.requests : '…'} prayer requests</b>, and the family has lifted <b>${c ? c.lifted : '…'}</b> of them. New here? Start with <b>one quiet minute</b> — the guided prayer walks three short steps (${GUIDED.map((g) => esc(g.title)).join(' · ')}), each with its verse. Or open the Wall and stand with one person by name. No perfect words required.</p>
+      <p>The room is carrying <b><span data-pcount="requests">${c ? c.requests : '…'}</span> prayer requests</b>, and the family has lifted <b><span data-pcount="lifted">${c ? c.lifted : '…'}</span></b> of them. New here? Start with <b>one quiet minute</b> — the guided prayer walks three short steps (${GUIDED.map((g) => esc(g.title)).join(' · ')}), each with its verse. Or open the Wall and stand with one person by name. No perfect words required.</p>
     </section>
     ${extrasHTML()}
     <button type="button" class="pr-journal-door" data-goto="journal"><b>PRAYER JOURNAL</b><p>Words between you and God alone. The journal lives only on this page, only while you&rsquo;re here — nothing is sent anywhere, nothing is saved when you leave.</p></button>
@@ -822,7 +843,11 @@ async function showWall(root) {
   wallView(root);
   root.querySelector('[data-listslot]').innerHTML = '<p class="pr-note">Gathering the wall…</p>';
   await primeWall();
-  if (S.view === 'wall') { wallView(root); paintWallList(root); }
+  /* BLINK CURE: the wall view mounts ONCE — when the prime lands,
+     only the list slot, the counters slot, and the source label are
+     patched. The old flow re-mounted the entire view here (a second
+     full-page flash on every wall visit). */
+  if (S.view === 'wall') { patchCounters(root); patchWallSource(root); paintWallList(root); }
 }
 
 /* ---------------- Lifted door: same data source as the wall --------------- */
@@ -833,7 +858,7 @@ async function showLifted(root) {
   await primeWall();
   await ensureFullWall();
   if (S.view !== 'lifted') return;
-  wallView(root, { liftedMode: true });
+  patchCounters(root); patchWallSource(root); /* BLINK CURE: no second mount (see showWall). */
   const lifted = S.wall.posts.filter((p) => p.prayerCount > 0).slice().sort((a, b) => b.prayerCount - a.prayerCount);
   const totalLiftedActions = S.wall.posts.reduce((s, p) => s + (p.prayerCount || 0), 0);
   const slot = root.querySelector('[data-listslot]');
@@ -973,6 +998,6 @@ export async function render(root) {
      when the one source resolves. No loading overlay (§4). */
   showDoors(root);
   const seq = S.mountSeq;
-  loadCounters().then(() => { publishDebug(); if (S.view === 'doors' && S.mountSeq === seq) showDoors(root); }).catch(() => {});
+  loadCounters().then(() => { publishDebug(); if (S.mountSeq === seq) patchCounters(root); }).catch(() => {});
   primeWall().catch(() => {});
 }

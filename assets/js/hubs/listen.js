@@ -285,7 +285,7 @@ function artistCard(a) {
     ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.parentNode.classList.add('noart');this.remove()">`
     : '';
   return `<button type="button" class="acard" data-artist="${esc(a.slug)}">
-    <span class="acard-art">${art}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
+    <span class="acard-art">${art}${a.art ? '' : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
     <b>${esc(a.name)}</b>
     <span class="acard-meta">${a.releases} releases · ${a.songs} songs${a.playableRows ? ` · ${a.playableRows} playable` : ''}</span>
   </button>`;
@@ -436,7 +436,7 @@ export function render(root, { player }) {
       : `${a.releases} releases · ${a.songs} songs · ${a.playableRows} playable`;
     host.innerHTML = `
       <div class="lsn-show">
-        <div class="lsn-showart">${showArt ? `<img src="${esc(showArt)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g ? g.title : a.name))}</span><span class="lsn-badge"><i></i>THE HOUSE PICK</span></div>
+        <div class="lsn-showart">${showArt ? `<img src="${esc(showArt)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(g ? g.title : a.name))}</span>`}<span class="lsn-badge"><i></i>THE HOUSE PICK</span></div>
         <div class="lsn-showtext">
           <span>Featured ${g ? 'album' : 'artist'} / ${esc(feat.door.label)}</span>
           <h3>${esc(g ? g.title : a.name)}</h3>
@@ -558,7 +558,7 @@ export function render(root, { player }) {
       <p class="lsn-progress">${q ? `Releases matching “${esc(query)}”` : 'Fresh off the headline shelves — the full breakdown lives on each artist’s page.'} · ${cards.length} shown</p>
       <div class="lsn-grid">${cards.map(({ a, g }, ci) => `
         <div class="lsn-relcard" data-relopen="${esc(a.slug)}" role="button" tabindex="0" aria-label="Open ${esc(a.name)} — ${esc(g.title)}">
-          <span class="lsn-relart">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g.title))}</span></span>
+          <span class="lsn-relart">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(g.title))}</span>`}</span>
           ${g.play.length ? `<button type="button" class="lsn-onplay" data-relplay="${ci}" aria-label="Play ${esc(g.title)}">▶</button>` : ''}
           <h3>${esc(g.title)}</h3>
           <div class="sec2">${esc(a.name)}</div>
@@ -661,7 +661,7 @@ export function render(root, { player }) {
         <div class="lsn-sechead"><div><span class="lsn-eyebrow">04 / Faces Behind The Sound</span><h2 id="lsn-voices-head">Meet the <em>voices.</em></h2><p>The headline voice behind every open lane — and the deepest shelf on the roster.</p></div><button type="button" class="lsn-textact" data-opendir>Open artist directory ↗</button></div>
         <div class="lsn-voices">${voices.map((a) => `
           <button type="button" class="lsn-voice" data-artist="${esc(a.slug)}">
-            <span class="lsn-voiceart">${a.art ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
+            <span class="lsn-voiceart">${a.art ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
             <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${a.playable} playable</small>
           </button>`).join('')}</div>
       </section>
@@ -864,7 +864,7 @@ export function render(root, { player }) {
         playableN && playableN !== g.n ? `${playableN} playable` : ''].filter(Boolean).join(' · ');
       return `<div class="rel-card alb-card" data-albcard="${oi}">
         <div class="rel-head">
-          <span class="alb-cover">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g.title))}</span></span>
+          <span class="alb-cover">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(g.title))}</span>`}</span>
           <div class="alb-meta"><b>${esc(g.title)}</b><span>${esc(meta)}</span></div>
           ${g.play.length ? `<button type="button" class="btn-gold alb-play" data-albplay="${oi}" aria-label="Play ${esc(g.title)}">▶</button>` : ''}
           <button type="button" class="btn-ghost alb-toggle" data-detailback>← Releases</button>
@@ -880,7 +880,7 @@ export function render(root, { player }) {
       const { g } = it, oi = it.pos;
       const open = ui.openOi === oi;
       return `<button type="button" class="rgc" data-relcard="${oi}" aria-expanded="${open}">
-        <span class="rgc-art">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(g.title))}</span></span>
+        <span class="rgc-art">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(g.title))}</span>`}</span>
         <span class="rgc-title">${esc(g.title)}</span>
         <span class="rgc-meta">${[g.year || '', `${g.n} track${g.n === 1 ? '' : 's'}`].filter(Boolean).join(' · ')}</span>
       </button>`;
@@ -1013,7 +1013,7 @@ export function render(root, { player }) {
     viewEl.innerHTML = `
       <button type="button" class="btn-ghost back-btn" data-back>← Back</button>
       <div class="artist-card">
-        <span class="acard-art big">${a.art ? `<img src="${esc(a.art)}" alt="" onerror="this.remove()">` : ''}<span class="acard-mono">${esc(monogram(a.name))}</span></span>
+        <span class="acard-art big">${a.art ? `<img src="${esc(a.art)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
         <div class="artist-card-main">
           <h2>${esc(a.name)}</h2>
           <p class="artist-counts">${countsLine}</p>

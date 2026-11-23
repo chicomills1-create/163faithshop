@@ -531,7 +531,31 @@ function mergeLiveSlice(j) {
   S.feedTotal = S.posts.length;
   return fresh.length;
 }
-function repaintHub() { if (S.root && S.view !== 'profile') paint(); }
+function repaintHub() { if (S.root && S.view !== 'profile') paint(true); }
+
+/* BLINK CURE (2026-11-22): the chain-settle moment as a PATCH, not a
+   repaint. When the offset chain settles, nothing in the feed window
+   can change — the chain appends OLDER posts beyond the first page,
+   the stories row (newest-first) was already final at slice 1, and
+   the film/scroll/composer must never be disturbed (a repaint here
+   also destroyed a member's half-typed composer draft). Exactly
+   three surfaces carry settle-sensitive numbers, and they patch in
+   place: the rail count line (testimonies '…' → its settled count),
+   the FaithGuide AI cards ('reading the wall…' → the real summary),
+   and the LOAD MORE label (the carried remainder grew). Any shape
+   mismatch (button should appear/vanish, another view is showing)
+   falls back to the preserved repaint. */
+function settlePatch() {
+  if (!S.root || S.view !== 'feed') { repaintHub(); return; }
+  const cl = S.root.querySelector('.bk-countline');
+  if (cl) cl.innerHTML = countersLine();
+  S.root.querySelectorAll('.bk-aicard').forEach((n) => { n.outerHTML = aiHighlightsHtml(); });
+  const list = feedList();
+  const btn = S.root.querySelector('[data-loadmore]');
+  const shouldShow = list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore);
+  if (btn && shouldShow) btn.textContent = `LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}`;
+  else if (!!btn !== shouldShow) repaintHub();
+}
 
 /* Live-first load: guest feed pages + testimonies + prayers + groups +
    member search index, all from the community API. Any failure keeps the
@@ -607,7 +631,17 @@ async function loadLive() {
       S.feedNextOffset = j.nextOffset ?? null;
       S.feedHasMore = !!j.hasMore && S.feedNextOffset != null && S.feedNextOffset !== cursor;
       S.members = buildDirectory();
-      repaintHub();
+      /* BLINK CURE (2026-11-22): NO repaint per slice. The old loop
+         rebuilt the entire hub (film included) after every offset
+         slice — on the slow production API that is a full-page blink
+         every few seconds for minutes, restarting the film from 0
+         each time (founder's phone report: "the pages keep blinking
+         and resetting"). Merges are data-only while the chain walks;
+         settlePatch() after the loop settles the counters/labels
+         in place. Nothing visible is lost: the feed window shows
+         the first PAGE posts (already painted from slice 1) and
+         chain posts append beyond it — only counters/labels
+         change, and they settle once, per the M4 rule. */
     }
     /* The chain has exited — exhausted, or stalled on a failed slice
        with the cursor standing (LOAD MORE resumes it). Either way the
@@ -616,6 +650,8 @@ async function loadLive() {
        the rail show the testimonies actually carried and listed —
        one stable number each, no climbing partials (M4 cure). */
     S.chainSettled = true;
+    settlePatch(); /* BLINK CURE: settle lands as a patch, never a repaint. */
+    S.settlePainted = true; /* render()'s closer must not repaint over it */
   } catch { /* snapshot mode stands, labeled in the UI */ }
 }
 
@@ -1190,16 +1226,26 @@ const ACT_GATES = {
   save: '<b>Saved posts live in your account.</b> Bookmarks are personal account state — nothing is stored on this device. Your saves collect on the Saved Posts door once you join free or sign in.',
 };
 /* ---------------- member acts (F-CLERK) ----------------
-   AMEN and PRAY post to the SAME server handler (the /pray route is an
-   alias of /react) with the member's reaction type — AMEN rides as
-   'praise', the server's name for it. The server toggles and returns
-   the true counts; they are merged into the post (the card's keyspace
-   reads praise as amen, blessed as blessing) and the card repaints
-   from the merged post — never counted client-side. Authors can't
-   react to their own posts (403) and the terms gate can 403 too;
-   either way the server's own words are what the member reads.
-   SHARE/SAVE have no client-facing server contract on this wall, so
-   members get the honest word — never a fake count. */
+   AMEN and PRAY post to the SAME server handler (/react) with the
+   member's reaction type, under the DEPLOYED API's own names —
+   proven live 2026-11-22 (LEG R): the deployed react route accepts
+   'amen' as a first-class type and answers with the full keyspace
+   {love, pray, fire, amen, blessing} + prayerCount + myReactionType.
+   The server toggles (same type off, different type switches — one
+   reaction row per member per post) and its response is the truth:
+   the counts are merged VERBATIM from it and the card repaints from
+   the merged post — never counted client-side.
+   HISTORY: AMEN used to ride as 'praise', which the server buckets
+   into pray — so the AMEN count (reactionCounts.amen) never moved
+   and every AMEN/PRAY tap after the first was a same-bucket switch:
+   the founder's live report "reactions don't land on other members'
+   posts" (2026-11-22 re-walk). 'praise' remains a valid server type
+   (it feeds the pray bucket) but it is not AMEN's name.
+   Authors can't react to their own posts (403) and the terms gate
+   can 403 too; either way the server's own words are what the
+   member reads. SHARE/SAVE have no client-facing server contract
+   on this wall, so members get the honest word — never a fake
+   count. */
 const MEMBER_ACT_NOTES = {
   share: '<b>Sharing rides your own channels today.</b> The share counts on the cards are the family\'s recorded totals; an in-house share button is on the build list — not faked here. Copy the wall link from your browser and drop it where your people are.',
   save: '<b>Your saved shelf is account state.</b> It opens on the Saved Posts door with the full member build — the save tap is not wired on this wall yet, and nothing is quietly stored on this device to pretend otherwise.',
@@ -1213,20 +1259,25 @@ function repaintCard(card, post) {
   wirePosts(fresh);
 }
 async function memberReact(card, gate, act, post, btn) {
-  const type = act === 'amen' ? 'praise' : 'pray';
+  const type = act === 'amen' ? 'amen' : 'pray';
   btn.disabled = true;
   try {
     const r = await postJson(`${API_BASE}/api/community/posts/${encodeURIComponent(post.id)}/react`, { type });
     if (r.reactionCounts) {
+      /* LEG R cure: merge the server's keyspace verbatim — the old
+         merge read ghost keys (rc.praise / rc.blessed) the response
+         never carries and pinned amen/blessing at their old values. */
       const rc = r.reactionCounts, cur = post.reactionCounts || {};
       post.reactionCounts = {
-        ...cur,
-        love: rc.love || 0, pray: rc.pray || 0, fire: rc.fire || 0,
-        amen: rc.praise ?? rc.amen ?? (cur.amen || 0),
-        blessing: rc.blessed ?? rc.blessing ?? (cur.blessing || 0),
+        love: rc.love ?? cur.love ?? 0,
+        pray: rc.pray ?? cur.pray ?? 0,
+        fire: rc.fire ?? cur.fire ?? 0,
+        amen: rc.amen ?? cur.amen ?? 0,
+        blessing: rc.blessing ?? cur.blessing ?? 0,
       };
     }
     if (typeof r.prayerCount === 'number') post.prayerCount = r.prayerCount;
+    if ('myReactionType' in r) post.myReactionType = r.myReactionType;
     repaintCard(card, post);
   } catch (err) {
     gate.innerHTML = `<b>That tap didn't land.</b> ${esc(err.message)}`;
@@ -1274,12 +1325,29 @@ function openProfile(id) {
   if (location.hash !== target) { location.hash = target; return; }
   S.view = 'profile'; S.profileId = id; paint(); viewProfile(id);
 }
-function paint() {
+function paint(keepScroll = false) {
   /* P1-1: the doors grid is retired as a landing — the hub opens IN
      the feed (template: community.tsx). viewDoors stays defined for
      the record; every 'doors' state resolves to the feed. */
+  /* BLINK CURE (2026-11-22): a DATA repaint (keepScroll — the live
+     upgrade + the chain's settle paint) preserves two things the old
+     full rebuild destroyed: (1) the film ELEMENT — when the new frame
+     carries the same film, the playing element itself is carried
+     over, so playback never restarts and its FaithFilm wiring (now
+     idempotent in shell.js) survives untouched; (2) the reader's
+     scroll position — restored synchronously before the browser can
+     paint the collapsed intermediate. Navigation paints (tab taps)
+     keep the old behavior. */
+  const y = keepScroll ? window.scrollY : 0;
+  const oldFilm = keepScroll ? S.root.querySelector('[data-hubfilm]') : null;
+  const oldFilmSrc = oldFilm?.querySelector('video source')?.getAttribute('src') || null;
   const mains = { doors: viewFeed, feed: viewFeed, testimonies: viewTestimonies, members: viewMembers, groups: viewGroups, messages: viewMessages, saved: viewSaved };
   S.root.innerHTML = frame(S.view === 'profile' ? '<div data-prof><div class="bk-ctx"><h3>Profile</h3><p>Loading…</p></div></div>' : (mains[S.view] || viewDoors)());
+  if (oldFilm && oldFilmSrc) {
+    const newFilm = S.root.querySelector('[data-hubfilm]');
+    if (newFilm && newFilm.querySelector('video source')?.getAttribute('src') === oldFilmSrc) newFilm.replaceWith(oldFilm);
+  }
+  if (y) window.scrollTo(0, y);
   if (window.FaithFilm) window.FaithFilm.wire(S.root);
   if (window.FaithMotion) window.FaithMotion.armReveals(S.root);
   const main = S.root.querySelector('.bk-main');
@@ -1398,9 +1466,21 @@ export function render(root, ctx) {
   S.commentsOpen = new Set(); S.peopleQuery = ''; S.peopleResults = null;
   paint();
   if (S.view === 'profile') viewProfile(S.profileId);
+  S.settlePainted = false;
   loadLive().then(() => {
     if (!S.root) return;
-    if (S.view === 'profile') viewProfile(S.profileId); else paint();
+    if (S.view === 'profile') { viewProfile(S.profileId); return; }
+    /* BLINK CURE (2026-11-22, diag-proven): this closer used to fire a
+       final UNGUARDED paint() the moment loadLive resolved — a second
+       full rebuild ~50ms after the chain's settle paint, recreating
+       the film element (playback restarted from 0) and resetting the
+       reader's scroll, minutes into the visit on the slow production
+       API. That is the founder's "pages keep blinking and resetting"
+       at its sharpest. loadLive's own settle paint is the final word
+       in live mode; the closer remains ONLY as the snapshot-mode
+       safety net (the live leg threw before ever painting) — and
+       even then it paints preserved (film + scroll), never raw. */
+    if (!S.settlePainted) paint(true);
   });
   window.__community = {
     version: 'faithbook-graft', mode: () => S.mode, state: () => S,
