@@ -638,6 +638,12 @@ window.FaithFilm = {
   wire(scope) {
     if (!scope || MOTION_REDUCED || typeof IntersectionObserver !== 'function') return;
     scope.querySelectorAll('[data-hubfilm] video').forEach((v) => {
+      /* BLINK CURE (2026-11-22): wiring is idempotent — a film element
+         preserved across a hub repaint (community's settle paint keeps
+         the very element) must never collect a second observer/retry
+         stack; the first wiring owns it for its whole life. */
+      if (v.dataset.filmWired) return;
+      v.dataset.filmWired = '1';
       /* Phase 2B live-walk cure (2026-11-22): a rejected play() or a
          media error used to leave the poster up SILENTLY forever (the
          live walk watched two film slots sit static for minutes with
