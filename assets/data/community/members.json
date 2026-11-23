@@ -1,5 +1,5 @@
 {
- "provenance": "FULL DIRECTORY BAKE 2026-11-22 (amp-up P1-5): every profile enumerated from the live community API — the posts wall's authors plus a member-search sweep — then each profile fetched individually from GET /api/community/members/<id>/profile. Real API data only; nobody is invented to fill the grid. Supersedes the 25-member guest-page capture.",
+ "provenance": "FULL DIRECTORY BAKE 2026-11-22 (amp-up P1-5): every profile enumerated from the live community API — the posts wall's authors plus a member-search sweep — then each profile fetched individually from GET /api/community/members/<id>/profile. Real API data only; nobody is invented to fill the grid. Supersedes the 25-member guest-page capture. TOP-UP 2026-11-22: enumeration re-run end-to-end (chain + full bigram sweep) after the first pass; 112 profiles total.",
  "capturedAt": "2026-11-22",
  "counterValue": 126,
  "counterSource": "Homepage/Prayer Room counters, rendered 2026-11-17 + 2026-11-18 (DATA-CENSUS §2)",
@@ -760,6 +760,28 @@
    "types": {}
   },
   {
+   "id": "user_3IxykZournVUs7oVUDsxGBbf3CM",
+   "name": "cmac862",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3IecTEhHYEklTNycP7pC5C8sb2L",
+   "name": "D63re58r",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3Ev5Hg3oM08Unc1IykIRU7B6ogI",
    "name": "Debbieolson77",
    "avatar": null,
@@ -793,6 +815,28 @@
    "types": {}
   },
   {
+   "id": "user_3GSJ3G3U19TULSsokYEMEPJuGjN",
+   "name": "Donna R.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3Eygp2QzqYRFLgFoEomqrSY3Y7X",
+   "name": "Dovegirlgodsway",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3G94xoq4sSwY2f1KASfervM8pEX",
    "name": "Echegarayhe",
    "avatar": null,
@@ -800,6 +844,28 @@
    "badges": [],
    "location": null,
    "posts": null,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3HUrFW3Ye0MVztb0CMPkKF2hDp8",
+   "name": "Fina N.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3Hykr7I9ngEMqKRamKbZ8K5mCjR",
+   "name": "Flower M.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
    "latestAt": null,
    "types": {}
   },
@@ -817,6 +883,72 @@
   {
    "id": "user_3FAvrldbKir75fIkKPqFDfCopM2",
    "name": "Hale_davisha74",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3FJQ6iXVszLIw96Lm2QwiYVnzQX",
+   "name": "Hayley 1.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3FPwbkLNR80azcqqdiWr0rz5sAW",
+   "name": "J. Ivette",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3EsBtXos7ISjkenO8vOSlFqLz9t",
+   "name": "Jaggers125",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3FPg1SK1T0QYX3Vh3JLPfXR9lya",
+   "name": "Jdr8ke",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3EwrdWziCg0EQ1Od5xVFxdkPsN8",
+   "name": "Jrgreeves",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3GwXxI5OsN3FJ47ojZnLHqquFfR",
+   "name": "Jshine",
    "avatar": null,
    "verified": false,
    "badges": [],
@@ -894,8 +1026,30 @@
    "types": {}
   },
   {
+   "id": "user_3Gk3osIFLoPiSBoWX0bCGtbZ0uT",
+   "name": "Lady Shonda G.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3F59f46BIVctGwIgnFcu1WJVxKq",
    "name": "Mari K.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3Ey0w5hlu9nRikF1uvBRpKrUVHb",
+   "name": "Maylee L.",
    "avatar": null,
    "verified": false,
    "badges": [],
@@ -929,12 +1083,34 @@
    }
   },
   {
+   "id": "user_3EpqfLmQhp0CNwK04qdxa8BvKOW",
+   "name": "Mikadi83",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3KmaLb5TRV30O3kaOF2FBSETzdP",
    "name": "Miss Monica",
    "avatar": null,
    "verified": false,
    "badges": [],
    "location": "Pennsylvania",
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3EvsSetgIj48oog9XWYbgizfJcv",
+   "name": "Mzhaywood1",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
    "posts": 0,
    "latestAt": null,
    "types": {}
@@ -947,6 +1123,28 @@
    "badges": [],
    "location": null,
    "posts": null,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3H8vklxnn3CPy8XLhrUsclGGLVK",
+   "name": "outofsightinvestors",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3GKpyakz2cN0R7u8nMFknPZNTJe",
+   "name": "Paulette B.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
    "latestAt": null,
    "types": {}
   },
@@ -975,6 +1173,17 @@
    "types": {}
   },
   {
+   "id": "user_3IZRNY8s4P91hatdnFEyKmBwTyK",
+   "name": "Phifertonya",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3IgFnZb71PvFsl78RGBAqWZLuCh",
    "name": "Qbrown45",
    "avatar": null,
@@ -986,8 +1195,52 @@
    "types": {}
   },
   {
+   "id": "user_3IGAvYoDXwBWFWG3k235HczylId",
+   "name": "Regina M.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3F31tzfrOXIJW2692txuJccrvoA",
+   "name": "Rosa.lopez420",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3F06mgQrGou0XvsAK46ckpjhXNY",
+   "name": "Selena B.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3FA4tjXapaqbn9Ls0zg6541zr7U",
    "name": "Shannon.d160",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3F2K2EBC5JVRt3VSkuVsA5gGzaW",
+   "name": "Shawna M.",
    "avatar": null,
    "verified": false,
    "badges": [],
@@ -1022,10 +1275,54 @@
    }
   },
   {
+   "id": "user_3GlyW4BZ5roJJKAwxWNBwxUFqkz",
+   "name": "Spursnjeans",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3Epwf6Bt2ptjI5HscAqB4t8UbOO",
+   "name": "Suzyq21554",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3F1OadcLt4sxPVBJyJIOlFK1735",
+   "name": "Sweetmelissaphillips",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3F6bmMrpUbaJzFjq2WFlurcesgf",
    "name": "Tammygilmartin7",
    "avatar": null,
    "verified": true,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3G4SIL0rmn54NGZZDxKpz1hmIy4",
+   "name": "Terrie C.",
+   "avatar": null,
+   "verified": false,
    "badges": [],
    "location": null,
    "posts": 0,
@@ -1044,8 +1341,41 @@
    "types": {}
   },
   {
+   "id": "user_3GNSAMbe9OuZgVZVev0lL9TZFqk",
+   "name": "Twoxreed_1999",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
    "id": "user_3HNrJA089NWwmA9yN9feYxJeRgK",
    "name": "Valerie W.",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": null,
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3F720D2LIYD9avOCimI3uAwqUkk",
+   "name": "Virtuouswoman137",
+   "avatar": null,
+   "verified": false,
+   "badges": [],
+   "location": "Hattiesburg, Mississippi",
+   "posts": 0,
+   "latestAt": null,
+   "types": {}
+  },
+  {
+   "id": "user_3EulLz9CmjxdEG1WCTO8fhHOccE",
+   "name": "Yvettelott",
    "avatar": null,
    "verified": false,
    "badges": [],
