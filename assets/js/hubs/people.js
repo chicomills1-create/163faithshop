@@ -355,7 +355,7 @@ function personHTML(doc, p) {
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>
   <section class="pp-scene hero reveal">
     <img class="pp-live slow" src="${esc(p.scene)}" alt="${esc(p.name)} — the defining moment: ${esc(p.sceneCaption)}">
-    ${isMoses ? `<video class="pp-loopvid" data-living data-src="assets/video/people/red-sea-loop.mp4" poster="${esc(p.scene)}" muted loop playsinline preload="none" aria-hidden="true"></video>` : ''}
+    ${isMoses ? `<video class="pp-loopvid" data-living src="assets/video/people/red-sea-loop.mp4" poster="${esc(p.scene)}" muted loop playsinline preload="none" aria-hidden="true"></video>` : ''}
     <div class="pp-sceneshade"></div>
     <span class="cap chip">${esc(p.sceneCaption)}</span>
     <div class="pp-pagetitle">
@@ -372,7 +372,7 @@ function personHTML(doc, p) {
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
   <section class="pp-feature reveal">
-    ${isJesus ? `<video data-living data-src="assets/video/people/jesus-supper.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="The first scene of the Jesus film — the Last Supper"></video>` : `<img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
+    ${isJesus ? `<video data-living src="assets/video/people/jesus-supper.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="The first scene of the Jesus film — the Last Supper"></video>` : `<img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
     <div class="plate">
       ${isJesus
         ? `<p class="t">✦ The Feature — Jesus: The Film · First Scene Preview · In Production</p>
@@ -403,11 +403,16 @@ function personHTML(doc, p) {
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>`;
 }
 
-/* Living videos (PROFILES ALIVE): a [data-living] video carries no
-   src until it is actually on screen; the observer loads it, plays
-   it, fades it in over its poster, and pauses it off screen. Under
-   reduced motion nothing loads and the poster stands — the CSS
-   media block also hides the layer outright. */
+/* Living videos (PROFILES ALIVE + audit cure 2026-11-24): a
+   [data-living] video carries its real src with preload="none" — no
+   bytes move until the observer plays it on screen; it fades in
+   over its poster and pauses off screen. It used to carry NO src
+   until intersection (a data-src hand-off), and in that window the
+   browser's accessibility tree named the sourceless element
+   "Unable to play media" — the flicker two live walks caught. The
+   poster always covered the frame visually; now the element is
+   never sourceless, so the false label never exists. Under reduced
+   motion nothing plays and the poster stands. */
 function armLiving(scope) {
   const vids = scope.querySelectorAll('video[data-living]');
   if (!vids.length) return;
@@ -418,7 +423,6 @@ function armLiving(scope) {
     const v = e.target;
     if (!v.isConnected) { io.unobserve(v); return; }
     if (e.isIntersecting) {
-      if (!v.getAttribute('src') && v.dataset.src) v.src = v.dataset.src;
       const pr = v.play();
       if (pr && pr.then) pr.then(() => v.classList.add('on')).catch(() => {});
       else v.classList.add('on');

@@ -2277,12 +2277,29 @@ function peopleStripHtml() {
 }
 function viewMembers() {
   const list = S.members;
+  /* AUDIT CURE D-3 (2026-11-24): the directory grid now answers the
+     search. Before this cure the submit handler set S.peopleQuery and
+     repainted, but this view rendered S.members unfiltered — only the
+     strip above the grid ever narrowed, so the grid stood at its full
+     count for every query (the audit's "Ministry" search left all 113
+     cards standing). The grid narrows by the house predicate (name +
+     location — the same one the strip's directory mode and the rail
+     search fallback use), unioned with the live search's own hits
+     when it answered. The note above keeps the TRUE directory total;
+     a results line under the form states the narrowed count, and an
+     empty result says so honestly. */
+  const q = (S.peopleQuery || '').trim().toLowerCase();
+  const liveIds = q && S.peopleResults != null ? new Set(S.peopleResults.map((r) => r.userId)) : null;
+  const shown = q
+    ? list.filter((m) => (m.name + ' ' + (m.location || '')).toLowerCase().includes(q) || (liveIds && m.id && liveIds.has(m.id)))
+    : list;
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">THE FAMILY DIRECTORY</span><h2>Every face <em>matters.</em></h2></div></div>
   <p class="bk-note">${S.counters ? `<b style="color:var(--gold)">${S.counters.members} members</b> in the family (the community pulse total) · ` : ''}<b style="color:var(--gold)">${list.length} profiles listed</b> in the directory below — the members evidenced in the wall's own pages${S.mode === 'live' ? ' and this live pull' : ' of the capture'}. Two different counts, labeled: the pulse counts every registered member; this directory lists the profiles the wall's pages evidence — real people only; nobody is invented to fill a grid. Search runs against the live member index.</p>
   <form class="bk-search" data-peoplesearch><input type="search" placeholder="Search the family by name…" value="${esc(S.peopleQuery)}" aria-label="Search members by name"><button type="submit">SEARCH</button></form>
   ${peopleStripHtml()}
-  <div class="bk-mgrid">${list.map((m) => m.id ? `
+  ${q ? `<p class="bk-note" data-dirfilter>Showing <b style="color:var(--gold)">${shown.length}</b> of ${list.length} profiles for &ldquo;${esc(S.peopleQuery.trim())}&rdquo;.</p>` : ''}
+  ${q && !shown.length ? `<div class="bk-ctx"><h3>No member in the directory matches that search.</h3><p>The directory lists the profiles the wall's pages evidence — try a name or a place.${S.peopleResults != null && S.peopleResults.length ? ' The live search did find matches — they stand in the strip above.' : ''}</p></div>` : `<div class="bk-mgrid" data-dirtotal="${list.length}">${shown.map((m) => m.id ? `
     <button type="button" class="bk-mcard" data-profile="${esc(m.id)}">${avatarHtml(m.name, m.avatar, false)}
       <strong>${esc(m.name)}${m.verified ? ' <span class="bk-ver">✦</span>' : ''}</strong>
       <small>${m.location ? esc(m.location) + ' · ' : ''}${(m.postsInPull ?? m.posts) != null ? (m.postsInPull ?? m.posts) + (((m.postsInPull ?? m.posts) === 1) ? ' post' : ' posts') + (S.mode === 'live' ? ' in this pull' : ' in capture') : ''}</small>
@@ -2290,7 +2307,8 @@ function viewMembers() {
     <div class="bk-mcard static" data-noprofile="1">${avatarHtml(m.name, m.avatar, false)}
       <strong>${esc(m.name)}${m.verified ? ' <span class="bk-ver">✦</span>' : ''}</strong>
       <small>${m.location ? esc(m.location) + ' · ' : ''}profile proven on the old face (census Leg-4)</small>
-    </div>`).join('')}</div>`;
+    </div>`).join('')}</div>`}
+  <p class="bk-note" data-dirnone hidden>No member in the directory matches that search.</p>`;
 }
 function viewGroups() {
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
@@ -3129,6 +3147,41 @@ function paint(keepScroll = false) {
     catch { S.peopleResults = null; }
     if (S.view === 'members') paint();
   });
+  /* AUDIT CURE D-3 (2026-11-24): typing in the directory search
+     narrows the rendered grid IN PLACE — no repaint, so the reader
+     keeps focus and scroll (the consult's ruling for this cure).
+     Submit above stays the authoritative path (live search + repaint
+     with the filtered grid). Clearing the box restores the full
+     directory through the same repaint the submit path uses. */
+  if (form) {
+    const dirInput = form.querySelector('input');
+    dirInput.addEventListener('input', () => {
+      const value = dirInput.value;
+      const query = value.trim().toLowerCase();
+      if (!query) {
+        if (S.peopleQuery) { S.peopleQuery = ''; S.peopleResults = null; paint(); }
+        return;
+      }
+      S.peopleQuery = value;
+      const grid = main.querySelector('.bk-mgrid');
+      if (!grid) return;
+      let visible = 0;
+      grid.querySelectorAll('.bk-mcard').forEach((card) => {
+        const hit = card.textContent.toLowerCase().includes(query);
+        card.style.display = hit ? '' : 'none';
+        if (hit) visible += 1;
+      });
+      let line = main.querySelector('[data-dirfilter]');
+      if (!line) {
+        line = document.createElement('p');
+        line.className = 'bk-note'; line.setAttribute('data-dirfilter', '');
+        grid.parentNode.insertBefore(line, grid);
+      }
+      line.innerHTML = `Showing <b style="color:var(--gold)">${visible}</b> of ${grid.dataset.dirtotal || grid.querySelectorAll('.bk-mcard').length} profiles for &ldquo;${esc(value.trim())}&rdquo;.`;
+      const none = main.querySelector('[data-dirnone]');
+      if (none) none.hidden = visible !== 0;
+    });
+  }
   /* R-6: the right rail's Member Search — the same live directory
      search, answered into the rail's results box in place (no
      repaint: the reader never loses the wall or their scroll). */

@@ -452,9 +452,10 @@ function renderDoors() {
       <p class="w-invite">Faith in every frame. Culture in every conversation.</p>
     </div>
     <div class="hub-search"><input type="search" data-watch-search placeholder="Search films & series" aria-label="Search Watch"></div>
+    <!-- AUDIT CURE D-WATCH-1 (2026-11-24): a door with no titles yet says so — the Documentaries chip used to render a bare 0, an empty door with no honest state. Its badge now carries OPENING SOON until the door has a first title. -->
     <p class="w-chips-label">Pick a door</p>
     <div class="w-chips" role="group" aria-label="Watch doors">
-      ${doors.map((d) => `<button type="button" class="w-chip" data-door="${esc(d.slug)}">${esc(d.name)}<span class="w-chip-n">${doorTitles(d.slug).length}</span></button>`).join('')}
+      ${doors.map((d) => { const n = doorTitles(d.slug).length; return `<button type="button" class="w-chip" data-door="${esc(d.slug)}">${esc(d.name)}<span class="w-chip-n">${n || 'Opening soon'}</span></button>`; }).join('')}
     </div>
     ${railHtml('continue', 'Continue Watching', 'On this device — your own viewing, stored only here', cont, { progress: true })}
     ${railHtml('mylist', 'My List', 'On this device — saved by you, stored only here', mine)}
