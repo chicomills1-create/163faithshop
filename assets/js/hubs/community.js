@@ -1421,8 +1421,36 @@ const CSS16 = `
 .bk-storycol-kind{display:block;margin-top:2px;font-size:7.5px;letter-spacing:1.2px;color:#c3a158;font-weight:900;white-space:nowrap}
 .bk-yoursdisc{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#161512;color:var(--gold);font-size:24px;font-weight:900;line-height:1}
 `;
+const CSS17 = `
+/* ---------- PROFILES ALIVE (2026-11-23) — member profile pass.
+   Founder: "Make the personal profiles awesome!" / "I don't like
+   the stale look." The cover banner comes alive: the cover art
+   rides an inner layer (.bk-profcovimg, overscanned so its edges
+   never show) on a slow transform drift, a deep gradient settles
+   it into the page, and a gold glow breathes over the top —
+   transform/opacity only. The avatar's complete gold-ring circle
+   (CSS14 cure + .bk-profava) is NOT touched. Below the header,
+   the member's own content rides three honest tabs — POSTS ·
+   TESTIMONIES · PRAYERS — each rendering only what the carried
+   record holds for that member, with real counts on the tabs. */
+.bk-profcover{overflow:hidden}
+.bk-profcovimg{position:absolute;inset:-30px;background-size:cover;background-position:center;animation:bk-covdrift 38s ease-in-out infinite alternate;will-change:transform}
+@keyframes bk-covdrift{from{transform:scale(1.05) translate(0,0)}to{transform:scale(1.13) translate(-1.8%,1.6%)}}
+.bk-profgrad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.10) 0%,rgba(5,5,5,0) 42%,rgba(16,16,16,.38) 100%);pointer-events:none}
+.bk-profglow{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,rgba(212,175,55,.22),transparent 55%);opacity:.4;animation:bk-covbreathe 9s ease-in-out infinite alternate;pointer-events:none}
+@keyframes bk-covbreathe{from{opacity:.28}to{opacity:.58}}
+.bk-profcovnote{z-index:2}
+.bk-proftabs{margin-top:2px}
+.bk-tabrow{display:flex;gap:4px;border-bottom:1px solid #353027;margin-bottom:14px;overflow-x:auto}
+.bk-ptab{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:#a69a84;font:inherit;font-size:11px;font-weight:900;letter-spacing:1.2px;padding:11px 6px 9px;cursor:pointer;white-space:nowrap;text-transform:uppercase;margin-bottom:-1px}
+.bk-ptab b{color:var(--gold);font-size:12.5px}
+.bk-ptab:hover{color:var(--cream)}
+.bk-ptab.on{color:var(--cream);border-bottom-color:var(--gold)}
+.bk-ppanel[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.bk-profcovimg,.bk-profglow{animation:none}}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}${CSS17}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -2356,6 +2384,34 @@ function aboutThemHtml(name, posts) {
     <p>${esc(first)} has shared ${kinds.join(' — ')}.${themes.length ? ` Words that keep rising in ${esc(first)}'s own posts: <b>${themes.map(esc).join(', ')}</b>.` : ''}${newest ? ` Newest voice here: ${relTime(newest.createdAt)}.` : ''}</p><span class="bk-ainote">POWERED BY AI · SUMMARIZES THIS MEMBER'S OWN PUBLIC POSTS ONLY — NOTHING INVENTED</span></section>`;
 }
 
+/* PROFILES ALIVE (2026-11-23): the member's own content as three
+   honest tabs — POSTS · TESTIMONIES · PRAYERS. Every panel renders
+   ONLY what the carried record holds for this member; the tab
+   counts are those same real sets; an empty kind carries one
+   honest line. The default tab is the first kind that exists
+   (posts, then testimonies, then prayers). Switching is a pure
+   class/hidden toggle inside the profile — no repaint, no fetch. */
+function profTabsHtml(name, posts, test, prayers, prayingTotal, profTestimony) {
+  const first = name.split(' ')[0];
+  const def = posts.length ? 'posts' : (test.length || profTestimony) ? 'testimonies' : prayers.length ? 'prayers' : 'posts';
+  const tab = (key, label, n) => `<button type="button" class="bk-ptab${def === key ? ' on' : ''}" data-ptab="${key}" role="tab" aria-selected="${def === key ? 'true' : 'false'}">${label} · <b>${n}</b></button>`;
+  const panel = (key, inner) => `<div class="bk-ppanel" data-ppanel="${key}" role="tabpanel"${def === key ? '' : ' hidden'}>${inner}</div>`;
+  const postsInner = posts.length ? posts.map((p) => postCard(p, true)).join('') : '<div class="bk-ctx"><p>No posts yet.</p></div>';
+  const testInner = (profTestimony ? `<div class="bk-proftest">“${esc(profTestimony)}”</div>` : '')
+    + (test.length ? test.map((p) => postCard(p, true)).join('') : (profTestimony ? '' : '<div class="bk-ctx"><p>No testimonies yet.</p></div>'));
+  const prayInner = prayers.length
+    ? `<div class="bk-ctx"><p><b>${prayers.length} prayer request${prayers.length === 1 ? '' : 's'}</b> from ${esc(first)} on the wall, with <b>${prayingTotal} prayers lifted</b> over them by the family.</p></div>` + prayers.map((p) => postCard(p, true)).join('')
+    : '<div class="bk-ctx"><p>No prayer requests yet.</p></div>';
+  return `<div class="bk-proftabs"><div class="bk-tabrow" role="tablist">${tab('posts', 'Posts', posts.length)}${tab('testimonies', 'Testimonies', test.length)}${tab('prayers', 'Prayers', prayers.length)}</div>${panel('posts', postsInner)}${panel('testimonies', testInner)}${panel('prayers', prayInner)}</div>`;
+}
+function wireProfTabs(el) {
+  el.querySelectorAll('[data-ptab]').forEach((b) => b.addEventListener('click', () => {
+    const wrap = b.closest('.bk-proftabs'); if (!wrap) return;
+    wrap.querySelectorAll('[data-ptab]').forEach((x) => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    wrap.querySelectorAll('[data-ppanel]').forEach((pn) => { pn.hidden = pn.dataset.ppanel !== b.dataset.ptab; });
+  }));
+}
+
 async function viewProfile(id) {
   const ids = personIds(id);
   const carried = [...S.posts, ...S.testimonies].filter((p) => ids.has(p.authorId));
@@ -2401,7 +2457,7 @@ async function viewProfile(id) {
   const countsLine = `<div class="bk-profcountsline"><b>${posts.length}</b> post${posts.length === 1 ? '' : 's'} · <b>${theirTestAll.length}</b> testimon${theirTestAll.length === 1 ? 'y' : 'ies'} · <b>${prayingTotalAll}</b> prayers lifted</div>`;
   const headerHtml = (coverUrl, avatarUrl, verified, metaLine) => {
     const cov = coverUrl || aiCoverFor(id);
-    return `<div class="bk-profhero"><div class="bk-profcover" style="background-image:url('${esc(cov)}')">${coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>'}</div><div class="bk-profbody">
+    return `<div class="bk-profhero"><div class="bk-profcover"><span class="bk-profcovimg" style="background-image:url('${esc(cov)}')"></span><span class="bk-profgrad"></span><span class="bk-profglow"></span>${coverUrl ? '' : '<span class="bk-profcovnote">AI COVER ART · 16:3 FAITH</span>'}</div><div class="bk-profbody">
     <span class="bk-profava">${avatarHtml(name, avatarUrl, id === HOUSE_ID)}</span>
     <h2>${esc(name)}${verified ? ' <span class="bk-ver">✦</span>' : ''}</h2>
     ${metaLine ? `<div class="meta">${metaLine}</div>` : ''}
@@ -2409,11 +2465,15 @@ async function viewProfile(id) {
   </div></div>`;
   };
   if (id === HOUSE_ID && prof) {
+    const hTest = posts.filter((p) => p.type === 'testimony');
+    const hPray = posts.filter((p) => p.type === 'prayer');
+    const hPosts = posts.filter((p) => p.type !== 'testimony' && p.type !== 'prayer');
+    const hPrayingTotal = hPray.reduce((a, p) => a + (p.prayerCount || 0), 0);
     el.innerHTML = `${headerHtml(prof.coverUrl, prof.avatarUrl, true, `${esc(prof.headline || '')}${prof.location ? ' · ' + esc(prof.location) : ''}`)}
     ${prof.bio ? `<p style="font-size:13.5px;line-height:1.65;color:#e2d9c2;margin:0 0 14px">${linkify(prof.bio)}</p>` : ''}
     ${aboutThemHtml(name, posts)}
-    <h3 class="bk-secttl">From the <em>house</em></h3>${posts.map((p) => postCard(p, true)).join('')}`;
-    wirePosts(el); return;
+    ${profTabsHtml(name, hPosts, hTest, hPray, hPrayingTotal, null)}`;
+    wirePosts(el); wireProfTabs(el); return;
   }
   /* P1-7 + P1-8 (amp-up 2026-11-22) + 2C-3 (§2): the profile is a full
      page in two columns on desktop — DETAILS (only carried facts; a
@@ -2458,18 +2518,9 @@ async function viewProfile(id) {
     : '<div class="bk-ctx"><p>Group membership is member-account data — it opens with sign-in. The circles themselves are all on the Groups door.</p></div>'}
   </div><div class="bk-profcol">
   ${aboutThemHtml(name, posts)}
-  <h3 class="bk-secttl">Their <em>testimonies</em></h3>
-  ${prof?.testimony ? `<div class="bk-proftest">“${esc(prof.testimony)}”</div>` : ''}
-  ${theirTest.length ? theirTest.map((p) => postCard(p, true)).join('') : (prof?.testimony ? '' : '<div class="bk-ctx"><p>No testimony posts by this member are in the carried wall.</p></div>')}
-  <h3 class="bk-secttl">Prayers <em>lifted</em></h3>
-  <div class="bk-ctx"><p>${theirPrayers.length
-    ? `<b>${theirPrayers.length} prayer request${theirPrayers.length === 1 ? '' : 's'}</b> from ${esc(name.split(' ')[0])} on the wall, with <b>${prayingTotal} prayers lifted</b> over them by the family.`
-    : `No prayer requests from ${esc(name.split(' ')[0])} are in the carried wall — the Prayer Wall in the Pray hub carries the family's live requests.`}</p></div>
-  ${theirPrayers.map((p) => postCard(p, true)).join('')}
-  <h3 class="bk-secttl">Posts by <em>${esc(name.split(' ')[0])}</em></h3>
-  ${theirPosts.length ? theirPosts.map((p) => postCard(p, true)).join('') : '<div class="bk-ctx"><p>No posts by this member are in the carried pages.</p></div>'}
+  ${profTabsHtml(name, theirPosts, theirTest, theirPrayers, prayingTotal, prof?.testimony)}
   </div></div>`;
-  wirePosts(el);
+  wirePosts(el); wireProfTabs(el);
   el.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); window.scrollTo(0, 0); }));
 }
 
