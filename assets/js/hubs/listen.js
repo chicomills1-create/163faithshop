@@ -247,7 +247,11 @@ const STYLE = `<style>
    Play All riding the hero, Ken Burns drift, years span from real
    release years). No-art artists get the house monogram hero in the
    same layout. Release sections and playback behavior are untouched. */
-.artist-hero{position:relative;margin:8px -20px 0;min-height:350px;display:flex;align-items:flex-end;overflow:hidden;background:#0a0906;isolation:isolate}
+/* overflow-anchor off for the hub root: Chrome's scroll anchoring
+   otherwise re-applies the roster's scroll offset after the artist
+   paint (live-walk cure, 2026-11-24). */
+#hub-root{overflow-anchor:none}
+.artist-hero{position:relative;margin:8px 0 0;width:100vw;margin-left:calc(50% - 50vw);min-height:350px;display:flex;align-items:flex-end;overflow:hidden;background:#0a0906;isolation:isolate}
 .artist-hero .ah-mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;font-size:170px;line-height:1;color:rgba(232,190,84,.45);background:radial-gradient(circle at 50% 26%,#3d2d11,#0c0b0a 72%);z-index:0}
 .artist-hero img.ah-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;filter:saturate(1.07) sepia(.16) contrast(1.03);animation:ahDrift 26s ease-in-out infinite alternate;z-index:1}
 @keyframes ahDrift{from{transform:scale(1.03)}to{transform:scale(1.13) translateY(-1.6%)}}
@@ -1235,6 +1239,17 @@ export function render(root, { player }) {
       </div>
       ${groups && groups.length > 8 ? `<div class="ah-filterrow"><label class="rel-filter"><input type="search" data-relfilter placeholder="Find a release…" aria-label="Find a release" value="${esc(ui.filter)}"></label></div>` : ''}
       ${groups ? `<div id="artist-sections"></div>` : flatShelf}`;
+    /* ARTIST HERO CURE (2026-11-24, live-walk finding): an artist page
+       must OPEN on its hero — reset the window scroll the roster left
+       behind, or the visitor lands mid-page (the walk found the Misc
+       section). behavior:'instant' is load-bearing — the shell's
+       smooth-scroll CSS otherwise animates the reset and the page
+       lands mid-glide. At paint, after first layout, and once more
+       at 350ms for late section paints. */
+    const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    toTop();
+    requestAnimationFrame(toTop);
+    setTimeout(toTop, 350);
     viewEl.querySelector('[data-back]').addEventListener('click', () => (a.door ? doorView(a.door) : doorsView()));
     const playAllBtn = viewEl.querySelector('[data-playall]');
     if (playAllBtn) playAllBtn.addEventListener('click', () => playArtistFrom(slug, 0));
