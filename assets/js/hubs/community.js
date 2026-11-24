@@ -179,8 +179,6 @@ const CSS2 = `
 .bk-bubble span{font-size:10px;color:#8d8676;margin-left:7px}
 .bk-bubble p{margin:5px 0 0;color:#e1d5c0;font-size:12.5px;line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}
 .bk-cnote{font-size:12px;color:#a99f88;line-height:1.6;border:1px dashed #4c4433;border-radius:8px;padding:10px 12px}
-.bk-loadmore{display:block;margin:4px auto 0;border:1px solid #765921;background:transparent;border-radius:5px;padding:12px 22px;color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.6px;cursor:pointer}
-.bk-loadmore:hover{background:#312411}
 .bk-endfeed{text-align:center;color:#d5b775;padding:22px 10px 8px}
 .bk-endfeed span{font-size:23px;display:block}
 .bk-endfeed strong{display:block;font-size:12px;letter-spacing:1px;margin-top:8px}
@@ -458,7 +456,7 @@ const S = {
   view: 'doors', root: null, navigate: null,
   mode: 'snapshot',            // 'live' once the API answers from this browser
   posts: [], testimonies: [], groups: [], members: [], bakedMembers: [], wallPosts: [],
-  counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false, chainSettled: false,
+  counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false, feedGrowing: false, freshGlow: null, beatGone: false, chainSettled: false,
   feedFilter: 'all', feedShown: PAGE, feedSort: 'new',
   composeType: 'post', gateOpen: false,
   /* R-5: composer FAB + slide-up sheet state (elements themselves
@@ -467,6 +465,11 @@ const S = {
   profileId: null, profileCache: new Map(),
   commentsOpen: new Set(), commentsCache: new Map(),
   peopleQuery: '', peopleResults: null, loadedLive: false,
+  /* R-6: right-rail Member Search state — the query + the last
+     answer ({source:'live'|'directory', rows} or {busy:true}); the
+     rail re-renders results from this on every paint, and the
+     submit handler patches them in place between paints. */
+  railSearchQ: '', railSearch: null,
   presents: [], presentsLoaded: false,
   /* 2C-4: reaction session truth (fold-in 2), new-posts pill state,
      stories viewer state. rxTruth persists in sessionStorage so a
@@ -713,13 +716,17 @@ function repaintHub() { if (S.root && S.view !== 'profile') paint(true); }
    three surfaces carry settle-sensitive numbers, and they patch in
    place: the rail count line (testimonies '…' → its settled count),
    the FaithGuide AI cards ('reading the wall…' → the real summary),
-   and the LOAD MORE label (the carried remainder grew). Any shape
+   and the feed sentinel (the carried remainder grew). Any shape
    mismatch (button should appear/vanish, another view is showing)
    falls back to the preserved repaint. */
 function settlePatch() {
   if (!S.root || S.view !== 'feed') { repaintHub(); return; }
   const cl = S.root.querySelector('.bk-countline');
   if (cl) cl.innerHTML = countersLine();
+  /* R-6: the rail profile card's stat trio settles with the counts —
+     patch its cells in place the same way ('…' → the real numbers). */
+  const trio = S.root.querySelector('[data-trio]');
+  if (trio) trio.innerHTML = trioCellsHtml();
   /* R-1 (2026-11-23): the lobby PULSE card carries settle-sensitive
      numbers too — patch its cells in place the same way (finals,
      in-flight count-up cancelled). Text-node writes only. */
@@ -733,11 +740,14 @@ function settlePatch() {
   const pymkNodes = S.root.querySelectorAll('[data-pymk]');
   if (pymkNodes.length) pymkNodes.forEach((n) => { if (pymkNow) n.outerHTML = pymkNow; else n.remove(); });
   else if (pymkNow) { repaintHub(); return; }
-  const list = feedList();
-  const btn = S.root.querySelector('[data-loadmore]');
-  const shouldShow = list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore);
-  if (btn && shouldShow) btn.textContent = `LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}`;
-  else if (!!btn !== shouldShow) repaintHub();
+  /* R-6 FOLD B: the button-label leg is now a sentinel nudge — the
+     chain settling under a reader parked at the wall's end keeps
+     feeding append-only, or lands the end state (sentinel swapped
+     for YOU'RE ALL CAUGHT UP + the close) when the wall exhausts.
+     A shape the append path cannot reconcile falls back to the
+     preserved repaint, as before. */
+  if (S.root.querySelector('[data-sentinel]')) feedMore();
+  else if (S.feedFilter !== 'watch' && feedList().length && !S.root.querySelector('.bk-endfeed') && !feedExhausted()) repaintHub();
 }
 
 /* Live-first load: guest feed pages + testimonies + prayers + groups +
@@ -802,11 +812,11 @@ async function loadLive() {
        the wall carries the full live set and the Feed door's POSTS
        CARRIED equals what the wall holds and can render at every
        settled paint. A failed slice stops the chain with the cursor
-       standing — LOAD MORE resumes from it (loadMoreLive). The old
+       standing — the scroll sentinel resumes from it (loadMoreLive). The old
        loader's three ?page= fetches were dead weight: the API ignores
        the page param (page=2 returned slice 1 byte-identical) and its
        response carries no total field, which had feedTotal pinned at
-       null and LOAD MORE permanently guarded off — the wall capped at
+       null and the sentinel permanently guarded off — the wall capped at
        slice 1 (25 carried on the door, 19 renderable on the timeline,
        the split being the slice's 6 testimonies) while claiming
        "YOU'RE ALL CAUGHT UP." */
@@ -833,7 +843,7 @@ async function loadLive() {
          change, and they settle once, per the M4 rule. */
     }
     /* The chain has exited — exhausted, or stalled on a failed slice
-       with the cursor standing (LOAD MORE resumes it). Either way the
+       with the cursor standing (the sentinel resumes it). Either way the
        held wall is now the settled set the count surfaces read: the
        Feed door shows the feed's own total, the Testimonies door and
        the rail show the testimonies actually carried and listed —
@@ -897,24 +907,65 @@ function countersLine() {
   const t = countsSettled() ? S.testimonies.length : '…';
   return `<b>${c.members}</b> members · <b>${t}</b> testimonies<br><b>${c.prayerRequests}</b> prayer requests · <b>${c.prayersLifted}</b> prayers lifted`;
 }
+/* ---------- RESTORE R-6 — the profile card's stat trio ----------
+   The original's signed-in rail card carried a stat trio (study
+   §2.3); §4 maps it to the numbers this build truly has — POSTS ·
+   TESTIMONIES · PRAYERS LIFTED — computed with the profile page's
+   own math over the member's carried record (their carried posts;
+   Σ prayerCount over their prayer posts, the prayer-room wall
+   included). Zero when the record carries none; never padded.
+   Until the counts settle the cells read '…' (never a partial
+   that visibly climbs) and settlePatch patches them in place. */
+function myTrioCounts() {
+  const me = myId(); if (!me) return null;
+  const ids = personIds(me);
+  const mine = uniqPosts([...S.posts, ...S.testimonies].filter((p) => p.authorId && ids.has(p.authorId)));
+  const prayers = uniqPosts([...mine.filter((p) => p.type === 'prayer'), ...S.wallPosts.filter((p) => ids.has(p.authorId))]);
+  return {
+    posts: mine.length,
+    testimonies: mine.filter((p) => p.type === 'testimony').length,
+    lifted: prayers.reduce((a, p) => a + (p.prayerCount || 0), 0),
+  };
+}
+function trioCellsHtml() {
+  const t = countsSettled() ? myTrioCounts() : null;
+  const cell = (key, label) => `<div><b>${t ? t[key] : '…'}</b><span>${label}</span></div>`;
+  return `${cell('posts', 'POSTS')}${cell('testimonies', 'TESTIMONIES')}${cell('lifted', 'PRAYERS LIFTED')}`;
+}
 function railHtml() {
   const v = S.view;
+  const me = myId();
   const link = (view, glyph, label, extra = '') => `<button type="button" class="bk-rlink ${v === view ? 'on' : ''}" data-view="${view}"><span class="g">${glyph}</span><span>${label}</span>${extra}</button>`;
+  const hub = (h, glyph, label) => `<button type="button" class="bk-rlink" data-hubgo="${h}"><span class="g">${glyph}</span><span>${label}</span></button>`;
+  const signin = me ? '' : '<em>SIGN-IN</em>';
+  let card;
+  if (me) {
+    const dir = (S.members || []).find((m) => m.id === me) || (S.bakedMembers || []).find((m) => m.id === me);
+    const name = dir?.name || 'Family member';
+    card = `<div class="panel bk-idcard"><button type="button" class="bk-idme" data-profile="${esc(me)}">${avatarHtml(name, dir?.avatar || null, false)}<span class="bk-idmet"><span class="eyebrow">YOUR CORNER</span><strong>${esc(name)}</strong>${dir?.location ? `<small>${esc(dir.location)}</small>` : ''}</span></button>
+    <div class="bk-trio" data-trio>${trioCellsHtml()}</div>
+    <div class="bk-countline">${countersLine()}</div></div>`;
+  } else {
+    card = `<div class="panel bk-idcard"><div class="bk-idhead"><span class="bk-ava house">16:3</span><div><span class="eyebrow">JOIN THE FAMILY</span><strong>Welcome home.</strong><small>The family's own wall — read it all as a guest. Posting opens with member sign-in.</small></div></div>
+    <div class="bk-countline">${countersLine()}</div>
+    <button type="button" class="bk-goldbtn" data-lobbyjoin>SIGN IN</button></div>`;
+  }
   return `<aside class="bk-rail">
-    <div class="panel bk-idcard"><div class="bk-idhead"><span class="bk-ava house">16:3</span><div><span class="eyebrow">YOUR CORNER</span><strong>Welcome home.</strong><small>The family's own wall — read it all as a guest. Posting opens with member sign-in.</small></div></div>
-    <div class="bk-countline">${countersLine()}</div></div>
-    <div class="bk-railgroup"><div class="bk-railt">THE COMMUNITY</div>
-      ${link('feed', '⌂', 'The Feed', '<i>01</i>')}
-      <button type="button" class="bk-rlink" data-hubgo="pray"><span class="g">✛</span><span>Prayer Wall</span></button>
+    ${card}
+    <nav class="bk-flatlist" aria-label="Community shortcuts">
+      ${link('feed', '⌂', 'Feed')}
+      ${hub('pray', '✛', 'Prayer Wall')}
       ${link('testimonies', '✦', 'Testimonies')}
       ${link('groups', '◉', 'Groups &amp; Circles')}
       ${link('members', '◎', 'Find Your People')}
-      ${link('messages', '✉', 'Messages', '<em>SIGN-IN</em>')}
-      ${link('saved', '⚑', 'Saved Posts', '<em>SIGN-IN</em>')}
-    </div>
-    <div class="bk-railgroup"><div class="bk-railt">YOUR CIRCLES</div>
-      ${S.groups.slice(0, 3).map((g) => `<button type="button" class="bk-circle" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span>${esc(g.name)}</span></button>`).join('')}
-    </div>
+      ${link('messages', '✉', 'Messages', signin)}
+      ${link('saved', '⚑', 'Saved Posts', signin)}
+      ${hub('give', '✚', 'Give')}
+      ${hub('watch', '▶', 'Watch')}
+      ${hub('listen', '♪', 'Listen')}
+      ${hub('read', '✞', 'Read')}
+      ${S.groups.slice(0, 3).map((g) => `<button type="button" class="bk-rlink" data-view="groups"><span class="bk-gcover">${esc(initials(g.name))}</span><span>${esc(g.name)}</span></button>`).join('')}
+    </nav>
     <div class="bk-quote"><div class="sc">“</div><p>Church is not just a building. It's who shows up for you when life gets loud.</p><span>THE 16:3 WAY.</span></div>
     <div class="bk-railbot">A PLACE TO BE REAL.<br>A PEOPLE TO BELONG TO.</div>
   </aside>`;
@@ -969,9 +1020,47 @@ function pymkHtml() {
   ${list.map((c) => `<button type="button" class="bk-pymkrow" data-profile="${esc(c.id)}">${avatarHtml(c.name, c.avatar, false)}<span><strong>${esc(c.name)}</strong><small>${esc(c.basis)}</small></span></button>`).join('')}
   <p class="bk-note" style="margin:8px 0 0">Suggested from the family's real directory — the reason is on every card.</p></section>`;
 }
+/* ---------- RESTORE R-6 — MEMBER SEARCH (right rail, on top) ----------
+   The original's right rail carried a Member Search (study §2.6);
+   §3 row 11 rules it ORIGINAL-ONLY because the directory search
+   already exists — this wires it into the rail. It runs the SAME
+   live member search the lobby pill and the members view ride
+   (GET /api/community/members/search), shows up to five faces, and
+   a live failure falls back to the baked directory filter, labeled
+   — the members view's own honesty pattern. The answer patches the
+   results box in place (no repaint, no scroll loss — blink law);
+   the state rides S.railSearch so any later paint re-renders it. */
+function railSearchResultsHtml() {
+  const r = S.railSearch;
+  if (!r) return '';
+  if (r.busy) return '<p class="bk-note" style="margin:10px 0 0">Searching the family…</p>';
+  const lab = r.source === 'live' ? 'LIVE FROM THE MEMBER SEARCH' : 'FROM THE DIRECTORY — THE LIVE SEARCH DIDN\'T ANSWER';
+  const rows = r.rows.length
+    ? r.rows.map((x) => `<button type="button" class="bk-msrow" data-profile="${esc(x.userId)}">${avatarHtml(x.name, x.avatar, x.userId === HOUSE_ID)}<span><strong>${esc(x.name)}</strong>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span></button>`).join('')
+    : '<p class="bk-note" style="margin:0">No member matches that name.</p>';
+  return `<div class="bk-mslab">${lab}</div>${rows}<button type="button" class="bk-msdir" data-view="members">OPEN THE FULL DIRECTORY →</button>`;
+}
+function memberSearchHtml() {
+  return `<section class="panel bk-sidecard bk-msearch"><div class="phead"><span class="eyebrow">MEMBER SEARCH</span><span style="color:#8d7a4d;font-size:13px;font-weight:900">⌕</span></div>
+  <form class="bk-msform" data-railsearch role="search"><input type="search" placeholder="Search the family by name…" value="${esc(S.railSearchQ)}" aria-label="Search members by name" autocomplete="off"><button type="submit">SEARCH</button></form>
+  <div data-railsearchbox>${railSearchResultsHtml()}</div></section>`;
+}
+/* The in-place landing for a rail-search answer: swap only the
+   results box, then wire its rows (paint wires the painted copies;
+   a patched copy wires its own, the standing one-liner pattern). */
+function patchRailSearch() {
+  if (!S.root) return;
+  const box = S.root.querySelector('[data-railsearchbox]');
+  if (!box) return;
+  box.innerHTML = railSearchResultsHtml();
+  box.querySelectorAll('[data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
+  box.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); window.scrollTo(0, 0); }));
+}
 function sideHtml() {
   return `<aside class="bk-side">
+    ${memberSearchHtml()}
     ${aiHighlightsHtml()}
+    ${sceneCardHtml()}
     ${pymkHtml()}
     <div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
     <section class="panel bk-tape"><div class="small">THE WEEKLY ROTATION <span>VOL. 01</span></div><h3>FAITH HAS<br><em>A SOUND.</em></h3>
@@ -1205,8 +1294,96 @@ body.player-on .bk .bk-composer.bk-sheet{bottom:calc(var(--bottombar-h) + var(--
 .bk-sheetx:hover{border-color:var(--gold);color:#ffe083}
 @media(prefers-reduced-motion:reduce){.bk-fab{animation:none;transition:none}.bk-scrim{transition:none}.bk .bk-composer.bk-sheet{animation:none}}
 `;
+const CSS13 = `
+/* ---------- COMMUNITY RESTORE R-6 (2026-11-23) — RAILS TO FULL.
+   Left rail (study §2.3 + §4 R-6): the shortcut list goes FLAT
+   Facebook-style — 36px round icon chips, 14px labels, NO section
+   headers — and the profile card carries the stat trio under a
+   36px gold-ring avatar. Right rail (§2.6 + §4): the Member Search
+   card on top, its results patched in place. No new animation;
+   the rails' independent scroll is CSS5's standing rule. */
+.bk-flatlist{margin-top:20px;display:flex;flex-direction:column;gap:2px}
+.bk-rail .bk-rlink{font-size:14px;font-weight:700;padding:8px 10px;border-radius:8px;gap:11px}
+.bk-rail .bk-rlink .g{width:36px;height:36px;border-radius:50%;background:rgba(212,175,55,.10);border:1px solid rgba(212,175,55,.38);display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#d8ba72;flex:none}
+.bk-rail .bk-rlink.on .g{background:rgba(212,175,55,.22);border-color:var(--gold);color:var(--gold)}
+.bk-rail .bk-rlink .bk-gcover{width:36px;height:36px;border-radius:9px;font-size:12px;flex:none}
+.bk-idcard .bk-ava{width:36px;height:36px;font-size:11px;border:2px solid rgba(212,175,55,.65);box-shadow:0 0 10px rgba(212,175,55,.25)}
+.bk-idme{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:0}
+.bk-idmet{display:block;min-width:0}
+.bk-idmet strong{display:block;font-size:14px;margin:3px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-idmet small{display:block;font-size:10px;color:#948c7f;line-height:1.5}
+.bk-trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:13px;border-top:1px solid #302c25;padding-top:11px;text-align:center}
+.bk-trio b{display:block;color:var(--gold);font-size:15px}
+.bk-trio span{display:block;font-size:8px;letter-spacing:.5px;line-height:1.55;color:#8b8476;font-weight:900}
+.bk-msearch{margin-top:0}
+.bk-msform{display:flex;gap:7px;margin-top:11px}
+.bk-msform input{flex:1;min-width:0;background:#201e1b;border:1px solid #5b4a28;border-radius:20px;padding:9px 13px;color:var(--cream);font-size:12.5px;outline:none}
+.bk-msform input:focus{border-color:var(--gold)}
+.bk-msform button{flex:none;border:1px solid #765921;border-radius:20px;padding:9px 13px;color:var(--gold);font-size:9.5px;font-weight:900;letter-spacing:.6px;cursor:pointer;background:transparent}
+.bk-msform button:hover{background:#312411}
+.bk-mslab{font-size:8.5px;letter-spacing:1.6px;color:#8d7a4d;font-weight:900;margin:11px 0 3px}
+.bk-msrow{display:flex;gap:9px;align-items:center;width:100%;padding:7px 6px;text-align:left;border-radius:8px;color:var(--cream)}
+.bk-msrow:hover{background:#1c1914}
+.bk-msrow .bk-ava{width:32px;height:32px;font-size:10px}
+.bk-msrow strong{display:block;font-size:12.5px;line-height:1.3}
+.bk-msrow small{display:block;color:#a69a84;font-size:10px;line-height:1.4}
+.bk-msdir{margin-top:9px;font-size:9.5px;font-weight:900;letter-spacing:1px;color:var(--gold);padding:4px 6px}
+`;
+const CSS14 = `
+/* ---------- R-6 FOUNDER FOLDS (2026-11-23 18:43 + 18:47 MST).
+   Avatar cure: the profile banner (.bk-profcover) is positioned
+   (position:relative in the dressing layer) while .bk-profbody —
+   pulled up over the banner by its negative margin — was static,
+   so the banner painted OVER the avatar's top arc and the circle
+   read as clipped by the banner's lower edge. The body is now
+   positioned with z-index, so the avatar renders as a COMPLETE
+   circle on top of the banner, gold ring intact (profile only —
+   these classes exist nowhere else). Endless scroll: the sentinel
+   is a hairline marker, no furniture — the LOAD MORE block is
+   retired, and with it the mid-wall clutter the founder named. */
+.bk-profbody{position:relative;z-index:2}
+.bk-sentinel{height:2px}
+`;
+const CSS15 = `
+/* ---------- R-6 FOUNDER FOLDS D/E/F (2026-11-23 19:09 MST).
+   D — POSTS GLOW: every post card rests on a warm candle edge
+   (a static gold outer glow — no perpetual animation, no paint
+   cost); a FRESH post (the member's own, just landed) carries
+   .bk-fresh: one 6s settle from a strong warm glow down to the
+   resting edge, in its type's color — gold for a post, amber
+   for a testimony, soft white-gold for a prayer request. */
+.bk-card{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 18px rgba(212,175,55,.10),0 6px 24px rgba(0,0,0,.55)}
+.bk-card.testimony{box-shadow:0 0 0 1px rgba(212,175,55,.35),0 0 20px rgba(215,146,25,.13),0 6px 24px rgba(0,0,0,.55)}
+.bk-card.prayer{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 18px rgba(240,228,190,.10),0 6px 24px rgba(0,0,0,.55)}
+@keyframes bk-glowsettle{0%{box-shadow:0 0 0 2px rgba(212,175,55,.85),0 0 55px rgba(212,175,55,.55),0 0 120px rgba(212,175,55,.30),0 6px 24px rgba(0,0,0,.55)}100%{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 18px rgba(212,175,55,.10),0 6px 24px rgba(0,0,0,.55)}}
+@keyframes bk-glowsettle-test{0%{box-shadow:0 0 0 2px rgba(215,146,25,.9),0 0 55px rgba(215,146,25,.55),0 0 120px rgba(215,146,25,.30),0 6px 24px rgba(0,0,0,.55)}100%{box-shadow:0 0 0 1px rgba(212,175,55,.35),0 0 20px rgba(215,146,25,.13),0 6px 24px rgba(0,0,0,.55)}}
+@keyframes bk-glowsettle-pray{0%{box-shadow:0 0 0 2px rgba(240,228,190,.9),0 0 55px rgba(240,228,190,.5),0 0 120px rgba(240,228,190,.28),0 6px 24px rgba(0,0,0,.55)}100%{box-shadow:0 0 0 1px rgba(212,175,55,.25),0 0 18px rgba(240,228,190,.10),0 6px 24px rgba(0,0,0,.55)}}
+.bk-card.bk-fresh{animation:bk-glowsettle 6s ease-out 1 both}
+.bk-card.testimony.bk-fresh{animation-name:bk-glowsettle-test}
+.bk-card.prayer.bk-fresh{animation-name:bk-glowsettle-pray}
+/* E — BIBLE SCENE ART: the wall's section break (filter-keyed)
+   and the right rail's Pentecost identity card. Art dresses the
+   hub's breaks only — it never enters the feed list. */
+.bk-scenebreak{margin:0 0 16px;border:1px solid rgba(212,175,55,.55);border-radius:12px;overflow:hidden;position:relative;background:#0a0805}
+.bk-scenebreak img{width:100%;height:150px;object-fit:cover;display:block}
+.bk-scenebreak figcaption{position:absolute;left:10px;bottom:8px;font-size:8.5px;letter-spacing:1.6px;color:#e8d9ac;font-weight:900;background:rgba(10,8,4,.62);padding:4px 8px;border-radius:4px}
+.bk-scenecard{overflow:hidden}
+.bk-scenecard img{width:100%;height:118px;object-fit:cover;display:block}
+.bk-scenecard .bk-scenebody{padding:12px 14px 14px}
+.bk-scenecard p{margin:6px 0 0;color:#a69a84;font-size:11.5px;line-height:1.55}
+/* F — THE BEAT: the cross scene holds the film frame on entry.
+   One opacity fade dismisses it (tap · scroll · 3.4s) — the film
+   element is never touched, and state keeps it gone all visit. */
+.bk-herowrap{position:relative}
+.bk-beat{position:absolute;inset:0;z-index:6;overflow:hidden;opacity:1;transition:opacity .7s ease;cursor:pointer}
+.bk-beat.gone{opacity:0;visibility:hidden;pointer-events:none}
+.bk-beat img{width:100%;height:100%;object-fit:cover;display:block}
+.bk-beat .bk-beatcap{position:absolute;left:12px;bottom:10px;font-size:9px;letter-spacing:1.8px;color:#e8d9ac;font-weight:900;background:rgba(10,8,4,.62);padding:5px 9px;border-radius:4px}
+.bk-beat .bk-beathint{position:absolute;right:12px;bottom:10px;font-size:9px;letter-spacing:1.8px;color:#0a0805;font-weight:900;background:rgba(212,175,55,.92);padding:5px 9px;border-radius:4px}
+@media(prefers-reduced-motion:reduce){.bk-card.bk-fresh{animation:none}.bk-beat{transition:none}}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -1318,7 +1495,7 @@ function viewDoors() {
      carried lists. Unloaded renders the loading glyph — never a
      false 0. */
   /* M4 cure (2026-11-20): the Feed door carries the FEED's own total —
-     the posts the feed holds and counts down through LOAD MORE.
+     the posts the feed holds and scrolls down through endlessly.
      Testimonies carry their own door and their own count (the
      testimonies actually listed on the tape), so the doors no longer
      disagree with the views behind them (388 door vs 344 feed; 50
@@ -1369,14 +1546,44 @@ function heroHtml() {
    doesn't carry; the film mute toggle the original wore is NOT
    restored — the hub film is shell-ambient and muted by design, and
    a toggle that cannot unmute would lie. */
+/* FOLD F (2026-11-23, founder): the cross scene is the lobby
+   hero's face (the film's poster) and, on each fresh hub entry,
+   its BEAT — the full-bleed scene holding the film frame until
+   the reader taps, scrolls, or 3.4 seconds pass. Reduced-motion
+   entries skip the beat; the poster still gives them the scene. */
+function beatReduced() {
+  return (window.FaithFilm && window.FaithFilm.reduced) || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+function beatHtml() {
+  if (S.beatGone || beatReduced()) return '';
+  return `<div class="bk-beat" data-beat role="img" aria-label="Jesus carrying the cross"><img src="assets/img/community/scene-jesus-cross.webp" alt=""><span class="bk-beatcap">JESUS, CARRYING THE CROSS</span><span class="bk-beathint">TAP OR SCROLL TO ENTER</span></div>`;
+}
+let beatTimer = null;
+function dismissBeat() {
+  if (S.beatGone) return;
+  S.beatGone = true;
+  if (beatTimer) { clearTimeout(beatTimer); beatTimer = null; }
+  const b = S.root?.querySelector('[data-beat]');
+  if (b) b.classList.add('gone');
+}
+function armBeat() {
+  const b = S.root?.querySelector('[data-beat]');
+  if (!b || S.beatGone) return;
+  b.addEventListener('click', dismissBeat);
+  window.addEventListener('scroll', dismissBeat, { once: true, passive: true });
+  const main = S.root.querySelector('.bk-main');
+  if (main) main.addEventListener('scroll', dismissBeat, { once: true, passive: true });
+  if (beatTimer) clearTimeout(beatTimer);
+  beatTimer = setTimeout(dismissBeat, 3400);
+}
 function lobbyHtml() {
-  const film = window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-community.mp4', poster: 'assets/video/film-community-poster.webp', title: 'The family, moving.', note: 'Community film · first movement' }) : '';
+  const film = window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-community.mp4', poster: 'assets/img/community/scene-jesus-cross.webp', title: 'The family, moving.', note: 'Community film · first movement' }) : '';
   const member = isSignedIn();
   let cu = null; try { cu = window.Clerk?.user || null; } catch { /* guest chrome */ }
   const prof = member
     ? `<button type="button" class="bk-lobbyprof" data-lobbyprofile aria-label="Your profile">${avatarHtml(cu?.fullName || cu?.firstName || 'You', cu?.imageUrl || null, false)}</button>`
     : `<button type="button" class="bk-lobbyprof" data-lobbyjoin aria-label="Join the family">✚</button>`;
-  return `<div class="bk-lobby">${film}
+  return `<div class="bk-lobby"><div class="bk-herowrap">${film}${beatHtml()}</div>
     <div class="bk-lobby-actions">
       ${member
         ? '<button type="button" class="bk-joinbtn" data-composefocus>♡ SHARE YOUR HEART <span aria-hidden="true">→</span></button>'
@@ -1626,7 +1833,7 @@ function postCard(p, inProfile = false) {
      AMEN button; repaintCard re-renders the count from the server's
      merged response — never counted client-side). */
   const prayStrip = p.type === 'prayer' ? `<button type="button" class="bk-praystrip${p.myReactionType === 'amen' ? ' mine' : ''}" data-act="amen"><span>✛ ${praying ? `${praying} prayed for this` : 'Be the first to pray for this'} — tap Amen to agree</span></button>` : '';
-  return `<article class="bk-card ${p.type === 'testimony' ? 'testimony' : ''}${p.type === 'prayer' ? ' prayer' : ''}" data-post="${esc(p.id)}">
+  return `<article class="bk-card ${p.type === 'testimony' ? 'testimony' : ''}${p.type === 'prayer' ? ' prayer' : ''}${S.freshGlow && S.freshGlow.id === p.id && Date.now() - S.freshGlow.at < 9000 ? ' bk-fresh' : ''}" data-post="${esc(p.id)}">
     <div class="bk-postbody">${sysBadge(p)}<div class="bk-posthead">
       <span data-profile="${esc(p.authorId || '')}" style="cursor:pointer">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}</span>
       <div class="bk-pid"><b data-profile="${esc(p.authorId || '')}">${esc(p.authorName)}${p.authorVerified ? ' <span class="bk-ver">✦</span>' : ''}</b>
@@ -1657,9 +1864,18 @@ function postCard(p, inProfile = false) {
 
 /* ---------- amp-up phase 2C-2 — 16:3 FAITH PRESENTS (§3 + §6) ----------
    The shelf is ops-curated data (assets/data/presents-shelf.json): real
-   titles, real playable references, real presenters — Teaching /
-   Worship / Encouragement only; neither source pool carries Testimony
-   video, so that category ships zero entries and never renders.
+   titles, real playable references, real presenters. R-6 FOLD C
+   (2026-11-23, founder — "open it up"): the kind set is FILM /
+   MUSIC VIDEO / SERMON / TEACHING, carried in each entry's category
+   and rendered on its card (chip + sub-line). The 2026-11-23 pass
+   normalized the mislabeled kinds (biblical epics wore "Teaching",
+   music videos wore "Worship") and interleaved the shelf so kinds
+   alternate in the wall. SERMON and TEACHING ship ZERO entries —
+   a named gap, never padded: no verifiable sermon/teaching video
+   id exists in the house's Watch/Listen catalogs (Watch is films
+   and series only; the only "sermon" strings in Listen data are
+   song titles). The pipeline is kind-agnostic — the first verified
+   entries drop into the same file and render with no code change.
    FEED MIX (§6 law): curated Presents cards interleave at PAINT time
    only (initial paint / preserved repaint / settle fallback) — chain
    merges stay data-only and settlePatch never touches these cards, so
@@ -1926,6 +2142,7 @@ function viewFeed() {
       : '<div class="bk-ctx"><h3>Loading the shelf…</h3><p>The house presentations are on their way — an unloaded shelf never reads as an empty one.</p></div>')
     : null;
   return `${lobbyHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
+  ${sceneBreakHtml()}
   <section class="bk-feedsec"><div class="bk-feedhead"><div><span class="eyebrow">THE TIMELINE</span><h2>The <em>family feed.</em></h2></div><span class="bk-feedtruth">SHOW UP AS YOU ARE. ♡</span></div>
     <p class="bk-note">${srcNote}</p>
     ${pillsHtml()}
@@ -1934,9 +2151,34 @@ function viewFeed() {
       ? '<div class="bk-ctx"><h3>Quiet in here.</h3><p>No posts of this kind are in the carried wall. The other doors hold the rest of the family.</p></div>'
       : '<div class="bk-ctx"><h3>Loading the wall…</h3><p>The family\'s posts are on their way — an unloaded wall never reads as an empty one.</p></div>'))}</div>
     ${isWatch ? '' : (list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
-      ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}</button>`
-      : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : ''))}
-  </section>${belowFeedHtml()}${closeHtml()}`;
+      ? `<div class="bk-sentinel" data-sentinel aria-hidden="true"></div>`
+      : (list.length ? endFeedHtml() : ''))}
+  </section>${belowFeedHtml()}${isWatch || !(list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)) ? closeHtml() : ''}`;
+}
+/* FOLD E (2026-11-23, founder): Bible scene art dresses the wall's
+   section break — the break between the composer and the feed
+   head, keyed by the feed's own filter so each room of the wall
+   carries its scene. Pentecost is the family's identity art: the
+   first community. Art never enters the feed list itself. */
+const SCENES = {
+  all: ['scene-pentecost', 'PENTECOST — THE FIRST COMMUNITY'],
+  general: ['scene-david-goliath', 'DAVID & GOLIATH — FAITH IN THE FIGHT'],
+  prayer: ['scene-red-sea', 'THE RED SEA — DELIVERANCE'],
+  testimony: ['scene-resurrection', 'THE RESURRECTION — HE IS RISEN'],
+  watch: ['scene-tree-of-life', 'THE TREE OF LIFE'],
+};
+function sceneBreakHtml() {
+  const [img, cap] = SCENES[S.feedFilter] || SCENES.all;
+  return `<figure class="bk-scenebreak"><img src="assets/img/community/${img}.webp" alt="" loading="lazy"><figcaption>${cap}</figcaption></figure>`;
+}
+/* The right rail's Pentecost identity card. */
+function sceneCardHtml() {
+  return `<section class="panel bk-sidecard bk-scenecard" data-scenecard><img src="assets/img/community/scene-pentecost.webp" alt="" loading="lazy"><div class="bk-scenebody"><span class="eyebrow">THE FIRST COMMUNITY</span><p>Pentecost — where the family began. <b style="color:#cbb26a">Acts 2.</b></p></div></section>`;
+}
+/* R-6 FOLD B (2026-11-23, founder): the wall's end state — rendered
+   only when the wall is truly exhausted, at the true end. */
+function endFeedHtml() {
+  return `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>`;
 }
 
 function viewTestimonies() {
@@ -1944,11 +2186,11 @@ function viewTestimonies() {
   return `<button type="button" class="bk-back" data-view="feed">← BACK TO THE FEED</button>
   <div class="bk-feedhead"><div><span class="eyebrow">STORIES OF GRACE</span><h2>The <em>testimony tape.</em></h2></div></div>
   <img class="bk-artbanner gold-frame" src="assets/img/community/testimony-art.webp" alt="A lit candle and an open journal in a quiet church corner" loading="lazy">
-  <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.${S.mode === 'live' && S.feedHasMore ? ' The wall is still arriving — the LOAD MORE button at the end of the tape pulls the next pages in.' : ''}</p>
+  <p class="bk-note">${S.mode === 'live' ? 'Live from the community API.' : 'The carried capture.'} Every testimony below is a real post from the family wall, typed as a testimony by its author — word for word, nothing rewritten.${S.mode === 'live' && S.feedHasMore ? ' The wall is still arriving — as you scroll, the tape pulls the next pages in on its own.' : ''}</p>
   ${list.map((p) => postCard(p)).join('') || (S.loaded
     ? '<div class="bk-ctx"><h3>No testimonies in this pull.</h3><p>The counter at the top of the hub counts the testimonies this build carries — none are in the carried pages yet.</p></div>'
     : '<div class="bk-ctx"><h3>Loading the testimony tape…</h3><p>The stories are on their way — an unloaded tape never reads as an empty one.</p></div>')}
-  ${S.mode === 'live' && S.feedHasMore ? `<button type="button" class="bk-loadmore" data-loadmore-test>LOAD MORE · MORE ON THE WALL</button>` : ''}`;
+  ${S.mode === 'live' && S.feedHasMore ? `<div class="bk-sentinel" data-sentinel-test aria-hidden="true"></div>` : ''}`;
 }
 function peopleStripHtml() {
   const rows = S.peopleResults != null
@@ -2668,6 +2910,8 @@ function paint(keepScroll = false) {
       const mine = j?.post?.id ? ingestPosts([j.post]) : [];
       if (mine.length) {
         const p = mine[0];
+        /* FOLD D: the member's own fresh post lands glowing. */
+        S.freshGlow = { id: p.id, at: Date.now() };
         const list = p.type === 'testimony' ? S.testimonies : S.posts;
         if (!list.some((x) => x.id === p.id)) list.unshift(p);
         S.feedFilter = 'all'; S.feedShown = PAGE;
@@ -2681,6 +2925,9 @@ function paint(keepScroll = false) {
             const lt = live.filter((p) => p.type === 'testimony');
             if (lt.length) S.testimonies = lt;
             S.mode = 'live'; S.loaded = true;
+            /* FOLD D: the refetched head is the member's fresh post. */
+            const head = (S.composeType === 'testimony' ? lt[0] : S.posts[0]);
+            if (head) S.freshGlow = { id: head.id, at: Date.now() };
           }
         } catch { /* the wall catches up on its next load */ }
         paint();
@@ -2718,16 +2965,11 @@ function paint(keepScroll = false) {
     if (S.view === 'members') paint();
   });
   wirePulseCountUp();
-  main.querySelectorAll('[data-loadmore]').forEach((n) => n.addEventListener('click', () => {
-    S.feedShown += PAGE; paint();
-    if (S.mode === 'live') loadMoreLive();
-  }));
-  /* The testimonies tape's own resume (M4 cure): a chain that stalled
-     mid-wall used to leave this view silently short — the feed's LOAD
-     MORE was the only resume path in the hub. Same cursor, same merge. */
-  main.querySelectorAll('[data-loadmore-test]').forEach((n) => n.addEventListener('click', () => {
-    loadMoreLive().then(() => { if (S.view === 'testimonies') paint(); });
-  }));
+  /* R-6 FOLD B: the LOAD MORE buttons are retired — the scroll
+     sentinels (feed + testimonies tape) arm here, once per paint. */
+  armSentinels();
+  /* FOLD F: arm the lobby scene beat (dismisses itself). */
+  armBeat();
   main.querySelectorAll('[data-joingate]').forEach((n) => n.addEventListener('click', () => {
     const panel = n.parentElement.querySelector('[data-joingatepanel]'); if (panel) panel.classList.toggle('open');
   }));
@@ -2739,6 +2981,25 @@ function paint(keepScroll = false) {
     try { const j = await fetchJson(`${API_BASE}/api/community/members/search?q=${encodeURIComponent(q)}`); S.peopleResults = j.results || []; }
     catch { S.peopleResults = null; }
     if (S.view === 'members') paint();
+  });
+  /* R-6: the right rail's Member Search — the same live directory
+     search, answered into the rail's results box in place (no
+     repaint: the reader never loses the wall or their scroll). */
+  const railForm = S.root.querySelector('[data-railsearch]');
+  if (railForm) railForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const q = railForm.querySelector('input').value.trim();
+    S.railSearchQ = q;
+    if (!q) { S.railSearch = null; patchRailSearch(); return; }
+    S.railSearch = { busy: true, source: 'live', rows: [] };
+    patchRailSearch();
+    try {
+      const j = await fetchJson(`${API_BASE}/api/community/members/search?q=${encodeURIComponent(q)}`);
+      S.railSearch = { source: 'live', rows: (j.results || []).slice(0, 5).map((r) => ({ userId: r.userId, name: r.displayName, avatar: r.avatarUrl, sub: [r.location, r.headline].filter(Boolean).join(' · ') })) };
+    } catch {
+      S.railSearch = { source: 'directory', rows: (S.members || []).filter((m) => m.id && (m.name + ' ' + (m.location || '')).toLowerCase().includes(q.toLowerCase())).slice(0, 5).map((m) => ({ userId: m.id, name: m.name, avatar: m.avatar, sub: m.location || '' })) };
+    }
+    patchRailSearch();
   });
   wirePosts(main);
   pvObserve(main);
@@ -2752,6 +3013,8 @@ function paint(keepScroll = false) {
   /* 2C-4: PYMK rows in the desktop right rail ride openProfile too
      (wirePosts covers the main column's copies). */
   S.root.querySelectorAll('.bk-side [data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
+  /* R-6: the left rail's member profile card rides openProfile too. */
+  S.root.querySelectorAll('.bk-rail [data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
   /* 2C-4: the new-posts pill tap lands the held posts at the head. */
   main.querySelectorAll('[data-newpillbtn]').forEach((n) => n.addEventListener('click', () => applyPendingNew()));
   /* R-5: the composer FAB + scrim are persistent nodes — re-append
@@ -2759,12 +3022,15 @@ function paint(keepScroll = false) {
      sync their visibility/sheet state. Identity never changes. */
   mountFab();
 }
-/* LOAD MORE's live leg (2026-11-19 feed-count cure): fetch the next
-   slice at the standing cursor. This is the resume path for a chain
-   that stalled on a failed slice during loadLive — the cursor and
-   feedHasMore survive the stall, so a tap picks the wall up exactly
-   where it stopped. One slice per tap; the merge dedupes against
-   everything already held. */
+/* The chain's live leg (2026-11-19 feed-count cure; R-6 fold B):
+   fetch the next slice at the standing cursor. This is the resume
+   path for a chain that stalled on a failed slice during loadLive —
+   the cursor and feedHasMore survive the stall, so the scroll
+   sentinel picks the wall up exactly where it stopped. One slice
+   per call; the merge dedupes against everything already held.
+   R-6: rendering belongs to the caller now (the retired button
+   handlers were this function's only paint consumers) — the feed
+   sentinel appends, the testimonies sentinel repaints its tape. */
 async function loadMoreLive() {
   if (S.feedBusy || S.mode !== 'live' || !S.feedHasMore || S.feedNextOffset == null) return;
   S.feedBusy = true;
@@ -2775,9 +3041,106 @@ async function loadMoreLive() {
     S.feedNextOffset = j.nextOffset ?? null;
     S.feedHasMore = !!j.hasMore && S.feedNextOffset != null && S.feedNextOffset !== cursor;
     S.members = buildDirectory();
-    if (S.view === 'feed' || S.view === 'testimonies' || S.view === 'doors') paint();
-  } catch { /* the wall keeps what it has; the cursor stands for the next tap */ }
+  } catch { /* the wall keeps what it has; the cursor stands for the next approach */ }
   S.feedBusy = false;
+}
+
+/* ---------- R-6 FOLD B (2026-11-23, founder) — ENDLESS SCROLL.
+   The LOAD MORE button is retired. A hairline sentinel sits where
+   the button stood; an IntersectionObserver (700px prefetch margin)
+   fires feedMore() as the reader approaches the wall's end.
+   Growth is APPEND-ONLY: the new window's cards are computed whole
+   (the mix + in-thread slots are sequential and prefix-stable, so
+   the held prefix never changes), only the delta nodes are built,
+   wired (wirePosts + pvObserve scoped to the fresh batch) and
+   appended — the film element, the composer, every held card and
+   the reader's scroll position survive untouched (blink laws).
+   The live leg reuses loadMoreLive() as the chain-resume. When the
+   wall is truly exhausted the sentinel is swapped for the end
+   state and the R-4 Presents close is inserted at the true end —
+   exactly once. The testimonies tape rides the same pattern: its
+   sentinel resumes the chain and repaints the tape (its standing
+   render is a full-list render; no video element lives there). */
+let feedObserver = null;
+function feedExhausted() {
+  return feedList().length <= S.feedShown && !(S.mode === 'live' && S.feedHasMore);
+}
+function appendFeedCards() {
+  const listEl = S.root?.querySelector('[data-feedlist]');
+  if (!listEl) return false;
+  const list = feedList();
+  const target = Math.min(list.length, S.feedShown + PAGE);
+  if (target <= S.feedShown) return false;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = feedCardsHtml(list.slice(0, target));
+  const have = listEl.children.length;
+  const fresh = [...tmp.children].slice(have);
+  if (!fresh.length) return false;
+  const hold = document.createElement('div');
+  fresh.forEach((n) => hold.appendChild(n));
+  wirePosts(hold);
+  pvObserve(hold);
+  [...hold.children].forEach((n) => listEl.appendChild(n));
+  S.feedShown = target;
+  return true;
+}
+function wireClose(closeEl) {
+  /* The dynamically landed close carries the same doors as the
+     painted one — wire its view/hub links exactly as paint does. */
+  closeEl.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); }));
+  closeEl.querySelectorAll('[data-hubgo]').forEach((n) => n.addEventListener('click', () => goHub(n.dataset.hubgo)));
+}
+function finishFeedEnd() {
+  const sentinel = S.root?.querySelector('[data-sentinel]');
+  if (sentinel) { const t = document.createElement('div'); t.innerHTML = endFeedHtml(); sentinel.replaceWith(t.firstElementChild); }
+  if (S.root && !S.root.querySelector('.bk-close')) {
+    const below = S.root.querySelector('.bk-feedbelow');
+    if (below) { below.insertAdjacentHTML('afterend', closeHtml()); const c = S.root.querySelector('.bk-close'); if (c) wireClose(c); }
+  }
+}
+function sentinelNear() {
+  const s = S.root?.querySelector('[data-sentinel]');
+  if (!s) return false;
+  const r = s.getBoundingClientRect();
+  return r.top < window.innerHeight + 700 && r.bottom > -700;
+}
+async function feedMore() {
+  if (S.feedGrowing || !S.root || S.view !== 'feed' || S.feedFilter === 'watch') return;
+  if (!S.root.querySelector('[data-sentinel]')) return;
+  S.feedGrowing = true;
+  try {
+    let guard = 0;
+    while (guard++ < 80) {
+      let progressed = false;
+      if (feedList().length > S.feedShown) progressed = appendFeedCards();
+      else if (S.mode === 'live' && S.feedHasMore && !S.feedBusy) {
+        await loadMoreLive();
+        if (feedList().length > S.feedShown) progressed = appendFeedCards();
+      }
+      if (feedExhausted()) { finishFeedEnd(); break; }
+      if (!progressed || !sentinelNear()) break;
+    }
+  } finally { S.feedGrowing = false; }
+}
+async function testMore() {
+  if (S.feedBusy || S.view !== 'testimonies') return;
+  await loadMoreLive();
+  if (S.view === 'testimonies' && S.root) paint();
+}
+function armSentinels() {
+  if (feedObserver) { feedObserver.disconnect(); feedObserver = null; }
+  if (!S.root || typeof IntersectionObserver !== 'function') return;
+  const feed = S.root.querySelector('[data-sentinel]');
+  const test = S.root.querySelector('[data-sentinel-test]');
+  if (!feed && !test) return;
+  feedObserver = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      if (!en.isIntersecting) continue;
+      if (en.target.hasAttribute('data-sentinel-test')) testMore(); else feedMore();
+    }
+  }, { rootMargin: '700px 0px' });
+  if (feed) feedObserver.observe(feed);
+  if (test) feedObserver.observe(test);
 }
 
 export function render(root, ctx) {
@@ -2789,7 +3152,7 @@ export function render(root, ctx) {
   const pm = location.hash.match(/^#\/community\/profile\/([^/?#]+)/);
   S.view = pm ? 'profile' : 'feed';
   S.profileId = pm ? decodeURIComponent(pm[1]) : null;
-  S.feedFilter = 'all'; S.feedShown = PAGE; S.feedSort = 'new'; S.gateOpen = false; S.composeType = 'post'; S.composerFlash = null;
+  S.feedFilter = 'all'; S.feedShown = PAGE; S.feedSort = 'new'; S.gateOpen = false; S.composeType = 'post'; S.composerFlash = null; S.beatGone = false;
   S.sheetOpen = false; S.compFocused = false; S._flashAtOpen = null; wireFabRoot(root);
   pulseCounted = false; pulseAnim++; /* R-1: a fresh hub entry earns one count-up */
   S.commentsOpen = new Set(); S.peopleQuery = ''; S.peopleResults = null;
