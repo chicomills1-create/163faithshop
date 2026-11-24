@@ -25,13 +25,22 @@
    LISTEN AMP (2026-11-23, founder directive with Kairo side-by-side):
    the PICK A LANE crates became full cinematic AI-art cards (church
    register, gold-on-black; art is world-building decoration, never an
-   artist portrait or cover) and every lane opens a room in Kairo's
-   shape — lane-art hero, Play All, a playable shelf from the lane's
-   own data, then its artist cards. Lane membership: the index door
-   field (genre audit) primary + catalog-derived cross-listings in
-   assets/data/listen-lanes.json. ChatGPT consult
-   chatcmpl-EnXX5kYBM9tc7wYCgP2nzw0KkUFAd. Record:
-   fresh-build/records/LISTEN-AMP-BUILD-RECORD-2026-11-23.md. */
+   artist portrait or cover) and every lane opens a room. Lane
+   membership: the index door field (genre audit) primary +
+   catalog-derived cross-listings in assets/data/listen-lanes.json.
+   ChatGPT consult chatcmpl-EnXX5kYBM9tc7wYCgP2nzw0KkUFAd. Record:
+   fresh-build/records/LISTEN-AMP-BUILD-RECORD-2026-11-23.md.
+
+   LISTEN GENRE DECLUTTER + LANE HERO FILMS (2026-11-23, founder
+   directives 17:15 + 17:18 MST): genre pages show ARTISTS ONLY —
+   the lane room is its own big hero (the lane's 90–120s film when
+   the lanes data carries one, else its cinematic art at the same
+   hero size), the lane's true counts, and its artist card grid;
+   the room's Play All and "Playable now" loose-track shelf are
+   REMOVED entire, and the generic house film slot no longer rides
+   inside lanes (it paints on the top-level Listen view only).
+   The flow is genre → artists → click an artist → their music.
+   Record: fresh-build/records/LISTEN-GENRE-DECLUTTER-2026-11-23.md. */
 
 const state = { index: null, lanes: null, playable: new Map(), albums: new Map(), feature: null, scan: null };
 window.__listen = { index: null, ready: false, lastArtist: null };
@@ -129,8 +138,8 @@ const STYLE = `<style>
 .lsn-lanemeta small{display:block;color:#e8cf8f;font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-top:3px}
 .lsn-lanemeta small.gathering{color:#b7a888}
 /* lane room (LISTEN AMP) */
-.lsn-roomhero{position:relative;border-radius:14px;overflow:hidden;border:1px solid #4a3a20;min-height:230px;display:flex;align-items:flex-end;margin-top:14px;background:#141109}
-.lsn-roomhero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.lsn-roomhero{position:relative;border-radius:14px;overflow:hidden;border:1px solid #4a3a20;min-height:340px;display:flex;align-items:flex-end;margin-top:14px;background:#141109}
+.lsn-roomhero>img,.lsn-roomhero>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .lsn-roomveil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.05) 30%,rgba(5,5,5,.92) 100%)}
 .lsn-roomtitle{position:relative;padding:22px}
 .lsn-roomtitle h3{font-family:Impact,'Arial Black',var(--serif);font-size:clamp(34px,5vw,54px);text-transform:uppercase;letter-spacing:-.5px;line-height:1;color:var(--bone);margin:6px 0}
@@ -208,7 +217,7 @@ const STYLE = `<style>
  .lsn-showtext h3{font-size:29px;margin:8px 0 3px}.lsn-showtext>span{font-size:7.5px}.lsn-showtext p{font-size:10.5px;line-height:1.4;margin:5px 0 11px}
  .lsn-showtext .who{font-size:12px}.lsn-goldbtn{font-size:9px;padding:11px 10px}
  .lsn-crates{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.lsn-lanemeta strong{font-size:14.5px}.lsn-lanemeta small{font-size:9px}.lsn-lanemeta{left:10px;right:10px;bottom:9px}
- .lsn-roomhero{min-height:190px}.lsn-roomtitle{padding:16px}.lsn-roomsec{margin-top:24px}
+ .lsn-roomhero{min-height:250px}.lsn-roomtitle{padding:16px}.lsn-roomsec{margin-top:24px}
  .lsn-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
  .lsn-mixes{grid-template-columns:1fr;gap:12px}.lsn-mix{min-height:225px}
  .lsn-cta{margin-top:60px;padding:28px 20px;display:block}.lsn-ctabtns{margin-top:18px}
@@ -247,6 +256,11 @@ const STYLE = `<style>
 @media(max-width:1020px){.rel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){.rel-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.artist-card{padding:14px;gap:13px}.artist-card .acard-art.big{width:84px;height:84px}.artist-counts{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.rgc{transition:none}}
+/* ---------- LISTEN HONESTY CURE (2026-11-23) ----------
+   Unbound (not-yet-playable) rows say so: dimmed title + a small
+   right-side marker. The row stays a non-button — no fake affordance. */
+.trow.static .ttitle{color:#8d8172}
+.trow .tnotplay{color:#9a8a68;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 </style>`;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -334,6 +348,20 @@ function laneArtists(doorId) {
 }
 const doorPlayableSum = (doorId) => laneArtists(doorId).reduce((s, a) => s + (a.playable || 0), 0);
 
+/* Lane films (LANE HERO FILMS 2026-11-23): wired by DATA, not code.
+   listen-lanes.json may carry a per-lane film path — films.<doorId>,
+   or a `film` field on a per-lane object at doors.<doorId> — e.g.
+   assets/video/lanes/lane-hiphop.mp4. Absent or misshapen = null =
+   the lane's cinematic art hero carries the room at the same size.
+   Films drop in lane by lane as data+asset pushes; this file never
+   needs an edit for one to land. Fail-soft by construction. */
+function laneFilm(doorId) {
+  const L = state.lanes;
+  if (!L) return null;
+  const f = (L.films && L.films[doorId]) || (L.doors && L.doors[doorId] && L.doors[doorId].film) || null;
+  return typeof f === 'string' && f.trim() ? f : null;
+}
+
 function artistCard(a) {
   const art = a.art
     ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.parentNode.classList.add('noart');this.remove()">`
@@ -372,9 +400,13 @@ export function render(root, { player }) {
       <p class="kicker">Listen · The Sanctuary</p>
       <div class="hub-search"><input type="search" id="listen-search" placeholder="Search artists, albums & songs" aria-label="Search the Sanctuary"></div>
     </div>
-    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/listen/sanctuary.webp', title: 'The sound, alive.', note: 'Listen film · in production' }) : ''}
     <div id="listen-view"><p class="lede">Opening the Sanctuary…</p></div>`;
-  if (window.FaithFilm) window.FaithFilm.wire(root);
+  /* LANE HERO FILMS (2026-11-23): the house film slot is NOT painted
+     here anymore. It used to sit in this chrome as a sibling of
+     #listen-view, so it rode on top of EVERY sub-view — lane rooms
+     and artist pages included (the founder's Hip-Hop screenshot).
+     It now paints inside doorsView only — the top-level Listen view
+     is its one home. Lane rooms carry their OWN hero (see doorView). */
 
   const viewEl = root.querySelector('#listen-view');
   const searchEl = root.querySelector('#listen-search');
@@ -417,8 +449,11 @@ export function render(root, { player }) {
     player.playQueue(q, pos, group.title);
   }
 
-  /* A door's Play All — the v1 mechanic: the door's artists' playable
-     songs in index order, capped at 300, queued under the door's name. */
+  /* A door's queue — the v1 mechanic: the door's artists' playable
+     songs in index order, capped at 300, queued under the door's name.
+     GENRE DECLUTTER (2026-11-23): the lane ROOM no longer calls this
+     (no Play All on a genre page); the home "Made for the moment" mix
+     cards still do — they render no track rows, only the queue action. */
   async function playDoorQueue(doorId, btn) {
     const artists = laneArtists(doorId);
     if (btn) btn.textContent = 'Queueing…';
@@ -664,6 +699,7 @@ export function render(root, { player }) {
       .sort((x, y) => (y.playable || 0) - (x.playable || 0))[0];
     if (extra) voices.push(extra);
     viewEl.innerHTML = `
+      ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/listen/sanctuary.webp', title: 'The sound, alive.', note: 'Listen film · in production' }) : ''}
       <section class="lsn-hero reveal">
         <div>
           <div class="lsn-pretag"><span class="ast">✳</span>16:3 Faith Radio <span class="slash">///</span> The Sanctuary / One House</div>
@@ -784,50 +820,36 @@ export function render(root, { player }) {
       el.addEventListener('click', () => doorView(el.dataset.mixopen)));
     renderDig();
     fillFeature();
+    if (window.FaithFilm) window.FaithFilm.wire(viewEl);
     if (window.FaithMotion) window.FaithMotion.armReveals(viewEl);
     window.__listen.ready = true;
   }
 
-  /* Lane room (LISTEN AMP): the lane art as hero, Play All, a playable
-     shelf drawn from the lane's own playable data, then the lane's
-     artist cards. The shelf fills in place — no repaint of the room. */
-  async function fillRoomShelf(doorId, artists) {
-    const host = viewEl.querySelector('#lsn-roomshelf');
-    if (!host) return;
-    const members = artists.filter((a) => (a.playable || 0) > 0).slice(0, 40);
-    const sets = await Promise.all(members.map((a) => loadPlayable(a.slug)));
-    if (!viewEl.isConnected || view.kind !== 'door' || view.id !== doorId) return;
-    const rows = [];
-    members.forEach((a, i) => {
-      const p = sets[i];
-      if (p && p.tracks) p.tracks.forEach((t, ti) => rows.push({ a, t, ti }));
-    });
-    const shown = rows.slice(0, 24);
-    host.innerHTML = shown.length ? `<div class="trows">${shown.map((r) => `
-        <button type="button" class="trow" data-track="${esc(r.t.y)}" data-roomtrack="${esc(r.a.slug)}:${r.ti}">
-          ${r.a.art ? `<img class="lsn-tcover" loading="lazy" src="${esc(r.a.art)}" alt="" onerror="this.remove()">` : ''}
-          <span class="ttitle">${esc(r.t.t)}</span><span class="lsn-tsub">${esc(r.a.name)}</span>
-          ${r.t.d ? `<span class="tdur">${fmtDur(r.t.d)}</span>` : ''}
-          <span class="tplay">▶</span>
-        </button>`).join('')}</div>
-        ${rows.length > shown.length ? `<p class="lsn-progress" style="margin-top:12px">The first ${shown.length} playable songs in this lane — Play all queues the whole shelf.</p>` : ''}`
-      : `<p class="lsn-wait">This lane's songs are still being bound to the catalog — the artists below carry the sound.</p>`;
-    host.querySelectorAll('[data-roomtrack]').forEach((el) =>
-      el.addEventListener('click', () => {
-        const [slug, ti] = el.dataset.roomtrack.split(':');
-        playArtistFrom(slug, +ti);
-      }));
-    markPlaying();
-  }
-
+  /* Lane room (LISTEN GENRE DECLUTTER 2026-11-23): ARTISTS ONLY —
+     the lane's own big hero, the lane's true counts, and the lane's
+     artist card grid. No Play All, no track shelf, no song rows on
+     a genre page; the music lives one tap deeper, on the artist's
+     own page. (The room's former "Playable now" shelf filler was
+     removed entire — no loose tracks under a genre, ever.) */
   function doorView(doorId) {
     view = { kind: 'door', id: doorId };
     const artists = laneArtists(doorId);
     const playableN = doorPlayableSum(doorId);
+    /* LANE HERO FILMS (2026-11-23): the room's hero is the page's
+       hero, at full hero size. When the lanes data carries a film
+       for this lane it plays in the hero (FaithFilm discipline via
+       data-hubfilm + wire — muted loop, plays in place, never
+       recreated on repaints); until then the lane's cinematic art
+       renders at the same size and carries it — no apology text.
+       Under reduced motion the art stands, exactly as FaithFilm's
+       own slots fall back to their still. */
+    const filmPath = laneFilm(doorId);
+    const film = filmPath && !(window.FaithFilm && window.FaithFilm.reduced) ? filmPath : null;
     viewEl.innerHTML = `
       <button type="button" class="btn-ghost back-btn" data-back>← All lanes</button>
-      <div class="lsn-roomhero">
-        <img src="assets/img/lanes/lane-${esc(doorId)}.webp" alt="" onerror="this.remove()">
+      <div class="lsn-roomhero"${film ? ' data-hubfilm' : ''}>
+        ${film ? `<video muted loop playsinline autoplay preload="metadata" poster="assets/img/lanes/lane-${esc(doorId)}.webp" aria-hidden="true"><source src="${esc(film)}" type="video/mp4"></video>`
+          : `<img src="assets/img/lanes/lane-${esc(doorId)}.webp" alt="" onerror="this.remove()">`}
         <span class="lsn-roomveil"></span>
         <div class="lsn-roomtitle">
           <span class="lsn-eyebrow">The Lane / 16:3 Faith Presents</span>
@@ -836,15 +858,11 @@ export function render(root, { player }) {
         </div>
       </div>
       ${artists.length ? `
-        <div style="margin-top:18px"><button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(doorLabel(doorId))}</button></div>
-        <section class="lsn-roomsec"><h4>Playable now</h4><div id="lsn-roomshelf"><p class="lsn-wait">Pulling this lane's songs off the shelf…</p></div></section>
         <section class="lsn-roomsec"><h4>The voices in this lane</h4><div class="cards artist-grid">${artists.map(artistCard).join('')}</div></section>`
       : `<p class="lede" style="margin-top:18px">This door's shelf is still being built — its artists are on the roster and appear under All artists as their shelves are assigned. No dead end: the door says so.</p>`}`;
     viewEl.querySelector('[data-back]').addEventListener('click', doorsView);
     viewEl.querySelectorAll('[data-artist]').forEach((el) => el.addEventListener('click', () => artistView(el.dataset.artist)));
-    const playAllBtn = viewEl.querySelector('[data-playall]');
-    if (playAllBtn) playAllBtn.addEventListener('click', () => playDoorQueue(doorId, playAllBtn));
-    if (artists.length) fillRoomShelf(doorId, artists);
+    if (film && window.FaithFilm) window.FaithFilm.wire(viewEl);
     markPlaying();
   }
 
@@ -927,7 +945,10 @@ export function render(root, { player }) {
     function trackRows(g, oi) {
       /* LISTEN DATA CURE: playable ROWS (row.p bindings + row.x pool
          rows) render as playable buttons; unbound rows render static —
-         carried behavior-identical from the retired row list. */
+         carried behavior-identical from the retired row list.
+         LISTEN HONESTY CURE (2026-11-23): static rows now SAY so —
+         dimmed title + a "Not yet playable" marker, so no tap ever
+         dies silently again. */
       const posInPlay = new Map(g.play.map((ti, pi) => [ti, pi]));
       return g.rows.map((row, li) => {
         if (row.p && row.p.length) {
@@ -945,7 +966,7 @@ export function render(root, { player }) {
             <span class="tplay">▶</span>
           </button>`;
         }
-        return `<div class="trow static"><span class="tnum">${li + 1}</span><span class="ttitle">${esc(row.t)}</span></div>`;
+        return `<div class="trow static"><span class="tnum">${li + 1}</span><span class="ttitle">${esc(row.t)}</span><span class="tnotplay">Not yet playable</span></div>`;
       }).join('');
     }
 
@@ -955,7 +976,8 @@ export function render(root, { player }) {
          baked) — never bound recordings (g.play.length). */
       const playableN = g.pr;
       const meta = [g.year || '', kindLabel(g.kind), `${g.n} track${g.n === 1 ? '' : 's'}`,
-        playableN && playableN !== g.n ? `${playableN} playable` : ''].filter(Boolean).join(' · ');
+        playableN === 0 ? 'none playable yet'
+        : playableN !== g.n ? `${playableN} of ${g.n} playable` : ''].filter(Boolean).join(' · ');
       return `<div class="rel-card alb-card" data-albcard="${oi}">
         <div class="rel-head">
           <span class="alb-cover">${g.cover ? `<img loading="lazy" src="${esc(g.cover)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(g.title))}</span>`}</span>
@@ -1111,7 +1133,7 @@ export function render(root, { player }) {
         <div class="artist-card-main">
           <h2>${esc(a.name)}</h2>
           <p class="artist-counts">${countsLine}</p>
-          <p class="artist-sub">${headerPlayable ? `${headerPlayable} playable` : ''}${a.door ? `${headerPlayable ? ' · ' : ''}${esc(doorLabel(a.door))}` : ''}</p>
+          <p class="artist-sub">${headerPlayable ? `${headerPlayable} playable` : 'songs listed · playable songs coming'}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}</p>
           <div class="artist-card-actions">
             ${groups && tracks.length ? `<button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(a.name)}</button>` : ''}
             ${groups && groups.length > 8 ? `<label class="rel-filter"><input type="search" data-relfilter placeholder="Find a release…" aria-label="Find a release" value="${esc(ui.filter)}"></label>` : ''}
