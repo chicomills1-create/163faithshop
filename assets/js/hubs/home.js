@@ -253,8 +253,13 @@ function pickWord(devo) {
   const entries = Array.isArray(devo?.entries) ? devo.entries : [];
   return entries.filter((x) => x.date <= todayISO()).sort((a, b) => (a.date < b.date ? 1 : -1))[0] || null;
 }
+/* ONE-RULER CURE (2026-11-23, PLAYABLE-COUNT-ADJUDICATION): the one
+   visitor ruler is ROWS THAT PLAY — playableRows + morePlayable.
+   The pool field a.playable (unique recordings) renders nowhere as
+   a playable count. Same helper as hubs/listen.js. */
+const rowsPlayable = (a) => (a.playableRows || 0) + (a.morePlayable || 0);
 function pickArtists(listen) {
-  const eligible = (listen?.artists || []).filter((a) => a.art && a.playable > 0);
+  const eligible = (listen?.artists || []).filter((a) => a.art && rowsPlayable(a) > 0);
   if (!eligible.length) return [null, null];
   const i = dayIndex() % eligible.length;
   return [eligible[i], eligible[(i + 1) % eligible.length]];
@@ -380,7 +385,7 @@ async function fillShowcase(sliderBox, showBox) {
   if (artist) slides.push(slideEl({
     img: artist.art, alt: `${artist.name} — official album artwork`,
     kicker: 'Featured Artist — Listen', head: esc(artist.name),
-    line: `${artist.releases} releases · ${artist.songs} songs · ${artist.playable} playable — full songs, grouped by album.`,
+    line: `${artist.releases} releases · ${artist.songs} songs · ${rowsPlayable(artist)} playable — full songs, grouped by album.`,
     cta: 'Open Listen', hub: 'listen',
   }));
   if (testimony) slides.push(slideEl({
@@ -417,7 +422,7 @@ async function fillShowcase(sliderBox, showBox) {
       </span>
     </button>`;
   if (film2) cards.push(card({ img: film2.poster, alt: `${film2.title} — poster`, chip: 'Watch', title: film2.title, sub: excerpt(film2.description, 90), hub: 'watch' }));
-  if (artist2) cards.push(card({ img: artist2.art, alt: `${artist2.name} — official album artwork`, chip: 'Listen', title: artist2.name, sub: `${artist2.releases} releases · ${artist2.playable} playable`, hub: 'listen' }));
+  if (artist2) cards.push(card({ img: artist2.art, alt: `${artist2.name} — official album artwork`, chip: 'Listen', title: artist2.name, sub: `${artist2.releases} releases · ${rowsPlayable(artist2)} playable`, hub: 'listen' }));
   if (testimony2) cards.push(card({ img: 'assets/img/home/tile-community.webp', alt: 'Friends laughing together around a shared table of food', chip: 'Community', title: testimony2.authorName || 'From the wall', sub: excerpt(testimony2.body, 90), hub: 'community' }));
   if (word) cards.push(card({ img: 'assets/img/home/tile-read.webp', alt: 'A young woman with long braids reading an open book in warm window light', chip: 'Read', title: word.title, sub: `${word.reference} (KJV)`, hub: 'read' }));
   if (cards.length >= 2 && showBox.isConnected) {
