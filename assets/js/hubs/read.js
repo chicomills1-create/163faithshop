@@ -196,7 +196,7 @@ const STYLE = `<style>
 .rd-qcard strong{font-size:21px;font-weight:1000;letter-spacing:-.5px;font-family:Impact,'Arial Narrow',var(--sans);text-transform:uppercase}
 .rd-qcard small{font-size:12px;line-height:1.5;color:#b9afa0}
 .rd-qarrow{position:absolute;right:18px;bottom:16px;font-size:19px;color:var(--gold)}
-.rd-qtile{width:100%;height:76px;object-fit:cover;border-radius:8px;border:1px solid rgba(212,175,55,.35);display:block}
+.rd-qtile{width:calc(100% + 40px);margin:-18px -20px 4px;height:140px;object-fit:cover;border:0;border-bottom:1px solid rgba(212,175,55,.35);border-radius:0;display:block}
 /* section heads */
 .rd-sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;margin:6px 0 20px;flex-wrap:wrap}
 .rd-sech2{font-family:Impact,'Arial Narrow',var(--sans);font-size:clamp(36px,4.8vw,58px);line-height:.98;letter-spacing:-1.6px;font-weight:1000;text-transform:uppercase;margin:14px 0 10px;color:var(--bone)}
@@ -302,7 +302,7 @@ function doorsHTML() {
         <div class="rd-cta"><button class="rd-goldbtn" data-act="open-bible">OPEN THE BIBLE <span>↗</span></button><button class="rd-ghost" data-act="open-word">TODAY'S WORD <span>↗</span></button></div>
         <p class="rd-herfoot"><span class="rd-pulse"></span> NOT JUST VERSES TO POST. WORDS TO LIVE BY.</p>
       </div>
-      <div class="rd-heroart"><img src="assets/img/read/tile-bible.webp" alt="An open Bible on a church lectern in a shaft of golden light"><div class="rd-stamp">THE WORD<br>STILL<br>SPEAKS</div><div class="rd-artcorner">✦ ORIGINAL READING SESSION</div></div>
+      <div class="rd-heroart"><img src="assets/img/read/hero-read.webp" alt="Hands turning the page of a great old Bible in golden sanctuary light"><div class="rd-stamp">THE WORD<br>STILL<br>SPEAKS</div><div class="rd-artcorner">✦ ORIGINAL READING SESSION</div></div>
     </section>
     <div class="rd-tape"><span>FAITH FOR THE REAL WORLD</span><b>✶</b><span>THE WORD STILL SPEAKS</span><b>✶</b><span>READ IT. FEEL IT. LIVE IT.</span><b>✶</b><span>16:3 FAITH</span></div>
     <form class="hub-search" data-form="search"><input type="search" name="q" placeholder="Search the Bible — try “John 3:16”" aria-label="Search the Bible"><button class="rd-btn goldb" type="submit">Search</button></form>
@@ -312,6 +312,7 @@ function doorsHTML() {
       <button class="rd-qcard" data-door="books"><img class="rd-qtile" src="assets/img/read/tile-books.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">02 / THE LIBRARY</span><span class="rd-qicon">▤</span><strong>THE BOOKS.</strong><small>God Over Everything — the one book, both volumes, and a free 5-day sample</small><span class="rd-qarrow">↗</span></button>
       <button class="rd-qcard" data-door="devotionals"><img class="rd-qtile" src="assets/img/read/tile-devotionals.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">03 / DAILY FUEL</span><span class="rd-qicon">✦</span><strong>DEVOTIONALS.</strong><small>The daily archive — every entry with reflection &amp; prayer</small><span class="rd-qarrow">↗</span></button>
       <button class="rd-qcard" data-door="word"><img class="rd-qtile" src="assets/img/read/tile-word.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">04 / RIGHT NOW</span><span class="rd-qicon">◷</span><strong>TODAY'S WORD.</strong><small>One verse, one thought, one way to carry it forward</small><span class="rd-qarrow">↗</span></button>
+      <button class="rd-qcard" data-door="people"><img class="rd-qtile" src="assets/img/people/tree-of-life.webp" alt="" aria-hidden="true" loading="lazy"><span class="rd-qnum">05 / THE HALL OF FAITH</span><span class="rd-qicon">✦</span><strong>THE PEOPLE.</strong><small>Every famous Bible person — their story, their own words, their verses, their film. Under the Tree of Life</small><span class="rd-qarrow">↗</span></button>
     </div>
     <div data-rd-ai></div>${cont}`);
 }
@@ -741,6 +742,7 @@ function showDoors(root) {
     else if (d === 'books') showBooks(root);
     else if (d === 'devotionals') showDevotionals(root);
     else if (d === 'word') showWord(root);
+    else if (d === 'people') location.hash = '#/people';
   }));
   const openBible = root.querySelector('[data-act="open-bible"]');
   if (openBible) openBible.addEventListener('click', () => showBible(root));

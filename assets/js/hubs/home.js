@@ -39,6 +39,7 @@ const TILES = [
   { hub: 'pray',      num: '04', name: 'PRAY',      blurb: 'The Prayer Room',              img: 'assets/img/home/tile-pray.webp',      alt: 'A young man in a black hoodie praying by a window, hands open in golden light' },
   { hub: 'community', num: '05', name: 'COMMUNITY', blurb: 'Feed, testimonies & members',  img: 'assets/img/home/tile-community.webp', alt: 'Friends laughing together around a shared table of food' },
   { hub: 'give',      num: '06', name: 'GIVE',      blurb: 'Offerings & partnership',      img: 'assets/img/home/tile-give.webp',     alt: 'A young man handing a bag of groceries to a young woman at a produce table' },
+  { hub: 'people',    num: '08', name: 'THE PEOPLE', blurb: 'The Hall of Faith — their stories, words & films', img: 'assets/img/people/tree-of-life.webp', alt: 'The Tree of Life — a great golden tree with a river of light winding from its roots' },
   { hub: 'shop',      num: '07', name: 'SHOP',      blurb: 'Wear the work — gold on black', img: SHOP_TILE_IMG, wide: true,            alt: 'The Crowned Heavy Hoodie — a real 16:3 Faith product photo from the shop' },
 ];
 /* Counters — ONE SOURCE for every surface in the house (SPEC §2 D4): the
@@ -133,7 +134,18 @@ async function fillCounters(box, note) {
 }
 
 const HW_STYLE = `<style>
-.hw-card{margin-top:38px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,#141105,#0a0a0a 55%);padding:26px 28px}
+/* SITE-WIDE AI INTENSITY (2026-11-23, consult chatcmpl-EnXUONbVHMo4IMZGg0P2PVyM96dHg):
+   Today's Word opens as a pictured world — dedicated dawn-Bible art as the
+   card's side (NEW art; word-slide.webp already rides the slider + Read's
+   film poster, and the no-repeat law bars a third use). The pastor card's
+   TEXT side carries a faint cinematic crowd backdrop under a heavy dark
+   wash — atmosphere around the REAL photo, never over it. */
+.hw-card{margin-top:38px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,#141105,#0a0a0a 55%);padding:0;overflow:hidden;display:grid;grid-template-columns:1fr}
+.hw-art{width:100%;height:190px;object-fit:cover;display:block}
+.hw-main{padding:24px 28px 26px}
+@media(min-width:861px){.hw-card{grid-template-columns:38% 1fr}.hw-art{height:100%;min-height:280px}}
+section.pastor{box-shadow:0 0 0 1px rgba(212,175,55,.12),0 18px 50px rgba(0,0,0,.55)}
+.pastor .pastor-body{background:linear-gradient(100deg,rgba(10,9,5,.93),rgba(10,9,5,.86) 60%,rgba(10,9,5,.78)),url('assets/video/concert-crowd-poster.webp') center 30%/cover no-repeat}
 .hw-meta{font-size:12px;color:var(--mute);letter-spacing:.06em}
 .hw-title{margin-top:8px}
 .hw-quote{border-left:2px solid var(--gold);padding:6px 0 6px 16px;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.6;margin-top:14px}
@@ -474,8 +486,11 @@ export function render(root, { navigate }) {
     </div>
 
     <section class="hw-card reveal" id="todays-word" data-testid="home-todays-word">
+      <img class="hw-art" src="assets/img/home/word-card.webp" alt="" aria-hidden="true" loading="lazy">
+      <div class="hw-main">
       <p class="kicker">Today's Word</p>
       <div data-hw-body><p class="hw-note">Loading today's word…</p></div>
+      </div>
     </section>
 
     <div class="counters reveal" data-counters>${COUNTER_LABELS.map(([, label]) => `<div class="counter"><b>…</b><span>${label}</span></div>`).join('')}</div>
