@@ -238,6 +238,32 @@ const STYLE = `<style>
 .artist-card{display:flex;gap:18px;align-items:center;margin-top:18px;border:1px solid var(--line);border-radius:16px;background:var(--coal);padding:18px}
 .artist-card .acard-art.big{width:110px;height:110px;flex:none;margin:0}
 .artist-card-main{flex:1;min-width:0}
+/* ARTIST HERO (founder directive 2026-11-24 — "rep the artist... like
+   Usher. 163 Faith Presents"): the flat header card becomes a full-bleed
+   cinematic hero. The artist's own real art (their release artwork —
+   never fabricated) is cover-cropped and gold-graded so it reads as an
+   artist hero, not an album ad (ChatGPT consult
+   chatcmpl-Entn0g75WIVgq5ScrDtHqQQtZMDkb: name overlaid at the base,
+   Play All riding the hero, Ken Burns drift, years span from real
+   release years). No-art artists get the house monogram hero in the
+   same layout. Release sections and playback behavior are untouched. */
+.artist-hero{position:relative;margin:8px -20px 0;min-height:350px;display:flex;align-items:flex-end;overflow:hidden;background:#0a0906;isolation:isolate}
+.artist-hero .ah-mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;font-size:170px;line-height:1;color:rgba(232,190,84,.45);background:radial-gradient(circle at 50% 26%,#3d2d11,#0c0b0a 72%);z-index:0}
+.artist-hero img.ah-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;filter:saturate(1.07) sepia(.16) contrast(1.03);animation:ahDrift 26s ease-in-out infinite alternate;z-index:1}
+@keyframes ahDrift{from{transform:scale(1.03)}to{transform:scale(1.13) translateY(-1.6%)}}
+.artist-hero .ah-tint{position:absolute;inset:0;background:radial-gradient(115% 85% at 50% 0%,rgba(212,175,55,.22),rgba(212,175,55,0) 56%);mix-blend-mode:overlay;z-index:2;pointer-events:none}
+.artist-hero .ah-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.46) 0%,rgba(5,5,5,0) 30%,rgba(5,5,5,0) 44%,rgba(5,5,5,.88) 80%,#050505 100%);z-index:3;pointer-events:none}
+.artist-hero .ah-eyebrow{position:absolute;top:16px;left:20px;z-index:4;font-size:11px;font-weight:700;letter-spacing:.34em;color:var(--gold);text-shadow:0 1px 10px rgba(0,0,0,.8)}
+.artist-hero .ah-body{position:relative;z-index:4;padding:20px;width:100%}
+.artist-hero .ah-name{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:clamp(40px,11.5vw,68px);line-height:.97;margin:0;color:#fff8ea;text-shadow:0 3px 28px rgba(0,0,0,.7);letter-spacing:.01em}
+.artist-hero .artist-counts{margin-top:9px;font-size:16px;color:#f0e6cd}
+.artist-hero .artist-sub{margin-top:3px;color:#cdb872}
+.artist-hero .ah-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.artist-hero .ah-play{padding:15px 28px;font-size:16.5px;border-radius:999px;box-shadow:0 8px 30px rgba(212,175,55,.35)}
+.ah-filterrow{margin-top:14px}
+@media(min-width:760px){.artist-hero{min-height:410px}}
+@media (prefers-reduced-motion: reduce){.artist-hero img.ah-art{animation:none}}
+
 .artist-card-main h2{margin:0 0 6px}
 .artist-counts{font-size:15px;color:var(--bone);margin:0}
 .artist-counts b{color:var(--gold-hi);font-family:var(--serif);font-size:17px}
@@ -1184,23 +1210,30 @@ export function render(root, { player }) {
       markPlaying();
     }
 
+    const yearList = groups ? groups.map((g) => g.year).filter((y) => y) : [];
+    const yearsLine = yearList.length
+      ? (Math.min(...yearList) === Math.max(...yearList) ? `${Math.min(...yearList)}` : `${Math.min(...yearList)}–${Math.max(...yearList)}`)
+      : '';
     const countsLine = groups
       ? `<b>${kindCounts.albums}</b> Albums · <b>${kindCounts.singles}</b> Singles · <b>${totalTracks}</b> Tracks`
       : `${a.songs} songs in the catalog`;
     viewEl.innerHTML = `
       <button type="button" class="btn-ghost back-btn" data-back>← Back</button>
-      <div class="artist-card">
-        <span class="acard-art big">${a.art ? `<img src="${esc(a.art)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
-        <div class="artist-card-main">
-          <h2>${esc(a.name)}</h2>
+      <div class="artist-hero">
+        <span class="ah-mono" aria-hidden="true">${esc(monogram(a.name))}</span>
+        ${a.art ? `<img class="ah-art" src="${esc(a.art)}" alt="" onerror="this.remove()">` : ''}
+        <span class="ah-tint"></span><span class="ah-shade"></span>
+        <span class="ah-eyebrow">✦ 16:3 Faith Presents</span>
+        <div class="ah-body">
+          <h2 class="ah-name">${esc(a.name)}</h2>
           <p class="artist-counts">${countsLine}</p>
-          <p class="artist-sub">${headerPlayable ? `${headerPlayable} playable` : 'songs listed · playable songs coming'}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}</p>
-          <div class="artist-card-actions">
-            ${groups && tracks.length ? `<button type="button" class="btn-gold" data-playall>▶ Play all — ${esc(a.name)}</button>` : ''}
-            ${groups && groups.length > 8 ? `<label class="rel-filter"><input type="search" data-relfilter placeholder="Find a release…" aria-label="Find a release" value="${esc(ui.filter)}"></label>` : ''}
+          <p class="artist-sub">${headerPlayable ? `${headerPlayable} playable` : 'songs listed · playable songs coming'}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}${yearsLine ? ` · ${yearsLine}` : ''}</p>
+          <div class="ah-actions">
+            ${groups && tracks.length ? `<button type="button" class="btn-gold ah-play" data-playall>▶ Play all — ${esc(a.name)}</button>` : ''}
           </div>
         </div>
       </div>
+      ${groups && groups.length > 8 ? `<div class="ah-filterrow"><label class="rel-filter"><input type="search" data-relfilter placeholder="Find a release…" aria-label="Find a release" value="${esc(ui.filter)}"></label></div>` : ''}
       ${groups ? `<div id="artist-sections"></div>` : flatShelf}`;
     viewEl.querySelector('[data-back]').addEventListener('click', () => (a.door ? doorView(a.door) : doorsView()));
     const playAllBtn = viewEl.querySelector('[data-playall]');
