@@ -574,6 +574,11 @@ function normalizePost(p) {
     prayerCount: p.prayerCount || 0, shareCount: p.shareCount || 0,
     isPinned: !!p.isPinned, groupId: p.groupId ?? null,
     isAnswered: !!(p.isAnswered ?? p.answered),
+    /* R-3 (2026-11-23): the house series rides in the carried data —
+       isSystemPost + systemKind were dropped here, so the original's
+       system-kind badges could never render. Carried through now;
+       postCard's badge gate reads them (see sysBadge). */
+    isSystemPost: !!p.isSystemPost, systemKind: p.systemKind || null,
   };
 }
 const rxTotal = (p) => Object.values(p.reactionCounts || {}).reduce((a, b) => a + (b || 0), 0);
@@ -1117,8 +1122,32 @@ const CSS9 = `
 .bk .bk-sortseg button.on{background:#33270f;color:var(--gold)}
 @media(prefers-reduced-motion:reduce){.bk-pulse-dot{animation:none}}
 `;
+const CSS10 = `
+/* ---------- COMMUNITY RESTORE R-3 (2026-11-23) — CARD DRESSING.
+   Wall cards take the ORIGINAL's rendered spec (study §1.8 + §3
+   row 9): gold border at 35%, a gold-tinted shadow, type-coded
+   left borders (prayer purple / testimony amber), the system-kind
+   badge row for house posts, and the prayer-count strip on prayer
+   posts. Layered last so it dresses the card without touching the
+   2C mechanics underneath; Presents cards keep their stronger 2px
+   gold frame (their CSS5 rules sit at higher specificity). */
+.bk-card{border:1px solid rgba(212,175,55,.35);box-shadow:0 6px 32px rgba(212,175,55,.14),0 15px 30px rgba(0,0,0,.35)}
+.bk-card.prayer{border-left:4px solid #7a5fd0}
+.bk-card.testimony{border-left:4px solid #d79219}
+/* System-kind badge row: the house series, read off the post's own
+   carried systemKind (sysBadge in postCard). */
+.bk-sysrow{display:flex;margin:0 0 12px}
+.bk-sysbadge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(212,175,55,.5);background:rgba(212,175,55,.09);color:#ecd28a;border-radius:20px;padding:4px 11px;font-size:9px;font-weight:900;letter-spacing:1.8px}
+/* Prayer-count strip: the original's strip on prayer posts — the
+   post's real prayerCount, and the tap IS the card's Amen (same
+   data-act wiring, same server truth). Styled as .bk button.<class>
+   per the R-1+R-2 specificity lesson (.bk button reset). */
+.bk button.bk-praystrip{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;margin:14px 0 0;border:0;border-top:1px solid rgba(122,95,208,.35);border-bottom:1px solid rgba(122,95,208,.35);background:linear-gradient(180deg,rgba(122,95,208,.13),rgba(122,95,208,.06));color:#cdbcf5;padding:10px 14px;font-size:11.5px;font-weight:700;letter-spacing:.4px;cursor:pointer;text-align:center}
+.bk button.bk-praystrip:hover{background:linear-gradient(180deg,rgba(122,95,208,.2),rgba(122,95,208,.1));color:#e2d7fb}
+.bk button.bk-praystrip.mine{color:#f3c34b;box-shadow:inset 0 0 0 1px rgba(243,195,75,.4)}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -1488,6 +1517,30 @@ function feedList() {
   }
   return list;
 }
+/* ---------- COMMUNITY RESTORE R-3 (2026-11-23) — system-kind badges.
+   The original dressed house posts with a kind badge row (study
+   §2.5: 📖 Verse of the Day · 🙌 Testimony Tuesday · 🔥 What God Did
+   This Week). The kind is REAL carried data (systemKind on the post;
+   census in the R-3 record) — the badge renders only for a system
+   post or a house author carrying a kind, and an unmapped kind
+   humanizes from its own string. Nothing is inferred from body text. */
+const SYS_KINDS = {
+  verse_of_day: ['📖', 'VERSE OF THE DAY'],
+  testimony_tuesday: ['🙌', 'TESTIMONY TUESDAY'],
+  what_god_did_this_week: ['🔥', 'WHAT GOD DID THIS WEEK'],
+  what_god_did: ['🔥', 'WHAT GOD DID THIS WEEK'],
+  monday_prayer_kickoff: ['✛', 'MONDAY PRAYER KICKOFF'],
+  sunday_gathering: ['✦', 'SUNDAY GATHERING'],
+};
+const HOUSE_IDS = new Set([HOUSE_ID, 'system_163faith']);
+function sysBadge(p) {
+  if (!p.systemKind) return '';
+  if (!p.isSystemPost && !HOUSE_IDS.has(p.authorId)) return '';
+  const hit = SYS_KINDS[p.systemKind];
+  const g = hit ? hit[0] : '✦';
+  const l = hit ? hit[1] : String(p.systemKind).replace(/_/g, ' ').toUpperCase();
+  return `<div class="bk-sysrow"><span class="bk-sysbadge">${g} ${l}</span></div>`;
+}
 function postCard(p, inProfile = false) {
   const rx = p.reactionCounts || {};
   const total = rxTotal(p);
@@ -1508,13 +1561,19 @@ function postCard(p, inProfile = false) {
   const long = p.body.length > 420;
   const body = long && !inProfile ? esc(p.body.slice(0, 420)).trimEnd() + '…' : linkify(p.body);
   const media = (p.media || []).map((m) => m?.url ? `<img class="bk-postimg" src="${esc(m.url)}" alt="" loading="lazy">` : '').join('');
-  return `<article class="bk-card ${p.type === 'testimony' ? 'testimony' : ''}" data-post="${esc(p.id)}">
-    <div class="bk-postbody"><div class="bk-posthead">
+  /* R-3: the prayer-count strip (study §4) — the post's own real
+     prayerCount, and the tap is the card's Amen itself (data-act=
+     "amen": wirePosts runs the same memberReact / guest gate as the
+     AMEN button; repaintCard re-renders the count from the server's
+     merged response — never counted client-side). */
+  const prayStrip = p.type === 'prayer' ? `<button type="button" class="bk-praystrip${p.myReactionType === 'amen' ? ' mine' : ''}" data-act="amen"><span>✛ ${praying ? `${praying} prayed for this` : 'Be the first to pray for this'} — tap Amen to agree</span></button>` : '';
+  return `<article class="bk-card ${p.type === 'testimony' ? 'testimony' : ''}${p.type === 'prayer' ? ' prayer' : ''}" data-post="${esc(p.id)}">
+    <div class="bk-postbody">${sysBadge(p)}<div class="bk-posthead">
       <span data-profile="${esc(p.authorId || '')}" style="cursor:pointer">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}</span>
       <div class="bk-pid"><b data-profile="${esc(p.authorId || '')}">${esc(p.authorName)}${p.authorVerified ? ' <span class="bk-ver">✦</span>' : ''}</b>
       <small>${relTime(p.createdAt)}${p.authorLocation ? ' · ' + esc(p.authorLocation) : ''}</small></div>${tag}${isOwnPost(p) ? '<button type="button" class="bk-delpost" data-delpost aria-label="Delete your post">DELETE</button>' : ''}</div>
       <p class="bk-posttext">${body}</p>${long && !inProfile ? '<button type="button" class="bk-seemore" data-seemore>See more</button>' : ''}
-    </div>${media}
+    </div>${media}${prayStrip}
     <div class="bk-postmeta"><span class="amen">${total ? `<span class="bk-rxchips">${rxChips}</span>${metaBits.length ? ' · ' + metaBits.join(' · ') : ''}` : (metaBits.length ? metaBits.join(' · ') : (isSignedIn() ? 'Be the first to say Amen' : 'Be the first to say Amen — reactions open with sign-in'))}</span><span>${p.commentCount} comment${p.commentCount === 1 ? '' : 's'} · ${p.shareCount} share${p.shareCount === 1 ? '' : 's'}</span></div>
     <div class="bk-actions">
       <button type="button" class="bk-act${p.myReactionType === 'amen' ? ' mine-amen' : ''}" data-act="amen"><span class="ic">♥</span>AMEN${rx.amen ? ` · ${rx.amen}` : ''}</button>
