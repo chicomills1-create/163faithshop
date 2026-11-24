@@ -437,3 +437,40 @@ a.gold-frame:hover,button.gold-frame:hover{transform:translateY(-3px)}
   border-radius:999px;padding:10px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 body.player-on #faithguide{bottom:calc(var(--bottombar-h) + var(--player-h) + 20px)}
 @media(min-width:861px){body.player-on #faithguide{bottom:calc(var(--player-h) + 28px)}}
+
+/* ---------- PAGE-TURN SHELL (founder directive 2026-11-23 19:12 MST:
+   "switching between hubs, like a book. it goes from page to page like
+   the bible") — the whole site is ONE BOOK, the hubs its chapters.
+   A gold-edged page plane sweeps the viewport on hub-to-hub switches,
+   carrying the destination's chapter title at the cover point. The
+   plane is a shell overlay ONLY (shell.js PageTurn): the hub render
+   path is untouched, the swap lands underneath the covered moment,
+   and the plane is pointer-events:none at all times — it can never
+   trap a tap. z-index 75: above hub/nav/player/stage, below the Now
+   Playing page (80) and auth (120) — with Now Playing open, switches
+   happen behind it and no turn shows. Transform/opacity only. */
+#pt-wrap{position:fixed;inset:0;z-index:75;pointer-events:none;overflow:hidden;perspective:1300px}
+.pt-plane{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(102deg,#070604,#14110a 38%,#100e08 55%,#0a0906 78%,#060505);
+  box-shadow:inset 0 0 0 1px rgba(212,175,55,.16),inset 0 0 120px rgba(0,0,0,.55);
+  will-change:transform;animation-duration:560ms;animation-timing-function:cubic-bezier(.32,.02,.24,1);animation-fill-mode:forwards}
+.pt-plane::before{content:'';position:absolute;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold) 45%,var(--gold-dim));
+  box-shadow:0 0 18px rgba(212,175,55,.55),0 0 46px rgba(212,175,55,.25)}
+.pt-plane::after{content:'';position:absolute;top:0;bottom:0;width:22vw;max-width:300px;
+  background:linear-gradient(90deg,rgba(0,0,0,.5),transparent)}
+.pt-plane.pt-fwd::before{left:0}
+.pt-plane.pt-fwd::after{right:0;transform:scaleX(-1)}
+.pt-plane.pt-back::before{right:0}
+.pt-plane.pt-back::after{left:0}
+.pt-plane.pt-fwd{animation-name:pt-turn-fwd}
+.pt-plane.pt-back{animation-name:pt-turn-back}
+@keyframes pt-turn-fwd{0%{transform:translateX(103%) rotateY(9deg)}42%{transform:translateX(0) rotateY(0)}58%{transform:translateX(0) rotateY(0)}100%{transform:translateX(-103%) rotateY(-9deg)}}
+@keyframes pt-turn-back{0%{transform:translateX(-103%) rotateY(-9deg)}42%{transform:translateX(0) rotateY(0)}58%{transform:translateX(0) rotateY(0)}100%{transform:translateX(103%) rotateY(9deg)}}
+.pt-chapter{text-align:center;animation:pt-title 560ms ease forwards;padding:0 24px}
+.pt-kicker{font-size:10px;letter-spacing:.42em;text-indent:.42em;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.pt-title{font-family:var(--serif);font-size:clamp(34px,9vw,62px);letter-spacing:.3em;text-indent:.3em;color:var(--gold-hi);
+  text-transform:uppercase;line-height:1.1;text-shadow:0 2px 26px rgba(212,175,55,.25)}
+.pt-rule{width:64px;height:1px;margin:18px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+@keyframes pt-title{0%{opacity:0;transform:translateY(10px)}30%{opacity:0}45%{opacity:1;transform:none}62%{opacity:1}84%{opacity:0}100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.pt-plane,.pt-chapter{animation:none}}
