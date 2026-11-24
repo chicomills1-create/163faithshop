@@ -1382,8 +1382,47 @@ const CSS15 = `
 .bk-beat .bk-beathint{position:absolute;right:12px;bottom:10px;font-size:9px;letter-spacing:1.8px;color:#0a0805;font-weight:900;background:rgba(212,175,55,.92);padding:5px 9px;border-radius:4px}
 @media(prefers-reduced-motion:reduce){.bk-card.bk-fresh{animation:none}.bk-beat{transition:none}}
 `;
+const CSS16 = `
+/* ---------- R-7 — PHONE TAB BAR + STORY RINGS (2026-11-23).
+   TAB BAR: the original's phone chrome, inside Community only.
+   The bar takes the shell bottom bar's own band while this hub
+   is mounted: exactly var(--bottombar-h) tall at bottom:0,
+   z-index 63 — above the shell bar (60), below the composer
+   FAB (64) and FaithGuide (65). Every standing phone offset
+   already clears that band by its own margin (the FAB's and
+   FaithGuide's bottom edges sit at bottombar + 16, the
+   player's at bottombar + 8), so nothing moves and no shell
+   file is touched. Shown at phone width only (≤768px); the
+   node is mount-once, re-appended per paint (the FAB pattern),
+   and leaves with the root on hub switch. */
+.bk-tabbar{display:none}
+@media(max-width:768px){
+ .bk-tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;height:var(--bottombar-h);z-index:63;background:rgba(5,5,5,.96);border-top:1px solid rgba(212,175,55,.45);backdrop-filter:blur(8px)}
+ .bk-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;cursor:pointer;color:#8a8474;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:4px 0 0;font-family:inherit}
+ .bk-tab .bk-tab-ico{font-size:17px;line-height:1;color:#a4832f}
+ .bk-tab.on{color:#ffe9a8}
+ .bk-tab.on .bk-tab-ico{color:var(--gold)}
+}
+/* STORY RINGS — the tray face goes round (study §3 row 5):
+   the member tray trades its rectangular cards for the
+   original's columns — a 56px round avatar in the standing
+   .bk-ring (its conic gold gradient is the ring; .viewed is
+   the muted ring), the name at 11px under it, the kind as a
+   gold micro-line. The viewer and the viewed machinery are
+   untouched; only storiesHtml's member face + this layer
+   change. Guest door cards are doors, not stories — their
+   grid face stands. */
+.bk-stories.member .bk-story{flex:0 0 72px;width:72px;height:auto;min-width:0;padding:2px 0 0;background:none;border:0;border-radius:0;overflow:visible;flex-direction:column;align-items:center;text-align:center}
+.bk-stories.member .bk-story:before{display:none}
+.bk-stories.member .bk-story:hover{transform:none}
+.bk-stories.member .bk-ring{padding:2px}
+.bk-stories.member .bk-ring .bk-ava{width:56px;height:56px;font-size:17px}
+.bk-storycol-name{display:block;margin-top:6px;font-size:11px;font-weight:700;color:var(--cream);line-height:1.15;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-storycol-kind{display:block;margin-top:2px;font-size:7.5px;letter-spacing:1.2px;color:#c3a158;font-weight:900;white-space:nowrap}
+.bk-yoursdisc{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#161512;color:var(--gold);font-size:24px;font-weight:900;line-height:1}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -1719,17 +1758,23 @@ function storiesHtml() {
      house cards stand — labeled house doors, not people. */
   const seen = new Map(storySet().map((p) => [p.authorId, p]));
   const yours = `<button type="button" class="bk-story bk-story-start" data-story="yours"><span class="bk-story-plus">+</span><strong>YOUR STORY</strong><small>LET IT OUT</small></button>`;
+  /* R-7 (study §3 row 5): in the member tray the face goes ROUND —
+     the original's columns: a 56px avatar in the standing gold
+     ring, the name at 11px under it, the kind as a micro-line
+     (PRAYER REQUEST shortens to PRAYER at this scale; the viewer
+     carries the full label). The excerpt leaves the tray face —
+     the full text lives in the viewer, which is untouched, as
+     are data-storyopen / data-profile / data-ring, so every
+     existing wire (viewer open, in-place viewed flip) stands. */
+  const yoursCol = `<button type="button" class="bk-story bk-storycol" data-story="yours"><span class="bk-ring"><span class="bk-yoursdisc">+</span></span><span class="bk-storycol-name">Your story</span><span class="bk-storycol-kind">LET IT OUT</span></button>`;
   const memberCards = [...seen.values()].map((p) => `
-    <button type="button" class="bk-story" data-profile="${esc(p.authorId)}" data-storyopen="${esc(p.authorId)}"><span class="bk-ring ${viewedStories().has(p.authorId) ? 'viewed' : ''}" data-ring="${esc(p.authorId)}">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}</span>
-      <span class="bk-story-kind">${p.type === 'testimony' ? '✦ TESTIMONY' : p.type === 'prayer' ? '✛ PRAYER REQUEST' : '✎ POST'} · ${relTime(p.createdAt).toUpperCase()}</span>
-      <span class="bk-story-name">${esc(p.authorName)}</span>
-      <span class="bk-story-ex">${esc(p.body.slice(0, 110))}</span></button>`).join('');
+    <button type="button" class="bk-story bk-storycol" data-profile="${esc(p.authorId)}" data-storyopen="${esc(p.authorId)}"><span class="bk-ring ${viewedStories().has(p.authorId) ? 'viewed' : ''}" data-ring="${esc(p.authorId)}">${avatarHtml(p.authorName, p.authorAvatar, p.authorId === HOUSE_ID)}</span><span class="bk-storycol-name">${esc(p.authorName)}</span><span class="bk-storycol-kind">${p.type === 'testimony' ? '✦ TESTIMONY' : p.type === 'prayer' ? '✛ PRAYER' : '✎ POST'}</span></button>`).join('');
   const houseCards = `
     <button type="button" class="bk-story bk-story-prayer" data-hubgo="pray"><span class="bk-story-mono">✛</span><span class="bk-story-label">THE PRAYER<br>ROOM</span><span class="bk-story-foot">LEAVE IT HERE <b>↗</b></span></button>
     <button type="button" class="bk-story bk-story-test" data-view="testimonies"><span class="bk-story-mono">✦</span><span class="bk-story-label">GRACE HAS<br>A STORY</span><span class="bk-story-foot">TESTIMONIES <b>↗</b></span></button>
     <button type="button" class="bk-story bk-story-comm" data-view="members"><span class="bk-story-mono">♡</span><span class="bk-story-label">YOU<br>BELONG.</span><span class="bk-story-foot">FIND YOUR PEOPLE <b>↗</b></span></button>`;
   return `<div class="bk-sechead"><div><span class="eyebrow">VOICES FROM THE BLOCK</span><h2>The stories <em>keep going.</em></h2></div><button type="button" class="bk-alltest" data-view="testimonies">ALL TESTIMONIES ›</button></div>
-  <div class="bk-stories${memberCards ? ' member' : ''}">${yours}${memberCards || houseCards}</div>`;
+  <div class="bk-stories${memberCards ? ' member' : ''}">${memberCards ? yoursCol + memberCards : yours + houseCards}</div>`;
 }
 const COMPOSE_TYPES = {
   post: { icon: '✎', label: 'POST', pill: "What's on your heart today?", gate: '<b>Posting opens with your 16:3 Faith account.</b> Join free or sign in (top right) and this box becomes yours — the wall stays open to read either way. Nothing about browsing is locked.' },
@@ -2843,6 +2888,57 @@ function wireFabRoot(root) {
   });
 }
 
+/* ---------- R-7 — PHONE TAB BAR (study §4 R-7) ----------
+   The original's phone chrome, inside Community only: a
+   mount-once fixed bar (the FAB pattern — one node, one
+   delegated listener, re-appended at every paint tail) that
+   takes the shell bottom bar's band while this hub is mounted
+   and leaves with the root on hub switch (the shell replaces
+   the hub container per navigation). CSS16 owns visibility:
+   phone width only (≤768px), z-63 — above the shell bar (60),
+   below the FAB (64) and FaithGuide (65), whose standing
+   offsets clear the band by 16px untouched. Tabs map to real
+   destinations only (study §3 row 13): COMMUNITY is the hub's
+   home, SANCTUARY the Listen hub, BIBLE + DEVOTIONAL the Read
+   hub (the original's own mapping), ASK FAITH the shell's
+   Faith Answers bar via the lobby ASK chip's exact call.
+   COMMUNITY carries the active gold: the member is here. No
+   tab carries a count or a badge — none exists honestly. */
+let tabBarNode = null;
+function tabBarEl() {
+  if (tabBarNode) return tabBarNode;
+  const d = document.createElement('nav');
+  d.className = 'bk-tabbar'; d.dataset.tabbar = '1';
+  d.setAttribute('aria-label', 'Community phone tabs');
+  const tab = (id, ico, label, on) => `<button type="button" class="bk-tab${on ? ' on' : ''}" data-tab="${id}"${on ? ' aria-current="page"' : ''}><span class="bk-tab-ico">${ico}</span>${label}</button>`;
+  d.innerHTML = tab('community', '⌂', 'Community', true) + tab('listen', '♪', 'Sanctuary') + tab('bible', '✞', 'Bible') + tab('devotional', '✧', 'Devotional') + tab('ask', '✦', 'Ask Faith');
+  d.addEventListener('click', (e) => {
+    const b = e.target?.closest?.('[data-tab]'); if (!b) return;
+    onTabTap(b.dataset.tab);
+  });
+  tabBarNode = d; return d;
+}
+function onTabTap(id) {
+  if (id === 'listen') { goHub('listen'); return; }
+  if (id === 'bible' || id === 'devotional') { goHub('read'); return; }
+  if (id === 'ask') {
+    const fa = document.getElementById('fa-input');
+    if (fa) { fa.scrollIntoView({ block: 'center' }); fa.focus(); }
+    return;
+  }
+  /* community — home: a profile sub-route exits by the hash (the
+     profile back button's own route); inside the hub it is the
+     feed view and the top of the wall. */
+  if (location.hash !== '#/community') { location.hash = '#/community'; return; }
+  if (S.view !== 'feed') { S.view = 'feed'; paint(); }
+  window.scrollTo({ top: 0, behavior: window.FaithFilm?.reduced ? 'auto' : 'smooth' });
+}
+function mountTabBar() {
+  if (!S.root) return;
+  const bar = tabBarEl();
+  if (bar.parentNode !== S.root) S.root.appendChild(bar);
+}
+
 function paint(keepScroll = false) {
   /* P1-1: the doors grid is retired as a landing — the hub opens IN
      the feed (template: community.tsx). viewDoors stays defined for
@@ -3021,6 +3117,8 @@ function paint(keepScroll = false) {
      the SAME elements this paint's innerHTML swap detached, then
      sync their visibility/sheet state. Identity never changes. */
   mountFab();
+  /* R-7: the phone tab bar rides the same mount-once pattern. */
+  mountTabBar();
 }
 /* The chain's live leg (2026-11-19 feed-count cure; R-6 fold B):
    fetch the next slice at the standing cursor. This is the resume
