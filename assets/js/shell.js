@@ -1061,10 +1061,24 @@ const Auth = {
       const name = user.fullName || user.firstName
         || (user.primaryEmailAddress && user.primaryEmailAddress.emailAddress) || 'Member';
       $('acct-name').textContent = name;
-      const img = $('acct-avatar'), ini = $('acct-initials');
-      if (user.imageUrl) { img.src = user.imageUrl; img.hidden = false; ini.hidden = true; }
-      else {
-        img.hidden = true; ini.hidden = false;
+      /* AUDIT CURE D-PAINT-1 (2026-11-24): the account avatar <img>
+         is created only when a real image URL exists. The static
+         shell used to carry a src-less <img id="acct-avatar"> in the
+         DOM on every page — the one broken image the paint census
+         found on all seven hubs. No URL, no element; the initials
+         disc carries the member otherwise. */
+      const ini = $('acct-initials');
+      let img = $('acct-avatar');
+      if (user.imageUrl) {
+        if (!img) {
+          img = document.createElement('img');
+          img.id = 'acct-avatar'; img.className = 'acct-avatar'; img.alt = '';
+          ini.parentNode.insertBefore(img, ini);
+        }
+        img.src = user.imageUrl; img.hidden = false; ini.hidden = true;
+      } else {
+        if (img) img.remove();
+        ini.hidden = false;
         ini.textContent = name.split(/\s+/).slice(0, 2).map((w) => (w[0] || '').toUpperCase()).join('');
       }
     } else {
