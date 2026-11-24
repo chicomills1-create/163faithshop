@@ -39,6 +39,33 @@ const DATA = 'assets/data/shop/products.json';
 const QUICK_STORE = 'https://163faith.printful.me';
 const CONTACT = 'shop@163faithshop.com';
 
+/* GOD OVER EVERYTHING — THE PASTOR'S BOOK (founder order 2026-11-23 19:04
+   MST: "put this in the shop section, under God over everything"). The
+   Read hub's one real book joins Shop as a featured placement. Facts and
+   Amazon targets copied EXACTLY from the Read hub's book shelf (read.js
+   showBooks) — nothing invented. The book is NOT Printful merch: it never
+   enters S.products, the filterbar counts, or the grid; it carries its
+   own section, its own heading, and its own honest label. */
+const BOOKS = [
+  { vol: 'Volume One', band: 'VOLUME ONE · JANUARY – JUNE', facts: 'Days 1–181 · Paperback · 6×9 · 559 pages', price: 19.99,
+    blurb: 'The first half of the year. From the cold start of January to the long light of June — a daily return to putting God first, one verse at a time.',
+    url: 'https://www.amazon.com/dp/B0H41J8C8G?tag=kairobot143-20' },
+  { vol: 'Volume Two', band: 'VOLUME TWO · JULY – DECEMBER', facts: 'Days 182–365 · Paperback · 6×9 · 568 pages', price: 19.99,
+    blurb: 'The back half of the year, all the way to the last day. The same honest rhythm — verse, reflection, prayer, and one line to carry with you.',
+    url: 'https://www.amazon.com/dp/B0H3NV2JLH?tag=kairobot143-20' },
+];
+function bookCardHTML(b) {
+  return `
+  <article class="sr-book" data-book="${esc(b.vol)}">
+    <div class="sr-bookcover"><span class="pre">16:3 Faith Presents</span><h4>God Over <span class="g">Everything</span></h4><div class="rule"></div><span class="sub">A 365-Day Devotional</span><br><span class="band">${esc(b.band)}</span></div>
+    <p class="sr-bookmeta">The Pastor's Book · Sold on Amazon</p>
+    <h3>${esc(b.vol)}</h3>
+    <p class="sr-bookfacts">${esc(b.facts)} · $${b.price.toFixed(2)}</p>
+    <p class="sr-bookblurb">${esc(b.blurb)}</p>
+    <div class="sr-bookrow"><span class="sr-bookprice">${money(b.price)}</span><a class="sr-bookbuy" data-bookbuy href="${esc(b.url)}" target="_blank" rel="noopener noreferrer">Buy ${esc(b.vol)} — ${money(b.price)} on Amazon ↗</a></div>
+  </article>`;
+}
+
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const money = (n) => '$' + Number(n).toFixed(2).replace(/\.00$/, '');
 
@@ -175,6 +202,12 @@ function injectCss() {
   .sr-tile .meta strong{display:block;font-family:var(--serif);font-size:16.5px;margin-top:4px;line-height:1.25}
   .sr-tile .meta small{display:block;color:var(--mute);font-size:12px;margin-top:3px}
   .sr-manifesto{margin-top:46px;border-top:1px solid var(--line);padding-top:30px}
+  /* SITE-WIDE AI INTENSITY (2026-11-23, consult chatcmpl-EnXUONbVHMo4IMZGg0P2PVyM96dHg):
+     atmosphere art behind the EDITORIAL type only — a dawn street, "worn in
+     the world". Never product imagery (products stay real Printful renders),
+     never behind prices or buy controls. */
+  .sr-manifesto-art{width:100%;height:210px;object-fit:cover;border-radius:16px;border:1px solid rgba(212,175,55,.3);display:block;margin-bottom:26px}
+  @media(min-width:861px){.sr-manifesto-art{height:280px}}
   .sr-manifesto h2{font-family:var(--serif);font-size:clamp(46px,11.5vw,96px);line-height:.95;color:var(--bone);margin:12px 0 16px}
   .sr-manifesto h2 .g{color:var(--gold)}
   .sr-verse{font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.55;color:var(--gold-hi);max-width:560px}
@@ -205,6 +238,29 @@ function injectCss() {
   .sr-faq summary span{color:var(--gold);font-size:20px}
   .sr-faq p{padding:0 18px 17px;color:var(--mute);font-size:14px;line-height:1.6}
   .sr-faq p b{color:var(--gold-hi)}
+  /* GOD OVER EVERYTHING book placement — typographic cover treatment (the
+     book has no product photo; the cover is set in the house serif, the
+     way the Read shelf presents it). Distinct from merch cards: deep
+     panel, double gold rule, THE PASTOR'S BOOK tag, Amazon buy path. */
+  .sr-bookgrid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:20px}
+  @media(min-width:760px){.sr-bookgrid{grid-template-columns:1fr 1fr}}
+  .sr-book{border:1px solid var(--gold-dim);border-radius:20px;background:linear-gradient(165deg,#171106,#070707 62%);padding:22px;display:flex;flex-direction:column;gap:12px}
+  .sr-bookcover{border:1px solid rgba(212,175,55,.45);border-radius:12px;background:radial-gradient(120% 120% at 50% 0%,rgba(212,175,55,.16),rgba(5,5,5,0) 62%),#0a0803;padding:26px 20px 22px;text-align:center}
+  .sr-bookcover .pre{font-size:9.5px;letter-spacing:.3em;color:var(--mute);text-transform:uppercase}
+  .sr-bookcover h4{font-family:var(--serif);font-size:clamp(30px,6vw,40px);line-height:1.02;color:var(--bone);margin:10px 0 4px}
+  .sr-bookcover h4 .g{color:var(--gold)}
+  .sr-bookcover .rule{width:64px;height:2px;background:var(--gold);margin:12px auto}
+  .sr-bookcover .sub{font-size:10px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
+  .sr-bookcover .band{display:inline-block;margin-top:14px;font-size:9.5px;letter-spacing:.22em;color:var(--bone);border:1px solid var(--gold-dim);border-radius:999px;padding:6px 12px;text-transform:uppercase}
+  .sr-bookmeta{font-size:10px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
+  .sr-book h3{font-family:var(--serif);font-size:26px;color:var(--bone)}
+  .sr-bookfacts{font-size:12.5px;color:var(--mute);letter-spacing:.04em}
+  .sr-bookblurb{color:var(--bone);opacity:.87;font-size:14.5px;line-height:1.65}
+  .sr-bookrow{display:flex;align-items:center;gap:14px;margin-top:auto;flex-wrap:wrap}
+  .sr-bookprice{font-family:var(--serif);font-size:24px;color:var(--gold-hi)}
+  .sr-bookbuy{display:inline-block;background:var(--gold);color:#0a0803;font-weight:700;border-radius:999px;padding:12px 20px;text-decoration:none;font-size:14px}
+  .sr-booknote{font-size:12.5px;color:var(--mute);line-height:1.6;margin-top:14px}
+  .sr-booknote a{color:var(--gold-hi)}
   `;
   document.head.appendChild(st);
 }
@@ -216,7 +272,7 @@ export function render(root) {
     cat: 'all', aud: 'all', sort: 'featured', query: '',
     dialogSlug: null, dialogSize: null, greeted: false,
   };
-  window.__shop = { state: S, ready: false, products: [] };
+  window.__shop = { state: S, ready: false, products: [], books: BOOKS };
 
   const tickerSet = ['FAITH OVER FEAR', 'GOD OVER EVERYTHING', 'NO MORE HIDING', 'LIVE WHAT YOU BELIEVE']
     .map((t) => `<span>${t}</span><i aria-hidden="true">✦</i>`).join('');
@@ -243,12 +299,19 @@ export function render(root) {
       <div class="sr-foot"><span>More than an outfit. It’s the walk.</span><button type="button" data-scroll="story">See the statement ↗</button></div>
     </section>
     <div data-sh="campaign"></div>
+    <section data-sr="book">
+      <div class="sr-kicker"><span class="no">[ 02 ]</span><span>God Over Everything</span><span class="hair"></span><span class="tag">The Pastor's Book</span></div>
+      <div class="sr-sechead"><div><div class="sr-micro">16:3 Faith Presents · The One Book</div><h2>GOD OVER<br><span class="g">EVERYTHING.</span></h2></div><p>A 365-Day Devotional by Pastor Jeremy “Chico” Mills — one verse, one honest reflection, one prayer, every day for a year. Both paperback volumes, on Amazon.</p></div>
+      <div class="sr-bookgrid">${BOOKS.map(bookCardHTML).join('')}</div>
+      <p class="sr-booknote">The book is sold on <b>Amazon</b> — it is not Printful merch and is not counted in the collection above. <b>Read the first 5 days free</b> — the sample lives on the book shelf in the <a href="#/read">Read hub</a>.</p>
+    </section>
     <section>
-      <div class="sr-kicker"><span class="no">[ 02 ]</span><span>Choose Your Armor</span><span class="hair"></span><span class="tag">No compromise</span></div>
+      <div class="sr-kicker"><span class="no">[ 03 ]</span><span>Choose Your Armor</span><span class="hair"></span><span class="tag">No compromise</span></div>
       <div data-sh="tiles"><p class="sh-note">Loading the line…</p></div>
     </section>
     <section class="sr-manifesto" data-sr="story">
-      <div class="sr-kicker" style="margin-top:0"><span class="no">[ 03 ]</span><span>The Reason</span><span class="hair"></span></div>
+      <img class="sr-manifesto-art" src="assets/img/shop/manifesto.webp" alt="" aria-hidden="true" loading="lazy">
+      <div class="sr-kicker" style="margin-top:0"><span class="no">[ 04 ]</span><span>The Reason</span><span class="hair"></span></div>
       <p class="sh-note" style="letter-spacing:.24em;text-transform:uppercase">The verse that started it all</p>
       <h2>COMMIT<br>THE WORK<span class="g">.</span></h2>
       <p class="sr-verse">“Commit thy works unto the LORD, and thy thoughts shall be established.”</p>
@@ -262,7 +325,7 @@ export function render(root) {
     </section>
     <section class="sr-bleed"><div class="word">WALK IN <span class="g">FAITH.</span></div><div class="strip"><span>No performance. Just purpose.</span><span>Proverbs 16:3</span></div></section>
     <section>
-      <div class="sr-kicker"><span class="no">[ 04 ]</span><span>More Than Merch</span><span class="hair"></span><span class="tag">The community is the culture</span></div>
+      <div class="sr-kicker"><span class="no">[ 05 ]</span><span>More Than Merch</span><span class="hair"></span><span class="tag">The community is the culture</span></div>
       <div class="sr-editorial">
         <div>
           <div class="sr-eyebrow">Believe bigger. Walk together.</div>
@@ -278,7 +341,7 @@ export function render(root) {
       </div>
     </section>
     <section>
-      <div class="sr-kicker"><span class="no">[ 05 ]</span><span>Good to Know</span><span class="hair"></span></div>
+      <div class="sr-kicker"><span class="no">[ 06 ]</span><span>Good to Know</span><span class="hair"></span></div>
       <div class="sr-sechead"><h2 style="font-size:clamp(38px,8.5vw,64px)">NO GUESSWORK<span class="g">.</span></h2><p>How the line works — the same answers the shop assistant gives, in the open.</p></div>
       <details class="sr-faq"><summary>How is the gear made?<span>+</span></summary><p>Every piece is <b>made to order</b> — printed when you order it and fulfilled by Printful. Nothing sits in a warehouse; your piece is made for you.</p></details>
       <details class="sr-faq"><summary>What is the production and delivery timeline?<span>+</span></summary><p>Allow <b>a few days for printing</b>, then standard delivery to US addresses. Because each piece is printed on order, it takes a little longer than off-the-shelf — order a few days ahead of the day you need it.</p></details>
@@ -333,6 +396,10 @@ export function render(root) {
     return [...hits];
   }
   function answerFor(q) {
+    const ql0 = q.toLowerCase();
+    if (/book|devotional|god over everything|volume|pastor.*wrote|reading/.test(ql0)) {
+      return { html: `The Pastor's book is <b>God Over Everything</b> — a 365-day devotional by Pastor Jeremy “Chico” Mills. <b>Volume One</b> (Days 1–181, 559 pages) and <b>Volume Two</b> (Days 182–365, 568 pages) are paperbacks at <b>$19.99</b> each, sold on <b>Amazon</b> — see the God Over Everything section on this page. The first 5 days are free to read in the Read hub. It is not Printful merch, so it is not in the piece counts.`, hits: [] };
+    }
     const hits = matchProducts(q); const ql = q.toLowerCase();
     if (/warmest|warm for winter/.test(ql)) {
       const h = bySlug('narrow-is-the-way-hoodie');
@@ -374,7 +441,7 @@ export function render(root) {
         <button class="btn-gold" type="submit" style="flex:none;padding:13px 18px">Answer</button>
       </form>
       <div class="sh-chips" style="margin-top:12px">
-        ${['A gift under $50', 'What’s warmest?', 'What comes in 5XL?', 'Show me the hoodies', 'A gift for my dad'].map((c) => `<button type="button" class="sh-chip" data-sh="chip" style="letter-spacing:.04em;text-transform:none">${esc(c)}</button>`).join('')}
+        ${['A gift under $50', 'What’s warmest?', 'What comes in 5XL?', 'Show me the hoodies', 'A gift for my dad', 'The Pastor’s book'].map((c) => `<button type="button" class="sh-chip" data-sh="chip" style="letter-spacing:.04em;text-transform:none">${esc(c)}</button>`).join('')}
       </div>
       <div data-sh="answer"></div>
     </div>`;
