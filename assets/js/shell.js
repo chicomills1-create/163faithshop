@@ -1227,7 +1227,10 @@ async function faithAnswer(raw) {
   const artists = d.listen?.artists || [];
   const ahit = artists.find((a) => low.includes(a.name.toLowerCase()))
     || (low.length >= 4 ? artists.find((a) => a.name.toLowerCase().includes(low)) : null);
-  if (ahit) return show(`<b>${faEsc(ahit.name)}</b> is on the roster — <b>${ahit.releases} releases · ${ahit.songs} songs · ${ahit.playable} playable</b> in the Listen hub, albums grouped by album with their exact official covers.`, 'listen');
+  /* ONE-RULER CURE (2026-11-23): Faith Answers quotes the rows-that-
+     play ruler (playableRows + morePlayable), same as the artist card —
+     the pool field a.playable renders nowhere as a playable count. */
+  if (ahit) return show(`<b>${faEsc(ahit.name)}</b> is on the roster — <b>${ahit.releases} releases · ${ahit.songs} songs · ${(ahit.playableRows || 0) + (ahit.morePlayable || 0)} playable</b> in the Listen hub, albums grouped by album with their exact official covers.`, 'listen');
   /* Films — title match against the Watch catalog. */
   const titles = d.watch?.titles || [];
   const thit = titles.find((t) => low.includes(t.title.toLowerCase()))
