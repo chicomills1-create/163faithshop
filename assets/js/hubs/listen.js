@@ -299,8 +299,15 @@ async function loadPlayable(slug) {
   if (!state.playable.has(slug)) {
     try {
       const r = await fetch(`assets/data/playable/${slug}.json`);
-      state.playable.set(slug, r.ok ? await r.json() : { name: '', tracks: [] });
-    } catch { state.playable.set(slug, { name: '', tracks: [] }); }
+      /* D-LISTEN-1 CURE (2026-11-24): only a real load is cached. A
+         failed fetch used to cache the empty pool for the whole
+         session, and every album binding then derefed past its end —
+         one flaky fetch killed the artist page (the audit's Lecrae
+         crash). Failures return the empty pool UNCACHED, so the next
+         visit retries the fetch. */
+      if (r.ok) state.playable.set(slug, await r.json());
+      else return { name: '', tracks: [] };
+    } catch { return { name: '', tracks: [] }; }
   }
   return state.playable.get(slug);
 }
@@ -308,8 +315,12 @@ async function loadAlbums(slug) {
   if (!state.albums.has(slug)) {
     try {
       const r = await fetch(`assets/data/albums/${slug}.json`);
-      state.albums.set(slug, r.ok ? await r.json() : null);
-    } catch { state.albums.set(slug, null); }
+      /* D-LISTEN-1 CURE: same discipline as loadPlayable — a failed
+         fetch returns the null fallback UNCACHED and retries next
+         visit, instead of pinning the fallback for the session. */
+      if (r.ok) state.albums.set(slug, await r.json());
+      else return null;
+    } catch { return null; }
   }
   return state.albums.get(slug);
 }
@@ -438,7 +449,10 @@ export function render(root, { player }) {
   window.addEventListener('faithplayer', onPlayerEvent);
 
   function queueFromTracks(tracks, artistName, cover) {
-    return tracks.map((t) => ({ youtubeId: t.y, title: t.t, sub: artistName, cover: cover || null }));
+    /* D-LISTEN-1 CURE: baked-index callers (g.play / more maps) can
+       hand in holes when the pool loaded short — drop them here so a
+       queue never carries an undefined track into the player. */
+    return tracks.filter((t) => t && t.y).map((t) => ({ youtubeId: t.y, title: t.t, sub: artistName, cover: cover || null }));
   }
 
   async function playArtistFrom(slug, startIdx) {
@@ -532,7 +546,10 @@ export function render(root, { player }) {
     }
     const a = feat.artist;
     const g = feat.group;
-    const rot = g ? g.play.slice(0, 8) : [];
+    /* D-LISTEN-1 CURE: rotation rows render only bindings whose pool
+       entry actually loaded; k keeps the entry's own position in
+       g.play (the queue position a tap starts from). */
+    const rot = g ? g.play.slice(0, 8).map((ti, k) => ({ ti, k })).filter(({ ti }) => feat.tracks[ti]) : [];
     const showArt = g ? g.cover : a.art;
     const meta = g
       ? [g.year || '', g.kind === 'ep' ? 'EP' : g.kind === 'single' ? 'Single' : 'Album', `${g.n} tracks`, `${g.pr} playable`].filter(Boolean).join(' · ')
@@ -551,7 +568,7 @@ export function render(root, { player }) {
       </div>
       <div class="lsn-rotation">
         <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${rowsPlayable(a)} PLAYABLE`}</span></div>
-        ${rot.length ? rot.map((ti, k) => `
+        ${rot.length ? rot.map(({ ti, k }) => `
         <button type="button" class="lsn-ftrow" data-track="${esc(feat.tracks[ti].y)}" data-featrow="${k}">
           <span class="lsn-ftnum">${String(k + 1).padStart(2, '0')}</span>
           ${showArt ? `<img class="lsn-ftcover" src="${esc(showArt)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
@@ -971,8 +988,14 @@ export function render(root, { player }) {
          dies silently again. */
       const posInPlay = new Map(g.play.map((ti, pi) => [ti, pi]));
       return g.rows.map((row, li) => {
-        if (row.p && row.p.length) {
-          return row.p.map((ti, k) => `
+        /* D-LISTEN-1 CURE (2026-11-24): bindings whose pool entry is
+           missing (the pool fetch failed or served short — the
+           audit's Lecrae crash) degrade to the honest static row
+           below; one bad binding must never take the whole artist
+           page down with it. */
+        const bound = row.p ? row.p.filter((ti) => tracks[ti]) : [];
+        if (bound.length) {
+          return bound.map((ti, k) => `
           <button type="button" class="trow" data-track="${esc(tracks[ti].y)}" data-albrow="${oi}" data-pos="${posInPlay.get(ti)}">
             <span class="tnum">${li + 1}</span><span class="ttitle">${esc(k === 0 ? row.t : tracks[ti].t)}</span>
             ${tracks[ti].d ? `<span class="tdur">${fmtDur(tracks[ti].d)}</span>` : ''}
@@ -1023,15 +1046,19 @@ export function render(root, { player }) {
     }
 
     function moreCardHtml() {
-      if (!more.length) return '';
+      /* D-LISTEN-1 CURE: render only More entries whose pool entry
+         actually loaded (same missing-pool degrade as trackRows);
+         k stays the position in the filtered queue playMore builds. */
+      const liveMore = more.filter((ti) => tracks[ti]);
+      if (!liveMore.length) return '';
       return `<div class="rel-card alb-card" data-morecard>
         <div class="rel-head">
-          <div class="alb-meta"><b>More songs</b><span>${more.length} song${more.length === 1 ? '' : 's'}</span></div>
+          <div class="alb-meta"><b>More songs</b><span>${liveMore.length} song${liveMore.length === 1 ? '' : 's'}</span></div>
           <button type="button" class="btn-gold alb-play" data-moreplay aria-label="Play more songs">▶</button>
           <button type="button" class="btn-ghost alb-toggle" data-moretoggle aria-expanded="${ui.moreOpen}">${ui.moreOpen ? 'Hide tracks' : 'Tracks'}</button>
         </div>
         <p class="lede alb-note">Live recordings, features and one-offs that live outside the albums — every one plays full.</p>
-        <div class="alb-body" data-morebody ${ui.moreOpen ? '' : 'hidden'}><div class="trows mini">${more.map((ti, k) => `
+        <div class="alb-body" data-morebody ${ui.moreOpen ? '' : 'hidden'}><div class="trows mini">${liveMore.map((ti, k) => `
           <button type="button" class="trow" data-track="${esc(tracks[ti].y)}" data-morerow="${k}">
             <span class="tnum">${k + 1}</span><span class="ttitle">${esc(tracks[ti].t)}</span>
             ${tracks[ti].d ? `<span class="tdur">${fmtDur(tracks[ti].d)}</span>` : ''}
