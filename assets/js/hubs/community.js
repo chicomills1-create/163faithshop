@@ -1146,8 +1146,30 @@ const CSS10 = `
 .bk button.bk-praystrip:hover{background:linear-gradient(180deg,rgba(122,95,208,.2),rgba(122,95,208,.1));color:#e2d7fb}
 .bk button.bk-praystrip.mine{color:#f3c34b;box-shadow:inset 0 0 0 1px rgba(243,195,75,.4)}
 `;
+const CSS11 = `
+/* ---------- COMMUNITY RESTORE R-4 (2026-11-23) — PRESENTS CLOSE.
+   The wall's end takes the ORIGINAL's page close (study §1.9 + §3
+   row 14 + §4 R-4): the PRESENTS manifesto in large caps, the house
+   link column, and Proverbs 16:3 in italic serif — above the shell
+   footer. Static paint-string HTML (closeHtml, appended in viewFeed
+   after belowFeedHtml): chain merges and settlePatch never touch
+   it, so the close can neither blink nor duplicate. The fresh build
+   loads no condensed webfont, so the manifesto rides Georgia in the
+   R-1 fallback pattern. */
+.bk-close{margin:34px 0 6px;border-top:1px solid rgba(212,175,55,.35);padding:30px 18px 10px;text-align:center}
+.bk-close .bk-closeeb{font-size:10px;font-weight:900;letter-spacing:3.4px;color:var(--gold)}
+.bk-closemani{font-family:Georgia,serif;font-size:clamp(19px,5.4vw,27px);line-height:1.38;letter-spacing:1.2px;color:var(--cream);margin:14px auto 0;max-width:560px;text-transform:uppercase}
+.bk-closecol{margin:26px auto 0;max-width:520px}
+.bk-closecol .bk-closehead{font-size:9px;font-weight:900;letter-spacing:3px;color:#9a8a63;margin-bottom:12px}
+.bk-closelinks{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;text-align:left}
+.bk button.bk-closelink{background:none;border:0;border-bottom:1px solid rgba(212,175,55,.14);color:#d8cdb2;font:inherit;font-size:12.5px;letter-spacing:.6px;padding:9px 2px;cursor:pointer;text-align:left}
+.bk button.bk-closelink:hover{color:var(--gold);border-bottom-color:rgba(212,175,55,.5)}
+.bk-closeverse{font-family:Georgia,serif;font-style:italic;font-size:14.5px;line-height:1.6;color:#e9d9ae;margin:28px auto 0;max-width:480px}
+.bk-closeverse .bk-closeattr{display:block;font-style:normal;font-size:9px;font-weight:900;letter-spacing:2.6px;color:#9a8a63;margin-top:8px}
+.bk-closelegal{font-size:9px;letter-spacing:1.6px;color:#716b62;margin-top:22px}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -1820,6 +1842,32 @@ function feedCardsHtml(shown) {
   if (pymk) out.push(`<div class="bk-inthread" data-inthread="pymk">${pymk}</div>`);
   return out.join('');
 }
+/* ---------- COMMUNITY RESTORE R-4 (2026-11-23) — PRESENTS CLOSE.
+   The original closed the Community page with a PRESENTS manifesto
+   footer (study §1.9): the manifesto line, a link column, a legal
+   line, Proverbs 16:3 in italic serif. This is that close in fresh
+   code, at the wall's end (viewFeed, after belowFeedHtml, above the
+   shell footer). Every link lands on a destination the fresh build
+   truly has, riding the existing paint wiring (data-hubgo →
+   goHub, data-view → view switch) — the original's links to
+   surfaces this build does not carry (About, Press & Media, FAQ,
+   Contact, Feedback & Ideas, Privacy) are excluded by name in the
+   R-4 record, never faked; the column is headed 16:3 FAITH, the
+   house's own name for its link column (§4). Static HTML: no state,
+   no counters, nothing for a merge or settle to move. */
+function closeHtml() {
+  const hub = (h, label) => `<button type="button" class="bk-closelink" data-hubgo="${h}">${label}</button>`;
+  const view = (v, label) => `<button type="button" class="bk-closelink" data-view="${v}">${label}</button>`;
+  return `<footer class="bk-close">
+    <div class="bk-closeeb">16:3 FAITH PRESENTS</div>
+    <p class="bk-closemani">Faith, Music, Stories, Scripture, Film, and Community — Gathered With Purpose.</p>
+    <div class="bk-closecol"><div class="bk-closehead">16:3 FAITH</div>
+      <div class="bk-closelinks">${hub('home', 'Home')}${hub('home', 'Pastor Jeremy Mills')}${hub('read', 'Devotionals')}${hub('read', 'Bible')}${hub('watch', 'Movies')}${hub('listen', 'Sanctuary')}${hub('community', 'Community')}${view('groups', 'Groups')}${view('messages', 'Messages')}${hub('give', 'Give')}</div>
+    </div>
+    <p class="bk-closeverse">“Commit thy works unto the LORD, and thy thoughts shall be established.”<span class="bk-closeattr">PROVERBS 16:3</span></p>
+    <div class="bk-closelegal">16:3 FAITH © 2026</div>
+  </footer>`;
+}
 function viewFeed() {
   const list = feedList();
   const shown = list.slice(0, S.feedShown);
@@ -1851,7 +1899,7 @@ function viewFeed() {
     ${isWatch ? '' : (list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
       ? `<button type="button" class="bk-loadmore" data-loadmore>LOAD MORE${list.length > S.feedShown ? ` · ${list.length - S.feedShown} MORE` : ' · MORE ON THE WALL'}</button>`
       : (list.length ? `<div class="bk-endfeed"><span>✛</span><strong>YOU'RE ALL CAUGHT UP.</strong><small>Good news travels. Keep showing up.</small></div>` : ''))}
-  </section>${belowFeedHtml()}`;
+  </section>${belowFeedHtml()}${closeHtml()}`;
 }
 
 function viewTestimonies() {
