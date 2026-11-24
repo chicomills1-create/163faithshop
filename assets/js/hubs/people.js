@@ -314,7 +314,7 @@ function indexHTML(doc) {
       <img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
       <span class="shade"></span>
       <span class="pres">16:3 Faith Presents</span>
-      <span class="film">Film in production</span>
+      <span class="film">${p.slug === 'jesus' ? 'The Film · Now Playing' : 'Film in production'}</span>
       <span class="body">
         <h3>${esc(p.name)}</h3>
         <span class="id">${esc(p.identity)}</span>
@@ -344,8 +344,8 @@ function personHTML(doc, p) {
   /* PROFILES ALIVE: the river order is the data's own order — the
      strip shows where this witness stands, the foot doors chain the
      pages like chapters. Moses' scene carries the banked Red Sea
-     living loop over its poster; Jesus' feature frame plays the one
-     landed scene (the Supper) under an honest FIRST SCENE label. */
+     living loop over its poster; Jesus' feature frame plays his
+     completed feature film (JESUS FILM STITCH 2026-11-24). */
   const idx = doc.people.findIndex((x) => x.slug === p.slug);
   const prev = idx > 0 ? doc.people[idx - 1] : null;
   const next = idx >= 0 && idx < doc.people.length - 1 ? doc.people[idx + 1] : null;
@@ -372,11 +372,11 @@ function personHTML(doc, p) {
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
   <section class="pp-feature reveal">
-    ${isJesus ? `<video data-living src="assets/video/people/jesus-supper.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="The first scene of the Jesus film — the Last Supper"></video>` : `<img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
+    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : `<img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
     <div class="plate">
       ${isJesus
-        ? `<p class="t">✦ The Feature — Jesus: The Film · First Scene Preview · In Production</p>
-           <p class="s">The first scene has landed — the Last Supper, playing in this frame. The full 90–120 second feature is being produced in waves; when it is complete, it premieres here. This loop is one scene, not the finished film.</p>`
+        ? `<p class="t">✦ The Feature — 16:3 Faith Presents · Jesus: The Film</p>
+           <p class="s">The feature has premiered — the whole story in one film, playing in this frame: the baptism in the Jordan, the sermon on the hillside, the feeding of the multitude, the walk on the water, the healings, the entry into Jerusalem, the Last Supper, the road of the cross, the empty tomb at dawn, and the ascension. 105 seconds, his whole road.</p>`
         : `<p class="t">✦ The Feature — ${esc(p.name)}: The Film · 90–120 seconds · In Production</p>
            <p class="s">The films of the hall are being produced in waves — Jesus first. Until ${esc(p.name.split(' ')[0])}'s film lands, this frame holds their portrait. No borrowed footage, no fake player — when the film arrives, it premieres here.</p>`}
     </div>
