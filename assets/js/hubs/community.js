@@ -461,6 +461,9 @@ const S = {
   counters: null, loaded: false, feedNextOffset: null, feedHasMore: false, feedTotal: null, feedBusy: false, chainSettled: false,
   feedFilter: 'all', feedShown: PAGE, feedSort: 'new',
   composeType: 'post', gateOpen: false,
+  /* R-5: composer FAB + slide-up sheet state (elements themselves
+     live in module vars below — persistent nodes, never painted). */
+  sheetOpen: false, compFocused: false,
   profileId: null, profileCache: new Map(),
   commentsOpen: new Set(), commentsCache: new Map(),
   peopleQuery: '', peopleResults: null, loadedLive: false,
@@ -1168,8 +1171,42 @@ const CSS11 = `
 .bk-closeverse .bk-closeattr{display:block;font-style:normal;font-size:9px;font-weight:900;letter-spacing:2.6px;color:#9a8a63;margin-top:8px}
 .bk-closelegal{font-size:9px;letter-spacing:1.6px;color:#716b62;margin-top:22px}
 `;
+const CSS12 = `
+/* ---------- COMMUNITY RESTORE R-5 (2026-11-23) — COMPOSER FAB.
+   The original's floating gold composer FAB (study §2.4 item 4 +
+   §3 row 6 + §4 R-5): 56px, spring-in, opens the EXISTING composer
+   in a slide-up sheet (members) or JOIN (guests). Placement is the
+   wall's lower-LEFT corner — a named deviation from the study's
+   bottom-right: the shell's FaithGuide host permanently owns
+   bottom-right on every hub (shell.css #faithguide, z-65; its
+   bubble + panel expand upward from that corner), so a FAB there
+   would collide with the button, the bubble, or the open panel.
+   Bottom offsets mirror FaithGuide's own formula exactly, so the
+   FAB and the sheet clear the phone bottom bar and rise above the
+   player dock whenever body.player-on reserves it. The FAB and
+   scrim are persistent elements (mounted once, carried over paints
+   by reference — the blink cure's film pattern); only classes move.
+   The sheet is a class on the existing #bk-composer: the node, its
+   type map, its send wiring and the guest gate are untouched. */
+.bk-fab{position:fixed;left:16px;bottom:calc(var(--bottombar-h) + 16px);z-index:64;width:56px;height:56px;border-radius:50%;border:1px solid #ffe083;background:linear-gradient(145deg,#ffe083,#f5b52c 55%,#d79219);color:#241a05;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.65),0 0 18px rgba(212,175,55,.35);animation:bk-fab-in .45s cubic-bezier(.34,1.56,.64,1) both;transition:opacity .18s ease,transform .18s ease}
+.bk-fab:hover{box-shadow:0 12px 30px rgba(0,0,0,.65),0 0 28px rgba(212,175,55,.55)}
+.bk-fab.off{opacity:0;pointer-events:none;transform:scale(.55)}
+body.player-on .bk-fab{bottom:calc(var(--bottombar-h) + var(--player-h) + 20px)}
+@media(min-width:861px){.bk-fab{left:24px;bottom:24px}body.player-on .bk-fab{bottom:calc(var(--player-h) + 28px)}}
+@keyframes bk-fab-in{from{opacity:0;transform:scale(.35)}to{opacity:1;transform:scale(1)}}
+.bk-scrim{position:fixed;inset:0;z-index:79;background:rgba(3,2,1,.68);opacity:1;transition:opacity .2s ease}
+.bk-scrim.off{opacity:0;pointer-events:none}
+.bk .bk-composer.bk-sheet{position:fixed;left:10px;right:10px;bottom:calc(var(--bottombar-h) + 10px);z-index:80;margin:0;max-height:min(74vh,580px);overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.8),0 0 0 1px rgba(212,175,55,.35);animation:bk-sheet-up .3s cubic-bezier(.2,.9,.25,1) both}
+body.player-on .bk .bk-composer.bk-sheet{bottom:calc(var(--bottombar-h) + var(--player-h) + 12px)}
+@media(min-width:861px){.bk .bk-composer.bk-sheet{left:50%;right:auto;width:min(620px,calc(100vw - 40px));transform:translateX(-50%);bottom:24px}body.player-on .bk .bk-composer.bk-sheet{bottom:calc(var(--player-h) + 26px)}}
+@keyframes bk-sheet-up{from{transform:translateY(26px);opacity:.4}to{transform:translateY(0);opacity:1}}
+@media(min-width:861px){@keyframes bk-sheet-up{from{transform:translateX(-50%) translateY(26px);opacity:.4}to{transform:translateX(-50%) translateY(0);opacity:1}}}
+.bk-sheetx{position:absolute;top:8px;right:10px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(212,175,55,.5);background:rgba(10,9,6,.85);color:var(--gold);font-size:14px;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:2}
+.bk-sheetx:hover{border-color:var(--gold);color:#ffe083}
+@media(prefers-reduced-motion:reduce){.bk-fab{animation:none;transition:none}.bk-scrim{transition:none}.bk .bk-composer.bk-sheet{animation:none}}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -2453,6 +2490,117 @@ function openProfile(id) {
   if (location.hash !== target) { location.hash = target; return; }
   S.view = 'profile'; S.profileId = id; paint(); viewProfile(id);
 }
+/* ---------- COMMUNITY RESTORE R-5 (2026-11-23) — COMPOSER FAB.
+   The original's floating gold composer FAB + slide-up drawer
+   (study §2.4 item 4, §3 row 6, §4 R-5), rebuilt fresh. The FAB and
+   its scrim are PERSISTENT elements: created once with one listener
+   each, held in module vars, and re-appended to S.root at the end
+   of every paint() — paint replaces root.innerHTML wholesale, and
+   re-appending the same node is the blink cure's film carry-over
+   pattern, so the button's identity (and its spring-in, which runs
+   once on creation) survives every repaint and settle untouched.
+   Visibility is class-only. The sheet never moves or clones the
+   composer: it adds .bk-sheet to the existing #bk-composer, so the
+   node, the type map, the send wiring and the guest gate are the
+   composer's own, unchanged. Guests never see a sheet — their tap
+   rides the shell's #btn-join, exactly like the lobby's JOIN. */
+let fabNode = null, scrimNode = null, sheetXNode = null;
+function fabEl() {
+  if (fabNode) return fabNode;
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'bk-fab off'; b.dataset.fab = '1';
+  b.setAttribute('aria-label', 'Share your heart — write a post');
+  b.textContent = '✎';
+  b.addEventListener('click', onFabTap);
+  fabNode = b; return b;
+}
+function scrimEl() {
+  if (scrimNode) return scrimNode;
+  const d = document.createElement('div');
+  d.className = 'bk-scrim off'; d.dataset.scrim = '1'; d.setAttribute('aria-hidden', 'true');
+  d.addEventListener('click', () => closeSheet());
+  scrimNode = d; return d;
+}
+function sheetXEl() {
+  if (sheetXNode) return sheetXNode;
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'bk-sheetx'; b.dataset.sheetx = '1';
+  b.setAttribute('aria-label', 'Close the composer');
+  b.textContent = '✕';
+  b.addEventListener('click', () => closeSheet());
+  sheetXNode = b; return b;
+}
+function onFabTap() {
+  if (S.view !== 'feed' && S.view !== 'doors') return;
+  if (isSignedIn()) { openSheet(); return; }
+  /* Guests: JOIN — the shell's own button (the R-1 lobbyjoin route).
+     Fallback, if that button is ever absent: the composer's own
+     in-wall gate, opened and scrolled to. */
+  const join = document.getElementById('btn-join');
+  if (join) { join.click(); return; }
+  S.gateOpen = true; paint();
+  S.root?.querySelector('#bk-composer')?.scrollIntoView({ block: 'center' });
+}
+function openSheet() {
+  S.sheetOpen = true; S._flashAtOpen = S.composerFlash;
+  syncFab();
+  /* Let the slide-up start, then put the member's cursor in the
+     existing textarea — the sheet is that composer, presented. */
+  setTimeout(() => { if (S.sheetOpen) S.root?.querySelector('[data-composer-input]')?.focus({ preventScroll: true }); }, 60);
+}
+function closeSheet() {
+  if (!S.sheetOpen) return;
+  S.sheetOpen = false; S._flashAtOpen = null;
+  syncFab();
+}
+function syncSheet() {
+  const comp = S.root?.querySelector('#bk-composer');
+  const scrim = scrimEl();
+  if (S.sheetOpen && comp) {
+    comp.classList.add('bk-sheet');
+    if (!comp.contains(sheetXEl())) comp.appendChild(sheetXEl());
+    scrim.classList.remove('off');
+  } else {
+    if (comp) comp.classList.remove('bk-sheet');
+    sheetXEl().remove();
+    scrim.classList.add('off');
+  }
+}
+function syncFab() {
+  if (!S.root) return;
+  /* A share that lands while the sheet is open closes the sheet in
+     the same paint: the member returns to the wall their post now
+     leads (the flash rides the composer back in-wall). A flash that
+     merely pre-dates this opening (equal to _flashAtOpen) is not a
+     new share and never closes anything. */
+  if (S.sheetOpen && S.composerFlash && S.composerFlash !== S._flashAtOpen) closeSheetSilent();
+  const fab = fabEl();
+  if (fab.parentNode !== S.root) S.root.appendChild(fab);
+  const scrim = scrimEl();
+  if (scrim.parentNode !== S.root) S.root.appendChild(scrim);
+  syncSheet();
+  const show = (S.view === 'feed' || S.view === 'doors') && !S.sheetOpen && !S.compFocused;
+  fab.classList.toggle('off', !show);
+}
+function closeSheetSilent() { S.sheetOpen = false; S._flashAtOpen = null; }
+function mountFab() { syncFab(); }
+/* Focus + Esc tracking, wired once per hub root: the FAB hides
+   while the member is typing in the in-wall composer (it must never
+   sit over the keyboard end of the box), and Esc closes the sheet. */
+function wireFabRoot(root) {
+  if (!root || root.__fabWired) return;
+  root.__fabWired = true;
+  root.addEventListener('focusin', (e) => {
+    if (e.target?.matches?.('[data-composer-input]')) { S.compFocused = true; syncFab(); }
+  });
+  root.addEventListener('focusout', (e) => {
+    if (e.target?.matches?.('[data-composer-input]')) { S.compFocused = false; syncFab(); }
+  });
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && S.sheetOpen) closeSheet();
+  });
+}
+
 function paint(keepScroll = false) {
   /* P1-1: the doors grid is retired as a landing — the hub opens IN
      the feed (template: community.tsx). viewDoors stays defined for
@@ -2606,6 +2754,10 @@ function paint(keepScroll = false) {
   S.root.querySelectorAll('.bk-side [data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
   /* 2C-4: the new-posts pill tap lands the held posts at the head. */
   main.querySelectorAll('[data-newpillbtn]').forEach((n) => n.addEventListener('click', () => applyPendingNew()));
+  /* R-5: the composer FAB + scrim are persistent nodes — re-append
+     the SAME elements this paint's innerHTML swap detached, then
+     sync their visibility/sheet state. Identity never changes. */
+  mountFab();
 }
 /* LOAD MORE's live leg (2026-11-19 feed-count cure): fetch the next
    slice at the standing cursor. This is the resume path for a chain
@@ -2638,6 +2790,7 @@ export function render(root, ctx) {
   S.view = pm ? 'profile' : 'feed';
   S.profileId = pm ? decodeURIComponent(pm[1]) : null;
   S.feedFilter = 'all'; S.feedShown = PAGE; S.feedSort = 'new'; S.gateOpen = false; S.composeType = 'post'; S.composerFlash = null;
+  S.sheetOpen = false; S.compFocused = false; S._flashAtOpen = null; wireFabRoot(root);
   pulseCounted = false; pulseAnim++; /* R-1: a fresh hub entry earns one count-up */
   S.commentsOpen = new Set(); S.peopleQuery = ''; S.peopleResults = null;
   paint();
