@@ -743,6 +743,76 @@ async function loadHub(name) {
 }
 
 let currentHub = null;
+
+/* ---------- PAGE-TURN SHELL (founder directive 2026-11-23 19:12 MST:
+   "switching between hubs, like a book. it goes from page to page like
+   the bible") ---------- The whole site is ONE BOOK; HOME is its cover,
+   the seven hubs its chapters in nav order. A hub-to-hub switch sweeps
+   a gold-edged page plane across the viewport (shell.css #pt-wrap),
+   carrying the destination's chapter title at the cover point. The
+   turn is an OVERLAY ONLY: navigate()'s render path below is exactly
+   as it was — the swap lands underneath the covered moment, the player
+   (outside #hub-root) is never touched, no film element is created or
+   recreated by a transition, and the plane is pointer-events:none at
+   all times, so a tap mid-turn passes straight through to the nav and
+   retargets the turn. Same-hub hash changes (artist / person / profile
+   pages) are not chapter turns; the first load is not a turn;
+   prefers-reduced-motion gets a plain fade of the hub root instead. */
+const BOOK_ORDER = ['home', ...HUB_ORDER];
+const PageTurn = {
+  wrap: null, plane: null, chapterEl: null, titleEl: null, timer: 0, target: null, dir: null,
+  ensure() {
+    if (this.wrap) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'pt-wrap';
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.innerHTML = '<div class="pt-plane"><div class="pt-chapter"><div class="pt-kicker">16:3 Faith</div><div class="pt-title"></div><div class="pt-rule"></div></div></div>';
+    document.body.appendChild(wrap);
+    this.wrap = wrap;
+    this.plane = wrap.querySelector('.pt-plane');
+    this.chapterEl = wrap.querySelector('.pt-chapter');
+    this.titleEl = wrap.querySelector('.pt-title');
+  },
+  cancel() {
+    clearTimeout(this.timer);
+    this.target = null; this.dir = null;
+    if (this.wrap) { this.wrap.remove(); this.wrap = null; this.plane = null; this.chapterEl = null; this.titleEl = null; }
+  },
+  /* Called at the head of every navigate(): `from` is the hub being
+     left (null on first load). A hub change starts a turn — or, if one
+     is already sweeping the same direction, retargets it: the sweep
+     continues and only the chapter it carries changes. */
+  begin(to, from) {
+    if (MOTION_REDUCED || from === null || to === from) { this.cancel(); return; }
+    /* A destination outside BOOK_ORDER (e.g. a hub added by another
+       crew before the book order formally gains its chapter) turns
+       forward — a new chapter opening — never a broken index. */
+    const fi = BOOK_ORDER.indexOf(from), ti = BOOK_ORDER.indexOf(to);
+    const dir = (ti === -1 || fi === -1 || ti >= fi) ? 'fwd' : 'back';
+    if (this.wrap && this.dir === dir) {
+      this.target = to;
+      this.titleEl.textContent = to.toUpperCase();
+      this.chapterEl.style.animation = 'none';
+      void this.chapterEl.offsetWidth;
+      this.chapterEl.style.animation = '';
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.cancel(), 620);
+      return;
+    }
+    this.cancel();
+    this.ensure();
+    this.target = to; this.dir = dir;
+    this.titleEl.textContent = to.toUpperCase();
+    this.plane.classList.add(dir === 'fwd' ? 'pt-fwd' : 'pt-back');
+    this.timer = setTimeout(() => this.cancel(), 620);
+  },
+  /* Reduced motion: no plane — a plain short fade of the hub root as
+     the new chapter lands. */
+  fadeRoot() {
+    try { root.animate([{ opacity: 0.15 }, { opacity: 1 }], { duration: 170, easing: 'ease-out' }); } catch { /* WAAPI is best-effort */ }
+  },
+};
+
 /* HASH-NAV CURE (2026-11-19): two structural guards so a stale render can
    never win. (1) A monotonic navigation token: navigate() awaits the hub
    module, and a slow module for an earlier navigation must not commit
@@ -757,7 +827,9 @@ let currentHub = null;
    lays out exactly as if it were a direct child of #hub-root. */
 let navSeq = 0;
 async function navigate(name) {
-  if (![...HUB_ORDER, 'home'].includes(name)) name = 'home';
+  if (![...HUB_ORDER, 'home', 'people'].includes(name)) name = 'home';
+  const from = currentHub;
+  PageTurn.begin(name, from);
   const seq = ++navSeq;
   const mod = await loadHub(name);
   if (seq !== navSeq) return; // superseded while the module loaded
@@ -766,6 +838,7 @@ async function navigate(name) {
   view.dataset.hub = name;
   view.style.display = 'contents';
   root.replaceChildren(view);
+  if (MOTION_REDUCED && from !== null && name !== from) PageTurn.fadeRoot();
   mod.render(view, { navigate, player: Player, isCurrent: () => seq === navSeq });
   /* CP5: the face-wide motion system — the container carries .motion
      (unless reduced motion), and landing sections marked .reveal
