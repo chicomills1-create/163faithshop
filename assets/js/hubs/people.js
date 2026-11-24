@@ -157,6 +157,69 @@ function injectCss() {
   .pp-threadstrip{margin-top:30px;border:1px solid rgba(224,101,90,.35);border-radius:16px;padding:16px 18px;font-size:13.5px;line-height:2;color:var(--mute)}
   .pp-threadstrip b{color:#f0a49c;letter-spacing:.14em;font-size:10.5px;text-transform:uppercase;display:block;margin-bottom:4px}
   .pp-threadstrip a{color:var(--bone);text-decoration:none;border-bottom:1px solid rgba(224,101,90,.5)}
+  /* ——— PROFILES ALIVE (2026-11-23) — the living motion layer.
+     Founder: "I don't like the stale look" / "Bring it to life!" /
+     COMPLETE MOVEMENT. Code-driven only: transform/opacity, slow
+     alternate drifts, blend-screen light. Nothing here paints per
+     frame; reduced motion stills every layer (media block below),
+     and the living videos are IO-gated by armLiving() — they load
+     and play only while on screen, never under reduced motion. */
+  .pp-live{animation:ppDrift 36s ease-in-out infinite alternate;will-change:transform}
+  .pp-live.slow{animation-duration:48s}
+  @keyframes ppDrift{from{transform:scale(1.06) translate(0,0)}to{transform:scale(1.13) translate(-1.6%,1.4%)}}
+  .pp-hero .rays{position:absolute;inset:-45% -20%;background:repeating-conic-gradient(from 0deg at 50% 0%,transparent 0deg,rgba(243,210,122,.07) 7deg,transparent 15deg,rgba(243,210,122,.05) 22deg,transparent 31deg);mix-blend-mode:screen;pointer-events:none;animation:ppRays 52s ease-in-out infinite alternate}
+  @keyframes ppRays{from{transform:rotate(-3.5deg) scale(1.06)}to{transform:rotate(3.5deg) scale(1.06)}}
+  .pp-hero .river{position:absolute;left:-18%;right:-18%;bottom:2%;height:38%;background:linear-gradient(100deg,transparent 26%,rgba(168,216,255,.13) 44%,rgba(243,210,122,.20) 50%,rgba(168,216,255,.13) 56%,transparent 74%);mix-blend-mode:screen;pointer-events:none;animation:ppRiver 12s ease-in-out infinite alternate}
+  @keyframes ppRiver{from{transform:translateX(-9%)}to{transform:translateX(9%)}}
+  .pp-potw{position:relative;overflow:hidden}
+  .pp-potw::after{content:'';position:absolute;top:0;bottom:0;left:0;width:42%;background:linear-gradient(100deg,transparent,rgba(243,210,122,.14),transparent);transform:translateX(-280%) skewX(-14deg);animation:ppShimmer 8s ease-in-out infinite;pointer-events:none}
+  @keyframes ppShimmer{0%,52%{transform:translateX(-280%) skewX(-14deg)}88%,100%{transform:translateX(380%) skewX(-14deg)}}
+  /* ——— Person page hero: full-bleed premiere plate ——— */
+  .pp-scene.hero{border:none;border-radius:24px;margin-top:18px;background:#000}
+  .pp-scene.hero>img{height:min(76vh,640px)}
+  @media(max-width:700px){.pp-scene.hero>img{height:68vh}}
+  .pp-sceneshade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.38) 0%,rgba(5,5,5,0) 30%,rgba(5,5,5,0) 48%,rgba(5,5,5,.94) 100%);pointer-events:none}
+  .pp-pagetitle{position:absolute;left:0;right:0;bottom:0;padding:20px 22px 26px;pointer-events:none}
+  .pp-pagetitle .pres{font-size:10.5px;letter-spacing:.36em;color:var(--gold);text-transform:uppercase}
+  .pp-pagetitle h2{font-family:var(--serif);font-size:clamp(54px,12.5vw,112px);line-height:.94;margin:10px 0 6px;color:var(--bone);text-shadow:0 4px 34px rgba(0,0,0,.8)}
+  .pp-pagetitle .id{font-family:var(--serif);font-style:italic;color:var(--gold-hi);font-size:clamp(17px,3vw,22px);text-shadow:0 2px 12px rgba(0,0,0,.8)}
+  .pp-scene .cap.chip{bottom:auto;top:14px;right:14px;left:auto;background:rgba(5,5,5,.58);border:1px solid rgba(212,175,55,.35);border-radius:999px;padding:7px 12px;backdrop-filter:blur(3px)}
+  .pp-loopvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease;pointer-events:none}
+  .pp-loopvid.on{opacity:1}
+  .pp-feature video{width:100%;height:320px;object-fit:cover;display:block;background:#000}
+  /* ——— Own words: the gold-ruled pull-quote ——— */
+  .pp-words{border-top:none;border-bottom:none;position:relative;padding:40px 18px}
+  .pp-words::before,.pp-words::after{content:'';position:absolute;left:50%;transform:translateX(-50%);width:min(680px,86%);height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent)}
+  .pp-words::before{top:0}
+  .pp-words::after{bottom:0}
+  .pp-words blockquote{font-size:clamp(27px,6vw,44px);line-height:1.28}
+  /* ——— The River strip: where this witness stands ——— */
+  .pp-river{margin-top:20px;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:16px 16px 12px}
+  .pp-river .lab{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;font-size:10px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
+  .pp-river .lab .where{color:var(--bone)}
+  .pp-river .lab .threadnote{color:#f0a49c}
+  .pp-riverline{display:flex;align-items:flex-start;margin-top:14px;overflow-x:auto;padding:4px 2px 6px}
+  .pp-rnode{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:0 1px;color:var(--mute);flex:none;font-family:inherit}
+  .pp-rnode img{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:2px solid rgba(212,175,55,.25);display:block;opacity:.72}
+  .pp-rnode span{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;max-width:54px;text-align:center;line-height:1.3}
+  .pp-rnode.now{color:var(--gold-hi)}
+  .pp-rnode.now img{width:48px;height:48px;border-color:var(--gold);opacity:1;box-shadow:0 0 16px 3px rgba(212,175,55,.5)}
+  .pp-rnode:hover img{border-color:var(--gold);opacity:1}
+  .pp-rlink{flex:1;height:2px;background:linear-gradient(90deg,rgba(212,175,55,.14),rgba(212,175,55,.5),rgba(212,175,55,.14));position:relative;top:23px;min-width:8px}
+  .pp-rlink.done{background:linear-gradient(90deg,rgba(212,175,55,.5),rgba(212,175,55,.95),rgba(212,175,55,.5))}
+  /* ——— Prev / next witness doors: the river continues ——— */
+  .pp-nav{display:grid;grid-template-columns:1fr;gap:12px;margin-top:30px}
+  @media(min-width:640px){.pp-nav{grid-template-columns:1fr 1fr}}
+  .pp-navdoor{display:block;text-align:left;background:linear-gradient(150deg,#141005,#0a0a0a 70%);border:1px solid var(--gold-dim);border-radius:16px;padding:18px;cursor:pointer;color:var(--bone);width:100%;font-family:inherit;text-decoration:none}
+  .pp-navdoor:hover{border-color:var(--gold)}
+  .pp-navdoor .lab{display:block;font-size:9.5px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+  .pp-navdoor .nm{display:block;font-family:var(--serif);font-size:26px;line-height:1.1;margin-top:7px}
+  .pp-navdoor .id{display:block;font-family:var(--serif);font-style:italic;color:var(--gold-hi);font-size:14.5px;margin-top:3px}
+  .pp-navdoor.next{text-align:right}
+  @media (prefers-reduced-motion: reduce){
+    .pp-live,.pp-hero .rays,.pp-hero .river,.pp-potw::after,.pp-fruit.pulse{animation:none!important}
+    .pp-loopvid{display:none}
+  }
   `;
   document.head.appendChild(st);
 }
@@ -198,8 +261,10 @@ function indexHTML(doc) {
   const threadNodes = doc.thread.map((s) => by[s]).filter(Boolean);
   return `
   <section class="pp-hero reveal">
-    <img class="tree" src="assets/img/people/tree-of-life.webp" alt="The Tree of Life — a great golden tree with a river of light winding from its roots, and witnesses gathered on its banks">
+    <img class="tree pp-live slow" src="assets/img/people/tree-of-life.webp" alt="The Tree of Life — a great golden tree with a river of light winding from its roots, and witnesses gathered on its banks">
     <div class="shade"></div>
+    <div class="rays" aria-hidden="true"></div>
+    <div class="river" aria-hidden="true"></div>
     ${FRUITS.slice(0, doc.people.length).map(([x, y], i) => `<span class="pp-fruit${window.FaithFilm && window.FaithFilm.reduced ? '' : ' pulse'}" style="left:${x}%;top:${y}%;animation-delay:${(i % 6) * 0.55}s" aria-hidden="true"></span>`).join('')}
     <div class="top">
       <p class="pp-presents">16:3 Faith Presents</p>
@@ -214,7 +279,7 @@ function indexHTML(doc) {
 
   <div class="pp-kicker"><span>Person of the Week</span><span class="hair"></span><span class="tag">Rotates weekly through the hall</span></div>
   <button type="button" class="pp-potw reveal" data-person="${esc(potw.slug)}">
-    <img src="${esc(potw.portrait)}" alt="${esc(potw.name)} — portrait" loading="lazy">
+    <img class="pp-live" src="${esc(potw.portrait)}" alt="${esc(potw.name)} — portrait" loading="lazy">
     <span>
       <span class="lab">✦ Person of the Week</span>
       <h3>${esc(potw.name)}</h3>
@@ -246,7 +311,7 @@ function indexHTML(doc) {
   <div class="pp-grid">
     ${g.people.map((p) => `
     <button type="button" class="pp-card${p.heart ? ' heart' : ''} reveal" data-person="${esc(p.slug)}">
-      <img src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
+      <img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
       <span class="shade"></span>
       <span class="pres">16:3 Faith Presents</span>
       <span class="film">Film in production</span>
@@ -259,7 +324,7 @@ function indexHTML(doc) {
   </div>`).join('')}
 
   <section class="pp-church reveal">
-    <img src="assets/img/people/scene-pentecost.webp" alt="Pentecost — the first believers gathered as tongues of fire descend" loading="lazy">
+    <img class="pp-live" src="assets/img/people/scene-pentecost.webp" alt="Pentecost — the first believers gathered as tongues of fire descend" loading="lazy">
     <span class="shade"></span>
     <div class="body">
       <p class="pp-presents">And then — the Church</p>
@@ -276,30 +341,51 @@ function personHTML(doc, p) {
   const words = p.ownWords
     ? { lab: 'In their own words', text: p.ownWords.text, ref: p.ownWords.ref }
     : (p.hallLine ? { lab: 'The hall speaks of them · Hebrews 11', text: p.hallLine.text, ref: p.hallLine.ref } : null);
+  /* PROFILES ALIVE: the river order is the data's own order — the
+     strip shows where this witness stands, the foot doors chain the
+     pages like chapters. Moses' scene carries the banked Red Sea
+     living loop over its poster; Jesus' feature frame plays the one
+     landed scene (the Supper) under an honest FIRST SCENE label. */
+  const idx = doc.people.findIndex((x) => x.slug === p.slug);
+  const prev = idx > 0 ? doc.people[idx - 1] : null;
+  const next = idx >= 0 && idx < doc.people.length - 1 ? doc.people[idx + 1] : null;
+  const isMoses = p.slug === 'moses';
+  const isJesus = p.slug === 'jesus';
   return `
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>
-  <div class="pp-preshead">
-    <p class="pres">16:3 Faith Presents</p>
-    <h2>${esc(p.name.toUpperCase())}</h2>
-    <p class="id">${esc(p.identity)} · ${esc(p.eraLabel)}</p>
-  </div>
-  <section class="pp-scene reveal">
-    <img src="${esc(p.scene)}" alt="${esc(p.name)} — the defining moment: ${esc(p.sceneCaption)}">
-    <span class="cap">${esc(p.sceneCaption)}</span>
+  <section class="pp-scene hero reveal">
+    <img class="pp-live slow" src="${esc(p.scene)}" alt="${esc(p.name)} — the defining moment: ${esc(p.sceneCaption)}">
+    ${isMoses ? `<video class="pp-loopvid" data-living data-src="assets/video/people/red-sea-loop.mp4" poster="${esc(p.scene)}" muted loop playsinline preload="none" aria-hidden="true"></video>` : ''}
+    <div class="pp-sceneshade"></div>
+    <span class="cap chip">${esc(p.sceneCaption)}</span>
+    <div class="pp-pagetitle">
+      <p class="pres">16:3 Faith Presents</p>
+      <h2>${esc(p.name.toUpperCase())}</h2>
+      <p class="id">${esc(p.identity)} · ${esc(p.eraLabel)}</p>
+    </div>
+  </section>
+  <section class="pp-river reveal">
+    <div class="lab"><span>✦ On the River</span><span class="where">Witness ${idx + 1} of ${doc.people.length} · ${esc(p.eraLabel)}</span>${p.thread ? '<span class="threadnote">✦ On the Scarlet Thread</span>' : ''}</div>
+    <div class="pp-riverline">
+      ${doc.people.map((x, i) => `${i ? `<span class="pp-rlink${i <= idx ? ' done' : ''}"></span>` : ''}<button type="button" class="pp-rnode${x.slug === p.slug ? ' now' : ''}" data-person="${esc(x.slug)}" aria-label="${esc(x.name)}"><img src="${esc(x.portrait)}" alt="" loading="lazy"><span>${esc(x.name.split(' ')[0])}</span></button>`).join('')}
+    </div>
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
   <section class="pp-feature reveal">
-    <img src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
+    ${isJesus ? `<video data-living data-src="assets/video/people/jesus-supper.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="The first scene of the Jesus film — the Last Supper"></video>` : `<img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
     <div class="plate">
-      <p class="t">✦ The Feature — ${esc(p.name)}: The Film · 90–120 seconds · In Production</p>
-      <p class="s">The films of the hall are being produced in waves — Jesus first. Until ${esc(p.name.split(' ')[0])}'s film lands, this frame holds their portrait. No borrowed footage, no fake player — when the film arrives, it premieres here.</p>
+      ${isJesus
+        ? `<p class="t">✦ The Feature — Jesus: The Film · First Scene Preview · In Production</p>
+           <p class="s">The first scene has landed — the Last Supper, playing in this frame. The full 90–120 second feature is being produced in waves; when it is complete, it premieres here. This loop is one scene, not the finished film.</p>`
+        : `<p class="t">✦ The Feature — ${esc(p.name)}: The Film · 90–120 seconds · In Production</p>
+           <p class="s">The films of the hall are being produced in waves — Jesus first. Until ${esc(p.name.split(' ')[0])}'s film lands, this frame holds their portrait. No borrowed footage, no fake player — when the film arrives, it premieres here.</p>`}
     </div>
   </section>
   <section class="pp-story reveal">
     <h3>THE STORY.</h3>
     ${p.story.map((t) => `<p>${esc(t)}</p>`).join('')}
   </section>
-  ${p.scene2 ? `<section class="pp-scene pp-scene2 reveal"><img src="${esc(p.scene2)}" alt="${esc(p.name)} — ${esc(p.scene2Caption)}" loading="lazy"><span class="cap">${esc(p.scene2Caption)}</span></section>` : ''}
+  ${p.scene2 ? `<section class="pp-scene pp-scene2 reveal"><img class="pp-live" src="${esc(p.scene2)}" alt="${esc(p.name)} — ${esc(p.scene2Caption)}" loading="lazy"><span class="cap">${esc(p.scene2Caption)}</span></section>` : ''}
   <section class="pp-ask reveal">
     <div><p class="t">✦ Ask about ${esc(p.name.split(' ')[0])}</p><p class="s">FaithGuide answers from ${esc(p.name.split(' ')[0])}'s record on this page only — their own words and the verses below, cited. Labeled AI, as everywhere in this house.</p></div>
     <button type="button" data-ask="${esc(p.slug)}">Ask FaithGuide →</button>
@@ -307,10 +393,38 @@ function personHTML(doc, p) {
   <section class="pp-credits reveal">
     <span class="lab">Closing Credits — The Word</span>
     <h3 style="margin-top:10px">THE VERSES.</h3>
-    ${p.verses.length ? p.verses.map((v) => `<div class="pp-credit"><p class="tx">“${esc(v.text)}”</p><p class="rf">${esc(v.ref)} · KJV</p></div>`).join('') : `<p class="pp-note" style="text-align:center">The verses for this page are being set in type from the KJV — quoted exactly, or not at all. They land with the next sourcing pass; the story above is complete.</p>`}
+    ${p.verses.length ? p.verses.map((v) => `<div class="pp-credit reveal"><p class="tx">“${esc(v.text)}”</p><p class="rf">${esc(v.ref)} · KJV</p></div>`).join('') : `<p class="pp-note" style="text-align:center">The verses for this page are being set in type from the KJV — quoted exactly, or not at all. They land with the next sourcing pass; the story above is complete.</p>`}
   </section>
   ${p.thread ? `<div class="pp-threadstrip reveal"><b>✦ On the Scarlet Thread</b>${doc.thread.map((s) => by[s]).filter(Boolean).map((x) => x.slug === p.slug ? `<span style="color:var(--gold-hi)">${esc(x.name)}</span>` : `<a href="#/people/${esc(x.slug)}">${esc(x.name)}</a>`).join(' → ')}</div>` : ''}
+  <nav class="pp-nav">
+    ${prev ? `<button type="button" class="pp-navdoor prev" data-person="${esc(prev.slug)}"><span class="lab">← Previous witness</span><span class="nm">${esc(prev.name)}</span><span class="id">${esc(prev.identity)}</span></button>` : `<button type="button" class="pp-navdoor prev" data-back><span class="lab">← The river begins</span><span class="nm">Back to the Hall</span><span class="id">The Tree of Life entrance</span></button>`}
+    ${next ? `<button type="button" class="pp-navdoor next" data-person="${esc(next.slug)}"><span class="lab">The river continues →</span><span class="nm">${esc(next.name)}</span><span class="id">${esc(next.identity)}</span></button>` : `<a class="pp-navdoor next" href="#/community"><span class="lab">The river runs on →</span><span class="nm">Meet the Community</span><span class="id">The witnesses became a family</span></a>`}
+  </nav>
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>`;
+}
+
+/* Living videos (PROFILES ALIVE): a [data-living] video carries no
+   src until it is actually on screen; the observer loads it, plays
+   it, fades it in over its poster, and pauses it off screen. Under
+   reduced motion nothing loads and the poster stands — the CSS
+   media block also hides the layer outright. */
+function armLiving(scope) {
+  const vids = scope.querySelectorAll('video[data-living]');
+  if (!vids.length) return;
+  const reduced = window.FaithFilm ? window.FaithFilm.reduced
+    : (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (reduced || typeof IntersectionObserver !== 'function') return;
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    const v = e.target;
+    if (!v.isConnected) { io.unobserve(v); return; }
+    if (e.isIntersecting) {
+      if (!v.getAttribute('src') && v.dataset.src) v.src = v.dataset.src;
+      const pr = v.play();
+      if (pr && pr.then) pr.then(() => v.classList.add('on')).catch(() => {});
+      else v.classList.add('on');
+    } else { v.pause(); v.classList.remove('on'); }
+  }), { threshold: 0.2 });
+  vids.forEach((v) => io.observe(v));
 }
 
 /* Ask-from-the-record: FaithGuide's panel is the house machinery; the hub
@@ -347,4 +461,5 @@ export async function render(root) {
   root.querySelectorAll('[data-ask]').forEach((b) => b.addEventListener('click', () => { const p = doc.people.find((x) => x.slug === b.dataset.ask); if (p) askAbout(p); }));
   window.__people = { ready: true, count: doc.people.length, view: person ? person.slug : 'index', potw: potwSlug(doc) };
   if (window.FaithMotion) window.FaithMotion.armReveals(root);
+  armLiving(root);
 }
