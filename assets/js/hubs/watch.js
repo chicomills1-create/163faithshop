@@ -38,6 +38,8 @@ let view = { name: 'doors' }; // doors | shelf{door} | detail{id} | search{q}
 let playerEl = null;
 let pendingLiveRender = false;
 let currentPlay = null;       // { id, video } for real progress capture
+let currentHls = null;        // live hls.js instance for the open player (HLS cure 2026-11-24)
+let hlsLibPromise = null;     // lazy vendored-engine load, shared across plays
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const normTitle = (t) => String(t || '').toLowerCase().replace(/[-–—]/g, ' ')
@@ -606,6 +608,7 @@ function renderView(keepScroll) {
 
 /* ---------- player (this hub's own video surface) ---------- */
 function closePlayer() {
+  if (currentHls) { try { currentHls.destroy(); } catch { /* already gone */ } currentHls = null; }
   if (currentPlay?.video) {
     const v = currentPlay.video;
     if (v.duration && Number.isFinite(v.duration) && v.duration > 0 && v.currentTime > 0) {
@@ -618,6 +621,63 @@ function closePlayer() {
   if (pendingLiveRender) { pendingLiveRender = false; renderView(); }
 }
 function onPlayerKey(e) { if (e.key === 'Escape') closePlayer(); }
+
+/* ---------- HLS engine (playback cure, 2026-11-24) ----------
+   The Faith library (JFP) streams are Mux HLS (.m3u8). A native <video>
+   element plays HLS only in Safari/iOS; in Chrome/Firefox/Edge the bare
+   src errors instantly ("Unable to play media.", 0:00, dead controls) —
+   every JFP title was unplayable there. Cure: hand HLS URLs to the
+   vendored hls.js engine over MSE where the browser lacks native HLS,
+   keep the native path where it exists, and if a stream truly cannot
+   start, say so on the stage — never leave a dead player up. */
+const HLS_LIB_URL = new URL('../vendor/hls.min.js', import.meta.url).href;
+const isHlsUrl = (u) => /\.m3u8($|\?)/i.test(String(u || ''));
+function loadHlsLib() {
+  if (window.Hls) return Promise.resolve(window.Hls);
+  if (!hlsLibPromise) {
+    hlsLibPromise = new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = HLS_LIB_URL; s.async = true;
+      s.onload = () => resolve(window.Hls || null);
+      s.onerror = () => resolve(null);
+      document.head.appendChild(s);
+    });
+  }
+  return hlsLibPromise;
+}
+function stageFail(t, msg) {
+  const stageEl = playerEl?.querySelector('.w-stage');
+  if (stageEl) stageEl.innerHTML = `<div class="w-stage-msg"><b>${esc(t.title)}</b><span>${esc(msg)}</span></div>`;
+}
+async function attachStream(video, url, t) {
+  if (!isHlsUrl(url)) { video.src = url; return; }
+  if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.addEventListener('error', () => {
+      if (video.currentTime === 0 && video.readyState < 3) stageFail(t, 'This film\'s stream could not start. The title is in the catalog — please try again in a moment.');
+    }, { once: true });
+    video.src = url; return;
+  }
+  const Hls = await loadHlsLib();
+  if (!playerEl || !video.isConnected) return; // player closed while the engine loaded
+  if (Hls && Hls.isSupported()) {
+    const hls = new Hls({ backBufferLength: 90, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2, fragLoadingMaxRetry: 3 });
+    currentHls = hls;
+    let netRetries = 0; let mediaRetries = 0; let manifestSeen = false;
+    hls.on(Hls.Events.ERROR, (_evt, data) => {
+      if (!data || !data.fatal) return;
+      if (data.type === Hls.ErrorTypes.NETWORK_ERROR && netRetries < 2) { netRetries++; if (manifestSeen) hls.startLoad(); else hls.loadSource(url); return; }
+      if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries < 2) { mediaRetries++; hls.recoverMediaError(); return; }
+      try { hls.destroy(); } catch { /* already gone */ }
+      if (currentHls === hls) currentHls = null;
+      stageFail(t, 'This film\'s stream could not start. The title is in the catalog — please try again in a moment.');
+    });
+    hls.on(Hls.Events.MANIFEST_PARSED, () => { manifestSeen = true; video.play().catch(() => { /* controls carry it */ }); });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    return;
+  }
+  stageFail(t, 'This film streams in a format this browser cannot play. The title is in the catalog — another browser will open it.');
+}
 
 async function openPlayer(t, episode) {
   if (!t) return;
@@ -643,7 +703,7 @@ async function openPlayer(t, episode) {
         allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
   } else if (play.type === 'mp4') {
     stage = `<video data-player-media="mp4" data-src="${esc(play.src)}" ${play.apiStreamPath ? `data-api-stream="${esc(play.apiStreamPath)}"` : ''}
-        src="${esc(play.src)}" ${poster ? `poster="${esc(poster)}"` : ''} controls autoplay playsinline></video>`;
+        ${isHlsUrl(play.src) ? '' : `src="${esc(play.src)}"`} ${poster ? `poster="${esc(poster)}"` : ''} controls autoplay playsinline></video>`;
   } else if (play.type === 'jfp') {
     stage = `<div class="w-stage-msg" data-player-media="jfp" data-jfp-id="${esc(play.jfpId)}">
         <b>${esc(t.title)}</b><span data-jfp-status>Connecting to the Faith library to start this film…</span></div>`;
@@ -666,7 +726,9 @@ async function openPlayer(t, episode) {
   document.addEventListener('keydown', onPlayerKey);
 
   const video = playerEl.querySelector('video[data-player-media="mp4"]');
-  if (video && play.apiStreamPath) {
+  if (video && isHlsUrl(play.src)) {
+    void attachStream(video, play.src, t);
+  } else if (video && play.apiStreamPath) {
     video.addEventListener('error', () => {
       if (!video.dataset.fbk) { video.dataset.fbk = '1'; video.src = `${snapshot.apiBase}${play.apiStreamPath}`; }
     }, true);
@@ -685,8 +747,10 @@ async function openPlayer(t, episode) {
       if (!playerEl) return; // closed while resolving
       const stageEl = playerEl.querySelector('.w-stage');
       stageEl.innerHTML = `<video data-player-media="jfp" data-jfp-id="${esc(play.jfpId)}" data-stream-src="${esc(j.streamUrl)}"
-          src="${esc(j.streamUrl)}" ${poster ? `poster="${esc(poster)}"` : ''} controls autoplay playsinline></video>`;
-      trackVideo(stageEl.querySelector('video'), t, episode);
+          ${poster ? `poster="${esc(poster)}"` : ''} controls autoplay playsinline></video>`;
+      const jfpVideo = stageEl.querySelector('video');
+      trackVideo(jfpVideo, t, episode);
+      void attachStream(jfpVideo, j.streamUrl, t);
     } catch {
       if (status) status.textContent = 'This film streams from the Faith library, which is not reachable right now. The title is in the catalog — try again when the library connects.';
     }
