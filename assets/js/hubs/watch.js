@@ -651,30 +651,46 @@ function stageFail(t, msg) {
 }
 async function attachStream(video, url, t) {
   if (!isHlsUrl(url)) { video.src = url; return; }
+  /* ROUND-2 CURE — branch order inverted on real-network evidence
+     (records/WATCH-CURE-ROUND2-2026-11-24.md): Chromium answers
+     canPlayType('application/vnd.apple.mpegurl') with 'maybe', but its
+     native stack cannot demux the real Mux ladder — it stalls, then
+     errors MEDIA_ERR_SRC_NOT_SUPPORTED — so every HLS title died on the
+     native branch while hls.js/MSE played the same stream cleanly
+     end-to-end. Native HLS is trusted only on Safari (Apple's own
+     stack; no Chrome/Chromium in the UA). Everywhere else hls.js
+     drives first; native remains only as the last resort if the
+     engine cannot load. Loader timeouts raised (10s defaults burned
+     a retry cycle on a slow-but-healthy connection in the same
+     evidence run; a dead stream still fails fast on status). */
+  const ua = navigator.userAgent || '';
+  const safariNative = /safari/i.test(ua) && !/chrome|chromium|crios|edg|android/i.test(ua);
+  if (!safariNative) {
+    const Hls = await loadHlsLib();
+    if (!playerEl || !video.isConnected) return; // player closed while the engine loaded
+    if (Hls && Hls.isSupported()) {
+      const hls = new Hls({ backBufferLength: 90, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2, fragLoadingMaxRetry: 3, manifestLoadingTimeOut: 20000, levelLoadingTimeOut: 20000, fragLoadingTimeOut: 30000 });
+      currentHls = hls;
+      let netRetries = 0; let mediaRetries = 0; let manifestSeen = false;
+      hls.on(Hls.Events.ERROR, (_evt, data) => {
+        if (!data || !data.fatal) return;
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && netRetries < 2) { netRetries++; if (manifestSeen) hls.startLoad(); else hls.loadSource(url); return; }
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries < 2) { mediaRetries++; hls.recoverMediaError(); return; }
+        try { hls.destroy(); } catch { /* already gone */ }
+        if (currentHls === hls) currentHls = null;
+        stageFail(t, 'This film\'s stream could not start. The title is in the catalog — please try again in a moment.');
+      });
+      hls.on(Hls.Events.MANIFEST_PARSED, () => { manifestSeen = true; video.play().catch(() => { /* controls carry it */ }); });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      return;
+    }
+  }
   if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.addEventListener('error', () => {
       if (video.currentTime === 0 && video.readyState < 3) stageFail(t, 'This film\'s stream could not start. The title is in the catalog — please try again in a moment.');
     }, { once: true });
     video.src = url; return;
-  }
-  const Hls = await loadHlsLib();
-  if (!playerEl || !video.isConnected) return; // player closed while the engine loaded
-  if (Hls && Hls.isSupported()) {
-    const hls = new Hls({ backBufferLength: 90, manifestLoadingMaxRetry: 2, levelLoadingMaxRetry: 2, fragLoadingMaxRetry: 3 });
-    currentHls = hls;
-    let netRetries = 0; let mediaRetries = 0; let manifestSeen = false;
-    hls.on(Hls.Events.ERROR, (_evt, data) => {
-      if (!data || !data.fatal) return;
-      if (data.type === Hls.ErrorTypes.NETWORK_ERROR && netRetries < 2) { netRetries++; if (manifestSeen) hls.startLoad(); else hls.loadSource(url); return; }
-      if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries < 2) { mediaRetries++; hls.recoverMediaError(); return; }
-      try { hls.destroy(); } catch { /* already gone */ }
-      if (currentHls === hls) currentHls = null;
-      stageFail(t, 'This film\'s stream could not start. The title is in the catalog — please try again in a moment.');
-    });
-    hls.on(Hls.Events.MANIFEST_PARSED, () => { manifestSeen = true; video.play().catch(() => { /* controls carry it */ }); });
-    hls.loadSource(url);
-    hls.attachMedia(video);
-    return;
   }
   stageFail(t, 'This film streams in a format this browser cannot play. The title is in the catalog — another browser will open it.');
 }
