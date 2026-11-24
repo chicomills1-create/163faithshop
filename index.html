@@ -30,7 +30,7 @@
     <button class="acct-btn" id="btn-signin" type="button">Sign in</button>
     <button class="acct-btn gold" id="btn-join" type="button">Join</button>
     <div class="acct-member" id="acct-member" hidden>
-      <img class="acct-avatar" id="acct-avatar" alt="" hidden>
+      <!-- AUDIT CURE D-PAINT-1 (2026-11-24): no static avatar <img> — shell.js creates it only when a real image URL exists (a src-less img was the one broken image on every hub). -->
       <span class="acct-initials" id="acct-initials" hidden></span>
       <span class="acct-name" id="acct-name"></span>
       <button class="acct-btn" id="btn-signout" type="button">Sign out</button>
