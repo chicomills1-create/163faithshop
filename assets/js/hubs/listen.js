@@ -272,9 +272,15 @@ const fmtDur = (sec) => {
 };
 const monogram = (name) => name.split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase() || '16';
 
+/* CACHE DISCIPLINE (2026-11-23, adjudication Q4): the index fetch
+   carries a build stamp so a stale cached bundle can never pair this
+   code with a stale index (or the reverse). Bump the stamp whenever
+   the index schema or the count semantics change. Name:
+   LISTEN_INDEX_STAMP. */
+const LISTEN_INDEX_STAMP = '20261123-oneruler';
 async function loadIndex() {
   if (!state.index) {
-    const r = await fetch('assets/data/listen-index.json');
+    const r = await fetch(`assets/data/listen-index.json?v=${LISTEN_INDEX_STAMP}`);
     state.index = await r.json();
     window.__listen.index = state.index;
   }
@@ -318,7 +324,7 @@ function doorHeadlines() {
     if (!d.artists) continue;
     let best = null;
     for (const a of state.index.artists) {
-      if (a.door === d.id && (!best || (a.playable || 0) > (best.playable || 0))) best = a;
+      if (a.door === d.id && (!best || rowsPlayable(a) > rowsPlayable(best))) best = a;
     }
     if (best) out.push({ door: d, artist: best });
   }
@@ -346,7 +352,15 @@ function laneArtists(doorId) {
   }
   return out;
 }
-const doorPlayableSum = (doorId) => laneArtists(doorId).reduce((s, a) => s + (a.playable || 0), 0);
+/* ONE-RULER CURE (2026-11-23, PLAYABLE-COUNT-ADJUDICATION): the one
+   visitor ruler is ROWS THAT PLAY — playableRows (playable rows across
+   the artist's album groups) + morePlayable (the More-songs rows,
+   which all play). Every rendered or ranked "playable" count in this
+   hub reads rowsPlayable(a). The pool field a.playable (unique
+   recordings) stays in the data for pool claims and renders nowhere
+   as a playable count. */
+const rowsPlayable = (a) => (a.playableRows || 0) + (a.morePlayable || 0);
+const doorPlayableSum = (doorId) => laneArtists(doorId).reduce((s, a) => s + rowsPlayable(a), 0);
 
 /* Lane films (LANE HERO FILMS 2026-11-23): wired by DATA, not code.
    listen-lanes.json may carry a per-lane film path — films.<doorId>,
@@ -369,7 +383,7 @@ function artistCard(a) {
   return `<button type="button" class="acard" data-artist="${esc(a.slug)}">
     <span class="acard-art">${art}${a.art ? '' : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
     <b>${esc(a.name)}</b>
-    <span class="acard-meta">${a.releases} releases · ${a.songs} songs${a.playableRows ? ` · ${a.playableRows} playable` : ''}</span>
+    <span class="acard-meta">${a.releases} releases · ${a.songs} songs${rowsPlayable(a) ? ` · ${rowsPlayable(a)} playable` : ''}</span>
   </button>`;
 }
 
@@ -497,7 +511,7 @@ export function render(root, { player }) {
       }
     });
     if (!best) {
-      const top = heads.slice().sort((x, y) => (y.artist.playable || 0) - (x.artist.playable || 0))[0];
+      const top = heads.slice().sort((x, y) => rowsPlayable(y.artist) - rowsPlayable(x.artist))[0];
       if (top) best = { slug: top.artist.slug, artist: top.artist, door: top.door, group: null };
     }
     if (best) {
@@ -522,7 +536,7 @@ export function render(root, { player }) {
     const showArt = g ? g.cover : a.art;
     const meta = g
       ? [g.year || '', g.kind === 'ep' ? 'EP' : g.kind === 'single' ? 'Single' : 'Album', `${g.n} tracks`, `${g.pr} playable`].filter(Boolean).join(' · ')
-      : `${a.releases} releases · ${a.songs} songs · ${a.playableRows} playable`;
+      : `${a.releases} releases · ${a.songs} songs · ${rowsPlayable(a)} playable`;
     host.innerHTML = `
       <div class="lsn-show">
         <div class="lsn-showart">${showArt ? `<img src="${esc(showArt)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(g ? g.title : a.name))}</span>`}<span class="lsn-badge"><i></i>THE HOUSE PICK</span></div>
@@ -536,7 +550,7 @@ export function render(root, { player }) {
         </div>
       </div>
       <div class="lsn-rotation">
-        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${a.playable} PLAYABLE`}</span></div>
+        <div class="lsn-rothead"><span>THE SIDE A ROTATION</span><span>${g ? `${esc(g.title)} / ${g.pr} PLAYABLE` : `${esc(a.name)} / ${rowsPlayable(a)} PLAYABLE`}</span></div>
         ${rot.length ? rot.map((ti, k) => `
         <button type="button" class="lsn-ftrow" data-track="${esc(feat.tracks[ti].y)}" data-featrow="${k}">
           <span class="lsn-ftnum">${String(k + 1).padStart(2, '0')}</span>
@@ -557,7 +571,7 @@ export function render(root, { player }) {
   /* ---------- 03 / DIG INTO THE SOUND — tabs over the real index ------ */
   function startTrackScan() {
     if (state.scan) return state.scan;
-    const slugs = state.index.artists.filter((a) => a.playable > 0).map((a) => a.slug);
+    const slugs = state.index.artists.filter((a) => rowsPlayable(a) > 0).map((a) => a.slug);
     const scan = { total: slugs.length, done: 0, finished: false };
     state.scan = scan;
     let cursor = 0;
@@ -596,12 +610,15 @@ export function render(root, { player }) {
     if (!body) return;
     const scan = startTrackScan();
     const matches = trackMatches();
-    const totalTracks = state.index.artists.reduce((s, a) => s + (state.playable.get(a.slug)?.tracks.length || 0), 0);
+    /* ONE-RULER CURE: the shelf total is the rows ruler over the whole
+       index (rows that play, More songs included) — never the pool
+       size the scan happens to have loaded. */
+    const totalTracks = state.index.artists.reduce((s, a) => s + rowsPlayable(a), 0);
     const shown = matches.slice(0, 200);
     body.innerHTML = `
       <p class="lsn-progress" id="lsn-scanprog">${scan.finished
         ? `${scan.total} artists · ${totalTracks} playable songs on the shelf — every one plays full.`
-        : `Digging the crates — ${scan.done} of ${scan.total} artists on the shelf so far (${totalTracks} songs and counting)…`}</p>
+        : `Digging the crates — ${scan.done} of ${scan.total} artists on the shelf so far…`}</p>
       ${shown.length ? `<div class="trows">${shown.map((m) => `
         <button type="button" class="trow" data-track="${esc(m.t.y)}" data-lsntrack="${esc(m.slug)}:${m.i}">
           ${m.artist.art ? `<img class="lsn-tcover" loading="lazy" src="${esc(m.artist.art)}" alt="" onerror="this.remove()">` : ''}
@@ -695,8 +712,8 @@ export function render(root, { player }) {
     const idx = state.index;
     const heads = doorHeadlines();
     const voices = heads.map((h) => h.artist);
-    const extra = idx.artists.filter((a) => a.playable > 0 && !voices.includes(a))
-      .sort((x, y) => (y.playable || 0) - (x.playable || 0))[0];
+    const extra = idx.artists.filter((a) => rowsPlayable(a) > 0 && !voices.includes(a))
+      .sort((x, y) => rowsPlayable(y) - rowsPlayable(x))[0];
     if (extra) voices.push(extra);
     viewEl.innerHTML = `
       ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/listen/sanctuary.webp', title: 'The sound, alive.', note: 'Listen film · in production' }) : ''}
@@ -752,7 +769,7 @@ export function render(root, { player }) {
         <div class="lsn-voices">${voices.map((a) => `
           <button type="button" class="lsn-voice" data-artist="${esc(a.slug)}">
             <span class="lsn-voiceart">${a.art ? `<img loading="lazy" src="${esc(a.art)}" alt="" onerror="this.remove()">` : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
-            <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${a.playable} playable</small>
+            <b>${esc(a.name)}</b><small>${a.door ? esc(doorLabel(a.door)) : 'The Sanctuary'} · ${rowsPlayable(a)} playable</small>
           </button>`).join('')}</div>
       </section>
 
@@ -776,14 +793,14 @@ export function render(root, { player }) {
            the roster's own numbers only — the deepest playable shelves
            and the deepest lane. No taste is invented; the counts are
            the catalog's. */
-        const top = [...idx.artists].filter((a) => (a.playable || 0) > 0)
-          .sort((x, y) => (y.playable || 0) - (x.playable || 0)).slice(0, 3);
+        const top = [...idx.artists].filter((a) => rowsPlayable(a) > 0)
+          .sort((x, y) => rowsPlayable(y) - rowsPlayable(x)).slice(0, 3);
         const deepDoor = idx.doors.map((d) => ({ d, n: doorPlayableSum(d.id) }))
           .sort((x, y) => y.n - x.n)[0];
         if (!top.length) return '';
         return `<section class="ai-shelf" aria-label="Listen AI Picks">
           <div class="ai-shelf-head"><span class="ai-shelf-title">✦ FaithGuide · Listen AI Picks</span><span class="ai-tag">Powered by AI</span></div>
-          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${a.playable} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
+          <p>From the roster's own shelves: <b>${top.map((a) => `${esc(a.name)} (${rowsPlayable(a)} playable)`).join(' · ')}</b>${deepDoor && deepDoor.n ? ` — and the deepest lane in the house is <b>${esc(deepDoor.d.label)}</b>, carrying <b>${deepDoor.n} playable songs</b>` : ''}. Start with the deepest shelf; every song plays full.</p>
           <div class="ai-doors">${top.map((a) => `<button type="button" data-artist="${esc(a.slug)}">${esc(a.name)} ↗</button>`).join('')}</div>
         </section>`;
       })()}
@@ -889,8 +906,11 @@ export function render(root, { player }) {
        catalog song count, is playable ROWS across the album groups
        (never the pool size — Cross Worship read "3 songs · 50
        playable" when none of his 3 catalog songs had a row binding).
+       ONE-RULER CURE (2026-11-23): the More-songs rows ride the same
+       count — every More track plays, so the header is Σ group pr +
+       More rows, exactly the card's playableRows + morePlayable.
        The flat fallback has no groups; its shelf IS the pool. */
-    const headerPlayable = groups ? groups.reduce((s, g) => s + (g.pr || 0), 0) : tracks.length;
+    const headerPlayable = groups ? groups.reduce((s, g) => s + (g.pr || 0), 0) + more.length : tracks.length;
 
     const kindLabel = (k) => (k === 'ep' ? 'EP' : k === 'single' ? 'Single' : 'Album');
     /* Display order (ChatGPT consult chatcmpl-Em8JK5jpNTSdU3crG2gbxSwMNGTjF):
