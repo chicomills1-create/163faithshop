@@ -1,0 +1,378 @@
+{
+ "wave": 1,
+ "translation": "KJV — quoted exactly from the same source the Bible reader uses",
+ "potwRotation": [
+  "jesus",
+  "abraham",
+  "joseph",
+  "moses",
+  "ruth",
+  "david",
+  "esther",
+  "daniel",
+  "john-the-baptist",
+  "mary",
+  "peter",
+  "paul"
+ ],
+ "thread": [
+  "abraham",
+  "ruth",
+  "david",
+  "mary",
+  "jesus"
+ ],
+ "people": [
+  {
+   "slug": "abraham",
+   "name": "Abraham",
+   "identity": "The father of faith",
+   "era": "patriarchs",
+   "eraLabel": "The Patriarchs",
+   "testament": "OT",
+   "thread": true,
+   "portrait": "assets/img/people/portrait-abraham.webp",
+   "scene": "assets/img/people/scene-abraham-stars.webp",
+   "sceneCaption": "The promise counted in stars — Genesis 15",
+   "ownWords": null,
+   "hallLine": {
+    "text": "By faith Abraham, when he was called to go out into a place which he should after receive for an inheritance, obeyed; and he went out, not knowing whither he went.",
+    "ref": "Hebrews 11:8"
+   },
+   "story": [
+    "Abraham — first called Abram — was living in Haran when God called him to leave his country and his father's house for a land he had never seen, with a promise: a great nation, a great name, and blessing for all families of the earth through him (Genesis 12). He went, not knowing where he was going.",
+    "Childless into old age, he was brought outside under the night sky and told his descendants would be as the stars — and he believed God, and it was counted to him for righteousness (Genesis 15). Isaac, the son of promise, was born to him and Sarah in their old age.",
+    "When God tested him on Mount Moriah, Abraham offered Isaac — and was stayed at the final moment, accounting that God was able to raise him up (Genesis 22; Hebrews 11:17–19). Every promise the rest of the story stands on runs through this man's obedience. He is called the friend of God, and the father of all who believe."
+   ],
+   "verses": [
+    {
+     "text": "By faith Abraham, when he was called to go out into a place which he should after receive for an inheritance, obeyed; and he went out, not knowing whither he went.",
+     "ref": "Hebrews 11:8"
+    },
+    {
+     "text": "By faith Abraham, when he was tried, offered up Isaac: and he that had received the promises offered up his only begotten son,",
+     "ref": "Hebrews 11:17"
+    }
+   ],
+   "versesPending": "Genesis 15:6 and his own words (Genesis 22:8) — sourcing pass owed"
+  },
+  {
+   "slug": "joseph",
+   "name": "Joseph",
+   "identity": "The dreamer who forgave",
+   "era": "patriarchs",
+   "eraLabel": "The Patriarchs",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-joseph.webp",
+   "scene": "assets/img/people/scene-joseph-brothers.webp",
+   "sceneCaption": "“I am Joseph your brother” — Genesis 45",
+   "ownWords": null,
+   "hallLine": {
+    "text": "By faith Joseph, when he died, made mention of the departing of the children of Israel; and gave commandment concerning his bones.",
+    "ref": "Hebrews 11:22"
+   },
+   "story": [
+    "Joseph was Jacob's beloved son, given a coat of many colours — and hated by his brothers for it, and for his dreams. They sold him to traders bound for Egypt, and told their father he was dead (Genesis 37).",
+    "In Egypt he rose in Potiphar's house, was falsely accused, and was forgotten in prison — until Pharaoh's dreams brought him out. Joseph interpreted them: seven years of plenty, seven of famine. Pharaoh set him over all Egypt, second only to the throne (Genesis 41).",
+    "When the famine drove his brothers down to Egypt for grain, Joseph tested them, then wept and revealed himself: “I am Joseph your brother, whom ye sold into Egypt.” He brought his whole family down and kept them alive. At the end he spoke the line his whole life proves: what his brothers meant for evil, God meant for good (Genesis 50:20). Dying, he spoke of the exodus still to come and made them swear to carry his bones up (Genesis 50:24–25)."
+   ],
+   "verses": [
+    {
+     "text": "By faith Joseph, when he died, made mention of the departing of the children of Israel; and gave commandment concerning his bones.",
+     "ref": "Hebrews 11:22"
+    }
+   ],
+   "versesPending": "Genesis 50:20 (his own words) — sourcing pass owed"
+  },
+  {
+   "slug": "moses",
+   "name": "Moses",
+   "identity": "The deliverer of Israel",
+   "era": "exodus",
+   "eraLabel": "The Deliverer",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-moses.webp",
+   "scene": "assets/img/people/scene-moses-red-sea.webp",
+   "sceneCaption": "Through the sea on dry ground — Exodus 14",
+   "ownWords": {
+    "text": "Who am I, that I should go unto Pharaoh, and that I should bring forth the children of Israel out of Egypt?",
+    "ref": "Exodus 3:11"
+   },
+   "hallLine": {
+    "text": "By faith Moses, when he was come to years, refused to be called the son of Pharaoh's daughter; Choosing rather to suffer affliction with the people of God, than to enjoy the pleasures of sin for a season;",
+    "ref": "Hebrews 11:24–25"
+   },
+   "story": [
+    "Moses was born in Egypt under Pharaoh's command that Hebrew sons be killed, hidden by his mother, and drawn out of the Nile by Pharaoh's own daughter (Exodus 2). Raised in the palace, he fled to Midian after killing an Egyptian overseer, and spent forty years keeping sheep.",
+    "At the burning bush on Horeb, God called him by name and sent him back to Egypt: “I AM hath sent me unto you” (Exodus 3:14). Through the plagues, the Passover, and the Red Sea — where Israel passed through on dry ground — Moses led a nation of slaves out of the house of bondage (Exodus 12–14).",
+    "On Sinai he received the Law; for forty years he bore a stubborn people through the wilderness, interceding for them again and again. He died on Mount Nebo, within sight of the land he had led them to (Deuteronomy 34). Hebrews remembers him as the man who esteemed the reproach of Christ greater riches than the treasures of Egypt."
+   ],
+   "verses": [
+    {
+     "text": "And God said unto Moses, I AM THAT I AM: and he said, Thus shalt thou say unto the children of Israel, I AM hath sent me unto you.",
+     "ref": "Exodus 3:14"
+    },
+    {
+     "text": "By faith he forsook Egypt, not fearing the wrath of the king: for he endured, as seeing him who is invisible.",
+     "ref": "Hebrews 11:27"
+    },
+    {
+     "text": "By faith they passed through the Red sea as by dry land: which the Egyptians assaying to do were drowned.",
+     "ref": "Hebrews 11:29"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "ruth",
+   "name": "Ruth",
+   "identity": "The loyalty that entered the line",
+   "era": "kingdom",
+   "eraLabel": "The Kingdom Road",
+   "testament": "OT",
+   "thread": true,
+   "portrait": "assets/img/people/portrait-ruth.webp",
+   "scene": "assets/img/people/scene-ruth-fields.webp",
+   "sceneCaption": "Gleaning in the fields of Boaz — Ruth 2",
+   "ownWords": {
+    "text": "Intreat me not to leave thee, or to return from following after thee: for whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God:",
+    "ref": "Ruth 1:16"
+   },
+   "hallLine": null,
+   "story": [
+    "Ruth was a Moabite woman married into a Bethlehem family that had fled a famine. When her husband, his brother, and his father all died in Moab, her mother-in-law Naomi set out for home — and Ruth refused to be sent back. Her vow to Naomi is one of the great speeches of the Old Testament: “whither thou goest, I will go… thy God my God” (Ruth 1:16–17).",
+    "In Bethlehem she gleaned in the fields to feed them both, working behind the reapers in the field of Boaz, a kinsman of Naomi's family, who showed her favour and protection (Ruth 2). Following Naomi's counsel, Ruth came to Boaz at the threshing floor, and he — as kinsman-redeemer — married her (Ruth 3–4).",
+    "Her son Obed became the grandfather of King David (Ruth 4:17, 22). The Moabite widow who chose Israel's God stands in the direct line of the Messiah: Matthew's genealogy names her — “Booz begat Obed of Ruth” (Matthew 1:5)."
+   ],
+   "verses": [
+    {
+     "text": "And Ruth said, Intreat me not to leave thee, or to return from following after thee: for whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God:",
+     "ref": "Ruth 1:16"
+    },
+    {
+     "text": "Where thou diest, will I die, and there will I be buried: the Lord do so to me, and more also, if ought but death part thee and me.",
+     "ref": "Ruth 1:17"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "david",
+   "name": "David",
+   "identity": "The shepherd king",
+   "era": "kingdom",
+   "eraLabel": "The Kingdom Road",
+   "testament": "OT",
+   "thread": true,
+   "portrait": "assets/img/people/portrait-david.webp",
+   "scene": "assets/img/people/scene-david-goliath.webp",
+   "sceneCaption": "One stone in the valley of Elah — 1 Samuel 17",
+   "ownWords": {
+    "text": "The Lord is my shepherd; I shall not want.",
+    "ref": "Psalm 23:1"
+   },
+   "hallLine": null,
+   "story": [
+    "David was the youngest son of Jesse of Bethlehem, keeping his father's sheep, when the prophet Samuel anointed him king in place of Saul (1 Samuel 16). Sent to the battle lines with food for his brothers, he heard Goliath of Gath defying Israel — and went down into the valley of Elah with a staff, a sling, and five smooth stones. The giant fell, and Israel's army routed the Philistines (1 Samuel 17).",
+    "Hunted by Saul for years, David spared the king's life twice, and at Saul's death was crowned — first over Judah, then over all Israel. He took Jerusalem, brought up the ark, and received God's promise that his house and kingdom would be established for ever (2 Samuel 7).",
+    "He was also the psalmist: the shepherd's songs — “The Lord is my shepherd” (Psalm 23) — are his. Scripture does not hide his fall with Bathsheba or his repentance (Psalm 51). The Messiah is promised as the Son of David, and Matthew's gospel opens with his name: “Jesus Christ, the son of David” (Matthew 1:1)."
+   ],
+   "verses": [
+    {
+     "text": "The Lord is my shepherd; I shall not want.",
+     "ref": "Psalm 23:1"
+    },
+    {
+     "text": "Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.",
+     "ref": "Psalm 23:4"
+    }
+   ],
+   "versesPending": "1 Samuel 17:45 (his words to Goliath) — sourcing pass owed"
+  },
+  {
+   "slug": "esther",
+   "name": "Esther",
+   "identity": "For such a time as this",
+   "era": "exile",
+   "eraLabel": "The Exile & the Court",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-esther.webp",
+   "scene": "assets/img/people/scene-esther-king.webp",
+   "sceneCaption": "The sceptre held out — Esther 5",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Esther — Hadassah — was a Jewish orphan in Susa, raised by her cousin Mordecai, in the days of King Ahasuerus of Persia. When the king sought a new queen, Esther was taken into the palace and chosen above all the women (Esther 2). Mordecai charged her not to reveal her people.",
+    "When Haman, the king's chief officer, plotted to destroy all the Jews of the empire on a day fixed by lot, Mordecai sent word to Esther: she must go before the king — though approaching him unsummoned meant death unless he held out the golden sceptre. After three days of fasting, she went in. The king held out the sceptre (Esther 5).",
+    "Across two banquets she exposed Haman's plot to the king. Haman was hanged on the gallows he had built for Mordecai, and the king's new decree let the Jews defend themselves; the days appointed for their destruction became the feast of Purim (Esther 7–9)."
+   ],
+   "verses": [],
+   "versesPending": "Esther 4:14–16 and 7:3 — sourcing pass owed (API route flapped during this build)"
+  },
+  {
+   "slug": "daniel",
+   "name": "Daniel",
+   "identity": "Unshaken in the lions' den",
+   "era": "exile",
+   "eraLabel": "The Exile & the Court",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-daniel.webp",
+   "scene": "assets/img/people/scene-daniel-lions.webp",
+   "sceneCaption": "The mouths of lions, stopped — Daniel 6",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Daniel was carried to Babylon as a young man when Nebuchadnezzar took Jerusalem, and was chosen for the king's court. There he purposed in his heart not to defile himself with the king's food, and God gave him favour and wisdom above all the king's counsellors (Daniel 1).",
+    "He interpreted Nebuchadnezzar's dream when every wise man of Babylon had failed, read the handwriting on the wall for Belshazzar on the night Babylon fell, and served under Darius the Mede (Daniel 2; 5; 6).",
+    "When a decree forbade prayer to any but the king, Daniel opened his windows toward Jerusalem and prayed three times a day, as before. He was cast into the den of lions — and found unhurt in the morning, because he believed in his God (Daniel 6:22–23). His visions reach to the end of the age: kingdoms rising and falling, and one like the Son of man coming with the clouds of heaven (Daniel 7:13)."
+   ],
+   "verses": [
+    {
+     "text": "Who through faith subdued kingdoms, wrought righteousness, obtained promises, stopped the mouths of lions,",
+     "ref": "Hebrews 11:33"
+    }
+   ],
+   "versesPending": "Daniel 2:20 and 6:22 — sourcing pass owed"
+  },
+  {
+   "slug": "john-the-baptist",
+   "name": "John the Baptist",
+   "identity": "The voice in the wilderness",
+   "era": "forerunner",
+   "eraLabel": "The Forerunner",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-john-the-baptist.webp",
+   "scene": "assets/img/people/scene-john-jordan.webp",
+   "sceneCaption": "Baptizing in the Jordan — Matthew 3",
+   "ownWords": {
+    "text": "He must increase, but I must decrease.",
+    "ref": "John 3:30"
+   },
+   "hallLine": null,
+   "story": [
+    "John was born to Zechariah and Elizabeth in their old age, announced by Gabriel as the one who would go before the Lord in the spirit and power of Elijah (Luke 1). He came preaching in the wilderness of Judaea — “Repent ye: for the kingdom of heaven is at hand” — clothed in camel's hair, baptizing in the Jordan all who confessed their sins (Matthew 3).",
+    "When Jesus came to be baptized, John pointed his own disciples to him: “Behold the Lamb of God, which taketh away the sin of the world” (John 1:29). Jesus said of him that among those born of women none had risen greater (Matthew 11:11).",
+    "John rebuked Herod for his unlawful marriage and was imprisoned, and in prison sent to ask Jesus, “Art thou he that should come?” Jesus answered by pointing to the works themselves (Matthew 11:2–5). Herod later had him beheaded at Herodias's request (Matthew 14). His whole ministry is in his own sentence: “He must increase, but I must decrease.”"
+   ],
+   "verses": [
+    {
+     "text": "He must increase, but I must decrease.",
+     "ref": "John 3:30"
+    },
+    {
+     "text": "Verily I say unto you, Among them that are born of women there hath not risen a greater than John the Baptist: notwithstanding he that is least in the kingdom of heaven is greater than he.",
+     "ref": "Matthew 11:11"
+    }
+   ],
+   "versesPending": "John 1:29 — sourcing pass owed"
+  },
+  {
+   "slug": "mary",
+   "name": "Mary",
+   "identity": "The mother of Jesus",
+   "era": "witnesses",
+   "eraLabel": "The First Witnesses",
+   "testament": "NT",
+   "thread": true,
+   "portrait": "assets/img/people/portrait-mary.webp",
+   "scene": "assets/img/people/scene-mary-annunciation.webp",
+   "sceneCaption": "The angel's announcement — Luke 1",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Mary was a young woman of Nazareth, betrothed to Joseph, when the angel Gabriel came to her with an announcement no one had ever heard: she would conceive and bear a son, Jesus, who would be called the Son of the Highest, and of his kingdom there would be no end (Luke 1:26–33). Her answer was surrender: “Behold the handmaid of the Lord; be it unto me according to thy word” (Luke 1:38). Her song — the Magnificat — pours out of her visit to Elizabeth (Luke 1:46–55).",
+    "She bore Jesus in Bethlehem, laid him in a manger, received shepherds and wise men, and kept all these things and pondered them in her heart (Luke 2). She raised him in Nazareth, was there at Cana when his first sign turned water into wine (John 2), and stood by the cross when he died, where he gave her into the care of the beloved disciple (John 19:25–27).",
+    "After the resurrection she is found with the apostles in the upper room, continuing in prayer (Acts 1:14). She stands in the Scarlet Thread: through Mary, of the house of David, the promise reached its destination."
+   ],
+   "verses": [],
+   "versesPending": "Luke 1:38, Luke 2:19 and John 2:5 — sourcing pass owed (API route flapped during this build)"
+  },
+  {
+   "slug": "jesus",
+   "name": "Jesus",
+   "identity": "The centre of the whole story",
+   "era": "jesus",
+   "eraLabel": "The Centre",
+   "testament": "NT",
+   "thread": true,
+   "heart": true,
+   "portrait": "assets/img/people/portrait-jesus.webp",
+   "scene": "assets/img/people/scene-jesus-resurrection.webp",
+   "sceneCaption": "The empty tomb at dawn — John 20",
+   "scene2": "assets/img/people/scene-jesus-cross.webp",
+   "scene2Caption": "The cross — John 19",
+   "ownWords": {
+    "text": "I am the way, the truth, and the life: no man cometh unto the Father, but by me.",
+    "ref": "John 14:6"
+   },
+   "hallLine": null,
+   "story": [
+    "Jesus was born in Bethlehem to Mary, of the line of David, and raised in Nazareth. At about thirty he was baptized by John in the Jordan, and began preaching the gospel of the kingdom of God through Galilee and Judaea — teaching in parables, healing the sick, raising the dead, and gathering twelve apostles (Matthew 4; Mark 1).",
+    "He told his disciples plainly who he was and what was coming: “I am the way, the truth, and the life” (John 14:6); “Come unto me, all ye that labour and are heavy laden, and I will give you rest” (Matthew 11:28). Betrayed by Judas, he was tried before the Sanhedrin and Pontius Pilate and crucified in Jerusalem — and on the third day the tomb was found empty, and he appeared to his disciples alive (John 20; 1 Corinthians 15:3–8).",
+    "Every person in this hall stands in relation to him: the patriarchs believed the promise of him, the prophets spoke of him, John pointed to him, and the apostles went to the world with him. He is not one witness among many. He is the centre the river runs to."
+   ],
+   "verses": [
+    {
+     "text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+     "ref": "John 3:16"
+    },
+    {
+     "text": "Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me.",
+     "ref": "John 14:6"
+    },
+    {
+     "text": "Come unto me, all ye that labour and are heavy laden, and I will give you rest.",
+     "ref": "Matthew 11:28"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "peter",
+   "name": "Peter",
+   "identity": "The rock of the confession",
+   "era": "witnesses",
+   "eraLabel": "The First Witnesses",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-peter.webp",
+   "scene": "assets/img/people/scene-peter-water.webp",
+   "sceneCaption": "Walking on the sea — Matthew 14",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Peter — Simon, son of Jonah — was a fisherman of Galilee when Jesus called him from his nets: “Follow me, and I will make you fishers of men” (Matthew 4:19). He was first among the twelve in every list, quick to speak and quick to act: he stepped out of the boat to walk on the sea toward Jesus, and began to sink when he saw the wind (Matthew 14:28–31).",
+    "At Caesarea Philippi he made the confession the church is built on: “Thou art the Christ, the Son of the living God” — and Jesus answered, “upon this rock I will build my church” (Matthew 16:16–18). In the night of the trial he denied Jesus three times, as Jesus had said; after the resurrection, by the Sea of Galilee, Jesus restored him three times: “Feed my sheep” (John 21).",
+    "At Pentecost it was Peter who stood up and preached, and about three thousand were added that day (Acts 2). He opened the door of the gospel to the Gentiles at Cornelius's house (Acts 10), and his two letters still close the New Testament's witness: written, tradition holds, from Rome, where he died under Nero."
+   ],
+   "verses": [],
+   "versesPending": "Matthew 16:16–18 and Acts 2:38 — sourcing pass owed (API route flapped during this build)"
+  },
+  {
+   "slug": "paul",
+   "name": "Paul",
+   "identity": "The apostle to the nations",
+   "era": "apostle",
+   "eraLabel": "The Apostle to the Nations",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-paul.webp",
+   "scene": "assets/img/people/scene-paul-damascus.webp",
+   "sceneCaption": "The light on the Damascus road — Acts 9",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Paul — first Saul of Tarsus — was a Pharisee trained under Gamaliel, and a persecutor of the church: he held the coats of those who stoned Stephen, and was on his way to Damascus with authority to bind Christians when a light from heaven struck him down and the risen Jesus spoke to him: “Saul, Saul, why persecutest thou me?” (Acts 7:58; 9:1–5).",
+    "Blinded, then baptized by Ananias, he became the apostle to the Gentiles. Across three missionary journeys he planted churches through Cyprus, Galatia, Macedonia, Greece and Asia, preaching in synagogues and marketplaces, working as a tentmaker, enduring shipwreck, beatings, stonings and prison (Acts 13–28; 2 Corinthians 11).",
+    "His letters — Romans, Corinthians, Galatians, Philippians and the rest — make up much of the New Testament. Arrested in Jerusalem, he appealed to Caesar and was carried to Rome, where Acts leaves him preaching the kingdom with all confidence, no man forbidding him (Acts 28:31)."
+   ],
+   "verses": [],
+   "versesPending": "2 Timothy 4:7 and Philippians 4:13 — sourcing pass owed (API route flapped during this build)"
+  }
+ ]
+}
