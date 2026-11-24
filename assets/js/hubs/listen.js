@@ -146,6 +146,16 @@ const STYLE = `<style>
 .lsn-roomtitle p{color:#d8c9a8;font-size:13.5px}
 .lsn-roomsec{margin-top:30px}
 .lsn-roomsec>h4{font-family:var(--serif);font-size:21px;color:var(--bone);margin:0 0 12px}
+/* LANE ROOM HEAD (founder law 2026-11-24): a genre page's top is its own
+   90-120s film or NO picture at all — the still lane art never renders
+   inside a lane room (it lives only on the doors grid, once). Until a
+   lane's film lands, this compact head carries the room: deep gold
+   ground with a slow living sheen, so the page still moves. */
+.lsn-roomhead{position:relative;border-radius:14px;overflow:hidden;border:1px solid #4a3a20;margin-top:14px;padding:26px 22px;background:linear-gradient(120deg,#0b0805,#1a1206 55%,#0b0805)}
+.lsn-roomhead::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(212,175,55,.16) 50%,transparent 70%);background-size:250% 100%;animation:lsnSheen 7s ease-in-out infinite;pointer-events:none}
+@keyframes lsnSheen{0%{background-position:120% 0}55%{background-position:-30% 0}100%{background-position:-30% 0}}
+.lsn-roomhead .lsn-roomtitle{padding:0}
+@media (prefers-reduced-motion: reduce){.lsn-roomhead::after{animation:none}}
 /* dig */
 .lsn-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding-bottom:14px;flex-wrap:wrap}
 .lsn-tabs{display:flex;gap:4px;flex-wrap:wrap}
@@ -869,28 +879,32 @@ export function render(root, { player }) {
     view = { kind: 'door', id: doorId };
     const artists = laneArtists(doorId);
     const playableN = doorPlayableSum(doorId);
-    /* LANE HERO FILMS (2026-11-23): the room's hero is the page's
-       hero, at full hero size. When the lanes data carries a film
-       for this lane it plays in the hero (FaithFilm discipline via
-       data-hubfilm + wire — muted loop, plays in place, never
-       recreated on repaints); until then the lane's cinematic art
-       renders at the same size and carries it — no apology text.
-       Under reduced motion the art stands, exactly as FaithFilm's
-       own slots fall back to their still. */
+    /* LANE HERO FILMS (2026-11-23; founder law sharpened 2026-11-24):
+       the room's top is the lane's own 90-120s film, or NO picture at
+       all. The still lane art never renders inside a room — the same
+       picture twice (doors grid + room) was clutter, and a genre page
+       must MOVE. When the lanes data carries a film it plays in the
+       hero (FaithFilm discipline via data-hubfilm + wire — muted loop,
+       plays in place, never recreated on repaints); until the film
+       lands, the compact living head carries the room. */
     const filmPath = laneFilm(doorId);
     const film = filmPath && !(window.FaithFilm && window.FaithFilm.reduced) ? filmPath : null;
-    viewEl.innerHTML = `
-      <button type="button" class="btn-ghost back-btn" data-back>← All lanes</button>
-      <div class="lsn-roomhero"${film ? ' data-hubfilm' : ''}>
-        ${film ? `<video muted loop playsinline autoplay preload="metadata" poster="assets/img/lanes/lane-${esc(doorId)}.webp" aria-hidden="true"><source src="${esc(film)}" type="video/mp4"></video>`
-          : `<img src="assets/img/lanes/lane-${esc(doorId)}.webp" alt="" onerror="this.remove()">`}
-        <span class="lsn-roomveil"></span>
+    const roomTitle = `
         <div class="lsn-roomtitle">
           <span class="lsn-eyebrow">The Lane / 16:3 Faith Presents</span>
           <h3>${esc(doorLabel(doorId))}</h3>
           <p>${artists.length ? `${artists.length} artist${artists.length === 1 ? '' : 's'} in this lane${playableN ? ` · ${playableN} playable songs` : ''}. Every song plays full.` : 'This lane is on the roster — its shelf is still gathering.'}</p>
-        </div>
-      </div>
+        </div>`;
+    const hero = film
+      ? `<div class="lsn-roomhero" data-hubfilm>
+        <video muted loop playsinline autoplay preload="metadata" poster="assets/img/lanes/lane-${esc(doorId)}.webp" aria-hidden="true"><source src="${esc(film)}" type="video/mp4"></video>
+        <span class="lsn-roomveil"></span>${roomTitle}
+      </div>`
+      : `<div class="lsn-roomhead">${roomTitle}
+      </div>`;
+    viewEl.innerHTML = `
+      <button type="button" class="btn-ghost back-btn" data-back>← All lanes</button>
+      ${hero}
       ${artists.length ? `
         <section class="lsn-roomsec"><h4>The voices in this lane</h4><div class="cards artist-grid">${artists.map(artistCard).join('')}</div></section>`
       : `<p class="lede" style="margin-top:18px">This door's shelf is still being built — its artists are on the roster and appear under All artists as their shelves are assigned. No dead end: the door says so.</p>`}`;
