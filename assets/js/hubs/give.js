@@ -228,7 +228,27 @@ const STYLE = `<style>
 .gv-sidecard.scripture strong b{color:#a99a79;font-weight:normal}
 .gv-sidecard.trust ul{padding-left:19px;color:#b8ad93;font-size:12.5px;line-height:1.75;margin-top:14px}
 .gv-sidecard.trust li+li{margin-top:8px}
-</style>`;
+/* ---------- GIVE ATMOSPHERE (2026-11-24, founder order) ----------
+   The Give face sat on flat black — on a wide screen the flanks were
+   dead space ("the dead space is just so blah"). A fixed haze of
+   the hub's own giving art — two hands reaching toward each
+   other over a harvest table in warm gold light (give-header,
+   the same art the Give film slot and hero carry)
+   now breathes behind the Give landing (doors view) only: painted as the first node of the
+   view, so it leaves with the view and never reaches the hub's other
+   rooms. A haze you feel, not a picture you look at: heavy blur +
+   darkness at low opacity, radial-masked to nothing across the center
+   content column and at every edge. pointer-events none, aria-hidden
+   in the markup, fixed + inset 0 inside an overflow-hidden shell, so
+   it can never add a pixel of scroll. The drift is barely perceptible
+   and dies under prefers-reduced-motion; phones get a fainter, still
+   layer (their dead space is minimal). Same system as the Listen
+   pilot (.lsn-atmo), geared to this hub's own art. */
+.gv-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505}
+.gv-atmo::before{content:"";position:absolute;inset:-48px;background:url('assets/img/give/give-header.webp') center 40%/cover no-repeat;opacity:.28;filter:blur(9px) brightness(.7) saturate(.85);-webkit-mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);animation:gvAtmoDrift 90s ease-in-out infinite alternate}
+@keyframes gvAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.gv-atmo::before{opacity:.08;animation:none}}
+@media(prefers-reduced-motion:reduce){.gv-atmo::before{animation:none}}</style>`;
 
 const STYLE2 = `<style>
 /* ---------- builder (Give Once / Monthly Partner views) ---------- */
@@ -456,6 +476,7 @@ function faqHTML() {
 function showDoors(root) {
   S.view = 'doors'; S.error = null;
   mount(root, `
+    <div class="gv-atmo" aria-hidden="true"></div>
     ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/give/give-header.webp', title: 'Open hands. Open doors.', note: 'Give film · in production' }) : ''}
     <div class="gv-topline"><span><b>16:3</b> Faith / The Giving Sessions <i>///</i> Vol. 0163</span><span>Church is what we build together <i>✦</i> Sow it forward</span></div>
     <section class="gv-hero reveal">
