@@ -45,24 +45,35 @@ const CONTACT = 'shop@163faithshop.com';
    Amazon targets copied EXACTLY from the Read hub's book shelf (read.js
    showBooks) — nothing invented. The book is NOT Printful merch: it never
    enters S.products, the filterbar counts, or the grid; it carries its
-   own section, its own heading, and its own honest label. */
+   own section, its own heading, and its own honest label.
+
+   MIRROR (founder order 2026-11-24 19:19 MST: "fix this to match what
+   is on the pastors page"): the section now carries the Pastor page's
+   book treatment (the bookpage-work landing, live cf9a0c1) — a hero
+   strip on the real twin-books art with the gold sheen drift, volume
+   cards on the REAL covers (assets/img/books/, already live from the
+   Pastor push — nothing re-uploaded), the one "Rated 5.0 on Amazon"
+   line, and the same exact Amazon doors. The Shop framing (kicker,
+   headline, intro) and the honesty note under the cards are unchanged. */
 const BOOKS = [
-  { vol: 'Volume One', band: 'VOLUME ONE · JANUARY – JUNE', facts: 'Days 1–181 · Paperback · 6×9 · 559 pages', price: 19.99,
+  { vol: 'Volume One', band: 'VOLUME ONE · JANUARY – JUNE', cover: 'assets/img/books/volume-one.webp', num: '01 / 02', months: 'January — June', facts: 'Days 1–181 · Paperback · 6×9 · 559 pages', price: 19.99,
     blurb: 'The first half of the year. From the cold start of January to the long light of June — a daily return to putting God first, one verse at a time.',
     url: 'https://www.amazon.com/dp/B0H41J8C8G?tag=kairobot143-20' },
-  { vol: 'Volume Two', band: 'VOLUME TWO · JULY – DECEMBER', facts: 'Days 182–365 · Paperback · 6×9 · 568 pages', price: 19.99,
+  { vol: 'Volume Two', band: 'VOLUME TWO · JULY – DECEMBER', cover: 'assets/img/books/volume-two.webp', num: '02 / 02', months: 'July — December', facts: 'Days 182–365 · Paperback · 6×9 · 568 pages', price: 19.99,
     blurb: 'The back half of the year, all the way to the last day. The same honest rhythm — verse, reflection, prayer, and one line to carry with you.',
     url: 'https://www.amazon.com/dp/B0H3NV2JLH?tag=kairobot143-20' },
 ];
 function bookCardHTML(b) {
   return `
-  <article class="sr-book" data-book="${esc(b.vol)}">
-    <div class="sr-bookcover"><span class="pre">16:3 Faith Presents</span><h4>God Over <span class="g">Everything</span></h4><div class="rule"></div><span class="sub">A 365-Day Devotional</span><br><span class="band">${esc(b.band)}</span></div>
-    <p class="sr-bookmeta">The Pastor's Book · Sold on Amazon</p>
-    <h3>${esc(b.vol)}</h3>
-    <p class="sr-bookfacts">${esc(b.facts)} · $${b.price.toFixed(2)}</p>
-    <p class="sr-bookblurb">${esc(b.blurb)}</p>
-    <div class="sr-bookrow"><span class="sr-bookprice">${money(b.price)}</span><a class="sr-bookbuy" data-bookbuy href="${esc(b.url)}" target="_blank" rel="noopener noreferrer">Buy ${esc(b.vol)} — ${money(b.price)} on Amazon ↗</a></div>
+  <article class="shop-goe-card" data-book="${esc(b.vol)}">
+    <div class="shop-goe-coverbg"><img src="${esc(b.cover)}" alt="God Over Everything, ${esc(b.vol)}: ${esc(b.months)} paperback cover" loading="lazy"><span class="shop-goe-volnum">${esc(b.num)}</span></div>
+    <div class="shop-goe-details">
+      <span class="shop-goe-kicker">${esc(b.vol)}</span>
+      <h3>${esc(b.months).replace(' — ', ' <span class="shop-goe-dash">—</span> ')}</h3>
+      <p>${esc(b.blurb)}</p>
+      <p class="shop-goe-specs">${esc(b.facts)}</p>
+      <div class="shop-goe-buyrow"><div><span class="shop-goe-pricelabel">Paperback</span><strong class="shop-goe-price">${money(b.price)}</strong></div><a class="shop-goe-btn" data-bookbuy href="${esc(b.url)}" target="_blank" rel="noopener noreferrer" aria-label="Get God Over Everything ${esc(b.vol)} by Jeremy Mills on Amazon">Get it on Amazon <span aria-hidden="true">↗</span></a></div>
+    </div>
   </article>`;
 }
 
@@ -238,27 +249,42 @@ function injectCss() {
   .sr-faq summary span{color:var(--gold);font-size:20px}
   .sr-faq p{padding:0 18px 17px;color:var(--mute);font-size:14px;line-height:1.6}
   .sr-faq p b{color:var(--gold-hi)}
-  /* GOD OVER EVERYTHING book placement — typographic cover treatment (the
-     book has no product photo; the cover is set in the house serif, the
-     way the Read shelf presents it). Distinct from merch cards: deep
-     panel, double gold rule, THE PASTOR'S BOOK tag, Amazon buy path. */
-  .sr-bookgrid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:20px}
-  @media(min-width:760px){.sr-bookgrid{grid-template-columns:1fr 1fr}}
-  .sr-book{border:1px solid var(--gold-dim);border-radius:20px;background:linear-gradient(165deg,#171106,#070707 62%);padding:22px;display:flex;flex-direction:column;gap:12px}
-  .sr-bookcover{border:1px solid rgba(212,175,55,.45);border-radius:12px;background:radial-gradient(120% 120% at 50% 0%,rgba(212,175,55,.16),rgba(5,5,5,0) 62%),#0a0803;padding:26px 20px 22px;text-align:center}
-  .sr-bookcover .pre{font-size:9.5px;letter-spacing:.3em;color:var(--mute);text-transform:uppercase}
-  .sr-bookcover h4{font-family:var(--serif);font-size:clamp(30px,6vw,40px);line-height:1.02;color:var(--bone);margin:10px 0 4px}
-  .sr-bookcover h4 .g{color:var(--gold)}
-  .sr-bookcover .rule{width:64px;height:2px;background:var(--gold);margin:12px auto}
-  .sr-bookcover .sub{font-size:10px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
-  .sr-bookcover .band{display:inline-block;margin-top:14px;font-size:9.5px;letter-spacing:.22em;color:var(--bone);border:1px solid var(--gold-dim);border-radius:999px;padding:6px 12px;text-transform:uppercase}
-  .sr-bookmeta{font-size:10px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
-  .sr-book h3{font-family:var(--serif);font-size:26px;color:var(--bone)}
-  .sr-bookfacts{font-size:12.5px;color:var(--mute);letter-spacing:.04em}
-  .sr-bookblurb{color:var(--bone);opacity:.87;font-size:14.5px;line-height:1.65}
-  .sr-bookrow{display:flex;align-items:center;gap:14px;margin-top:auto;flex-wrap:wrap}
-  .sr-bookprice{font-family:var(--serif);font-size:24px;color:var(--gold-hi)}
-  .sr-bookbuy{display:inline-block;background:var(--gold);color:#0a0803;font-weight:700;border-radius:999px;padding:12px 20px;text-decoration:none;font-size:14px}
+  /* GOD OVER EVERYTHING book placement — PASTOR MIRROR (founder order
+     2026-11-24 19:19): the Pastor page's book treatment — hero strip on
+     the real twin-books art with the gold sheen drift, volume cards on
+     the REAL covers, one ratings line, the exact Amazon doors. The CSS
+     is the Pastor build's .goe rules adapted under the .shop-goe scope
+     so nothing collides with the Shop's own classes. The honesty note
+     (.sr-booknote) below is unchanged from the Nov 23 placement. */
+  .shop-goe{margin-top:24px}
+  .shop-goe-heroart{position:relative;overflow:hidden;border:1px solid rgba(212,175,55,.4);border-radius:20px;background:radial-gradient(ellipse 60% 90% at 50% 38%,rgba(176,117,37,.28),transparent 70%),linear-gradient(118deg,#0b0a08,#16100b);display:flex;align-items:center;justify-content:center;padding:38px 22px 34px}
+  .shop-goe-halo{position:absolute;width:62%;height:70%;background:radial-gradient(circle,rgba(242,182,49,.3),transparent 68%);filter:blur(35px);pointer-events:none}
+  .shop-goe-heroart img{position:relative;z-index:1;width:min(88%,540px);height:auto;filter:drop-shadow(0 30px 38px rgba(0,0,0,.5));border-radius:3px}
+  .shop-goe-heroart::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 32%,rgba(248,215,121,.13) 47%,rgba(248,215,121,.26) 50%,rgba(248,215,121,.13) 53%,transparent 68%);background-size:260% 100%;background-position:130% 0;mix-blend-mode:screen;animation:shopGoeSheen 9s ease-in-out infinite}
+  @keyframes shopGoeSheen{0%{background-position:130% 0}55%{background-position:-130% 0}100%{background-position:-130% 0}}
+  .shop-goe-artnote{position:absolute;bottom:12px;right:22px;z-index:3;font-family:var(--serif);color:#d0a352;letter-spacing:.12em;font-style:italic;font-size:14px}
+  .shop-goe-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:22px}
+  @media(min-width:900px){.shop-goe-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .shop-goe-card{border:1px solid rgba(207,161,70,.33);border-radius:18px;min-width:0;overflow:hidden;background:linear-gradient(145deg,#1c160f 0%,#100f0b 68%,#100d08 100%);box-shadow:inset 0 1px rgba(255,219,133,.08),0 20px 65px #0006;display:grid;grid-template-columns:37% 63%;min-height:300px;transition:border-color .2s ease,transform .2s ease}
+  .shop-goe-card:hover{transform:translateY(-3px);border-color:rgba(242,193,81,.64)}
+  .shop-goe-coverbg{position:relative;display:flex;align-items:center;justify-content:center;padding:22px 8px 18px 16px;background:radial-gradient(ellipse at 50% 42%,rgba(176,117,37,.25),transparent 68%);min-width:0;overflow:hidden}
+  .shop-goe-coverbg img{height:228px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 17px 15px #000a)}
+  .shop-goe-volnum{position:absolute;bottom:13px;left:17px;color:#a58a55;font-size:10px;letter-spacing:.2em;font-weight:800}
+  .shop-goe-details{display:flex;flex-direction:column;justify-content:center;padding:26px 22px 24px 12px;min-width:0}
+  .shop-goe-kicker{display:block;text-transform:uppercase;letter-spacing:.31em;font-size:10.5px;line-height:1.6;color:#e7b744;font-weight:900}
+  .shop-goe-details h3{font-family:var(--serif);font-size:clamp(24px,2.4vw,32px);font-weight:700;line-height:1.07;letter-spacing:-.03em;margin-top:8px;color:var(--bone)}
+  .shop-goe-dash{color:var(--gold)}
+  .shop-goe-details p{font-size:13.5px;color:var(--bone);opacity:.85;line-height:1.6;margin:11px 0 15px}
+  .shop-goe-details p.shop-goe-specs{font-size:12px;color:#bdad91;opacity:1;letter-spacing:.03em;padding-bottom:15px;border-bottom:1px solid rgba(215,163,58,.25);margin:0 0 4px}
+  .shop-goe-buyrow{display:flex;gap:12px;justify-content:space-between;align-items:end;margin-top:14px;flex-wrap:wrap}
+  .shop-goe-pricelabel{display:block;font-size:11px;color:#a98e64}
+  .shop-goe-price{display:block;font-family:var(--serif);color:#fff2d6;font-size:27px;line-height:1.08}
+  .shop-goe-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:42px;padding:10px 17px;border-radius:100px;font-size:12.5px;font-weight:800;letter-spacing:.015em;white-space:nowrap;background:linear-gradient(135deg,#f8d771 0%,#e4ae33 72%,#c58b22 100%);color:#1a1306!important;text-decoration:none;box-shadow:0 9px 28px rgba(198,140,25,.18);transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease}
+  .shop-goe-btn:hover{background:linear-gradient(135deg,#ffe18b,#eec053);transform:translateY(-2px);box-shadow:0 12px 30px rgba(209,158,40,.33)}
+  .shop-goe-rating{margin-top:20px;color:#e7b744;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+  .shop-goe-stars{color:var(--gold);letter-spacing:.3em;margin-right:10px}
+  @media(max-width:700px){.shop-goe-heroart{padding:26px 14px 30px}.shop-goe-heroart img{width:100%}.shop-goe-artnote{font-size:12px;right:14px}.shop-goe-card{display:flex;flex-direction:column;min-height:0}.shop-goe-coverbg{height:238px;padding:12px}.shop-goe-coverbg img{height:216px}.shop-goe-details{padding:22px 22px 24px}}
+  @media(prefers-reduced-motion:reduce){.shop-goe-heroart::after{animation:none!important}.shop-goe-card,.shop-goe-btn{transition:none!important}.shop-goe-card:hover,.shop-goe-btn:hover{transform:none!important}}
   .sr-booknote{font-size:12.5px;color:var(--mute);line-height:1.6;margin-top:14px}
   .sr-booknote a{color:var(--gold-hi)}
   `;
@@ -302,7 +328,11 @@ export function render(root) {
     <section data-sr="book">
       <div class="sr-kicker"><span class="no">[ 02 ]</span><span>God Over Everything</span><span class="hair"></span><span class="tag">The Pastor's Book</span></div>
       <div class="sr-sechead"><div><div class="sr-micro">16:3 Faith Presents · The One Book</div><h2>GOD OVER<br><span class="g">EVERYTHING.</span></h2></div><p>A 365-Day Devotional by Pastor Jeremy “Chico” Mills — one verse, one honest reflection, one prayer, every day for a year. Both paperback volumes, on Amazon.</p></div>
-      <div class="sr-bookgrid">${BOOKS.map(bookCardHTML).join('')}</div>
+      <div class="shop-goe">
+        <div class="shop-goe-heroart"><div class="shop-goe-halo" aria-hidden="true"></div><img src="assets/img/books/hero-books.webp" alt="Two black-and-gold God Over Everything devotional books, Volume One and Volume Two" width="557" height="437"><span class="shop-goe-artnote" aria-hidden="true">A year of putting God first.</span></div>
+        <div class="shop-goe-grid">${BOOKS.map(bookCardHTML).join('')}</div>
+        <p class="shop-goe-rating"><span class="shop-goe-stars" aria-hidden="true">★★★★★</span>Rated 5.0 on Amazon</p>
+      </div>
       <p class="sr-booknote">The book is sold on <b>Amazon</b> — it is not Printful merch and is not counted in the collection above. <b>Read the first 5 days free</b> — the sample lives on the book shelf in the <a href="#/read">Read hub</a>.</p>
     </section>
     <section>
