@@ -902,6 +902,12 @@ async function tryLive() {
         const existing = liveById.get(f.id) || liveByKey.get(keyOf(f));
         if (existing) {
           if (!existing.doors.includes(door)) existing.doors.push(door);
+          /* BIBLE-DOOR CURE (2026-11-25): a category row's claim
+             (bible-stories-series → bible, family → kids) outranks a
+             showcase row's (featured/shorts → faith) for the primary —
+             the first category claim wins; snapshot curation (the merge
+             below) still outranks both. */
+          if ((door === 'bible' || door === 'kids') && existing.door === 'faith') existing.door = door;
           continue;
         }
         f.door = door; f.kind = 'film'; f.doors = [door];
@@ -915,7 +921,14 @@ async function tryLive() {
        membership is never lost — the work keeps every door it had. */
     for (const t of catalog) {
       const hit = liveById.get(t.id) || liveByKey.get(keyOf(t));
-      if (hit) for (const d of t.doors || [t.door]) if (!hit.doors.includes(d)) hit.doors.push(d);
+      if (hit) {
+        /* BIBLE-DOOR CURE (2026-11-25): primaryDoor's documented first
+           rule is the snapshot's curation — carry it onto the merged
+           entry as its primary door, not only into its membership set.
+           Live content still wins for the entry's facts/play/poster. */
+        if (t.door) hit.door = t.door;
+        for (const d of t.doors || [t.door]) if (!hit.doors.includes(d)) hit.doors.push(d);
+      }
     }
     catalog = [...live, ...catalog.filter((t) => !(liveById.get(t.id) || liveByKey.get(keyOf(t))))];
     liveState = 'live';
