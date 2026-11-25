@@ -287,6 +287,28 @@ function injectCss() {
   @media(prefers-reduced-motion:reduce){.shop-goe-heroart::after{animation:none!important}.shop-goe-card,.shop-goe-btn{transition:none!important}.shop-goe-card:hover,.shop-goe-btn:hover{transform:none!important}}
   .sr-booknote{font-size:12.5px;color:var(--mute);line-height:1.6;margin-top:14px}
   .sr-booknote a{color:var(--gold-hi)}
+/* ---------- SHOP ATMOSPHERE (2026-11-24, founder order) ----------
+   The Shop face sat on flat black — on a wide screen the flanks were
+   dead space ("the dead space is just so blah"). A fixed haze of
+   the hub's own film art — the collection in motion, warm
+   gold on black (film-shop-poster, the Shop film slot's own
+   still). The faintest treatment of the set by design: the
+   products carry this page, the haze only warms its edges
+   now breathes behind the Shop face (the hub's single view): painted as the first node of the
+   view, so it leaves with the view and never reaches the hub's other
+   rooms. A haze you feel, not a picture you look at: heavy blur +
+   darkness at low opacity, radial-masked to nothing across the center
+   content column and at every edge. pointer-events none, aria-hidden
+   in the markup, fixed + inset 0 inside an overflow-hidden shell, so
+   it can never add a pixel of scroll. The drift is barely perceptible
+   and dies under prefers-reduced-motion; phones get a fainter, still
+   layer (their dead space is minimal). Same system as the Listen
+   pilot (.lsn-atmo), geared to this hub's own art. */
+.sh-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505}
+.sh-atmo::before{content:"";position:absolute;inset:-48px;background:url('assets/video/film-shop-poster.webp') center 40%/cover no-repeat;opacity:.14;filter:blur(9px) brightness(.55) saturate(.85);-webkit-mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);animation:shAtmoDrift 90s ease-in-out infinite alternate}
+@keyframes shAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.sh-atmo::before{opacity:.06;animation:none}}
+@media(prefers-reduced-motion:reduce){.sh-atmo::before{animation:none}}
   `;
   document.head.appendChild(st);
 }
@@ -303,6 +325,7 @@ export function render(root) {
   const tickerSet = ['FAITH OVER FEAR', 'GOD OVER EVERYTHING', 'NO MORE HIDING', 'LIVE WHAT YOU BELIEVE']
     .map((t) => `<span>${t}</span><i aria-hidden="true">✦</i>`).join('');
   root.innerHTML = `
+    <div class="sh-atmo" aria-hidden="true"></div>
     ${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-shop.mp4', poster: 'assets/video/film-shop-poster.webp', title: 'The line, in motion.', note: 'Shop film · the full 107 seconds' }) : ''}
     <div class="sr-announce"><span class="l">Proverbs 16:3 — Commit the Work.</span><span class="c">Not just a brand. A way to walk.</span><span class="r">Est. in Faith ✦</span></div>
     <div class="sr-ticker" aria-label="Brand phrases"><div class="sr-ticker-track" aria-hidden="true">${tickerSet}${tickerSet}</div></div>
