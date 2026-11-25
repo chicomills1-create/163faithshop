@@ -29,7 +29,7 @@ const CSS = `
 .pst-hero .pst-name .g{color:var(--gold)}
 .pst-hero .pst-role{margin-top:8px;font-size:15px;letter-spacing:.14em;color:#e9dfc8;text-transform:uppercase}
 .pst-hero .pst-verse{margin-top:12px;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:clamp(16px,4.4vw,20px);line-height:1.5;color:#f0e6cd;max-width:620px}
-.pst-hero .pst-verse b{color:var(--gold);font-style:normal}
+.pst-hero .pst-verse b{color:var(--gold);font-style:normal}@media(min-width:900px){.pst-hero{min-height:640px;align-items:center}.pst-hero img.pst-art{left:auto;right:0;width:54%;object-position:center 26%;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16%);mask-image:linear-gradient(90deg,transparent 0,#000 16%)}.pst-hero .pst-shade{background:linear-gradient(90deg,rgba(5,5,5,.88) 0%,rgba(5,5,5,.55) 34%,rgba(5,5,5,0) 62%),linear-gradient(180deg,rgba(5,5,5,.35) 0%,rgba(5,5,5,0) 26%,rgba(5,5,5,0) 55%,rgba(5,5,5,.85) 88%,#050505 100%)}.pst-hero .pst-body{max-width:600px;padding:40px 20px 40px max(24px,4vw)}.pst-hero .pst-eyebrow{left:max(24px,4vw)}}
 .pst-sec{margin-top:44px}
 .pst-sec .kicker{color:var(--gold);letter-spacing:.3em;font-size:11px;font-weight:700;text-transform:uppercase}
 .pst-sec h3{font-family:Georgia,'Times New Roman',serif;font-size:clamp(26px,6vw,36px);margin:8px 0 12px;color:#fff8ea}
@@ -111,7 +111,7 @@ export async function render(root) {
       <span class="pst-eyebrow">✦ THE PASTOR</span>
       <div class="pst-body">
         <h2 class="pst-name">Pastor Jeremy <span class="g">“Chico” Mills</span></h2>
-        <p class="pst-role">Founder &amp; Pastor · 16:3 Faith</p>
+        <p class="pst-role">Founder &amp; Pastor · 16:3 Faith · U.S. Air Force Veteran</p>
         <p class="pst-verse">“${VERSE}” <b>— Proverbs 16:3</b></p>
       </div>
     </section>
