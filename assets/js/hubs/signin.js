@@ -21,10 +21,34 @@
    to that origin (default home) via FaithAuth.takeReturn. A member
    who lands here already signed in is sent back immediately. The
    post-join terms gate is untouched — it still fires from the shell
-   on the join transition and on the apiFetch 403 exactly as before. */
+   on the join transition and on the apiFetch 403 exactly as before.
+
+   ATMOSPHERE (founder directive 2026-11-24 19:40 MST: "It needs its
+   own page, with an awesome background also."): the page had the
+   page; what it sat on was flat black. This destination page carries
+   a real scene, not the 10–16% flank haze rolling out to the hubs:
+   the house's sanctuary crowd (assets/img/listen/sanctuary.webp —
+   the black-and-gold congregation of the Listen hero and the Now
+   Playing crowd stage) as a dimmed film backdrop at roughly half
+   presence, under a deep radial well that keeps the text column —
+   headline, card, switcher, verse — on the same near-black the page
+   was graded on. The card floats over it with its gold frame. Still
+   image; the drift is a barely-perceptible settle and dies under
+   prefers-reduced-motion. JOIN warms the same scene a grade
+   ("Welcome home." should feel warmer than "Welcome back." —
+   ChatGPT consult chatcmpl-Enxd8rr5YH6A7UeGsb4OWJP36fRYy, which
+   also ratified the ~half-presence line and the deep radial well).
+   Shell untouched: the layer lives and dies
+   inside this module's root. */
 
 const CSS = `
-.si-wrap{max-width:460px;margin:0 auto;padding:52px 20px 30px;text-align:center}
+.si-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#050505}
+.si-bg img{width:100%;height:100%;object-fit:cover;object-position:50% 34%;opacity:.52;filter:brightness(.66) saturate(1.06);transform:scale(1.05);animation:siDrift 46s ease-in-out infinite alternate}
+.si-bg.si-join img{filter:brightness(.69) saturate(1.14) sepia(.14)}
+.si-bg .si-scrim{position:absolute;inset:0;background:radial-gradient(ellipse 62% 58% at 50% 40%,rgba(5,5,5,.88) 0%,rgba(5,5,5,.72) 46%,rgba(5,5,5,.38) 74%,rgba(5,5,5,.30) 100%),linear-gradient(180deg,rgba(5,5,5,.55) 0%,rgba(5,5,5,0) 22%,rgba(5,5,5,0) 62%,rgba(5,5,5,.78) 100%)}
+@keyframes siDrift{from{transform:scale(1.05) translateY(0)}to{transform:scale(1.11) translateY(-1.4%)}}
+@media (prefers-reduced-motion: reduce){.si-bg img{animation:none}}
+.si-wrap{position:relative;z-index:1;max-width:460px;margin:0 auto;padding:52px 20px 30px;text-align:center}
 .si-eyebrow{color:var(--gold);letter-spacing:.3em;font-size:11px;font-weight:700;text-transform:uppercase;margin:0}
 .si-title{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:clamp(36px,8vw,48px);line-height:1.05;margin:14px 0 10px;color:#fff8ea}
 .si-sub{color:var(--mute);font-size:15.5px;line-height:1.6;margin:0 auto;max-width:400px}
@@ -82,6 +106,11 @@ export function render(root, ctx) {
   const st = document.createElement('style');
   st.textContent = CSS;
   root.appendChild(st);
+  const bg = document.createElement('div');
+  bg.className = mode === 'join' ? 'si-bg si-join' : 'si-bg';
+  bg.setAttribute('aria-hidden', 'true');
+  bg.innerHTML = '<img src="assets/img/listen/sanctuary.webp" alt="" fetchpriority="low"><div class="si-scrim"></div>';
+  root.appendChild(bg);
   const view = document.createElement('div');
   view.className = 'si-wrap';
   const c = COPY[mode];
