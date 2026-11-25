@@ -198,8 +198,8 @@ const CSS3 = `
 .bk-tape{padding:17px;position:relative;overflow:hidden;background:linear-gradient(157deg,#222018,#131313 54%,#241b11)}
 .bk-rot{cursor:pointer}
 .bk-rot-art{position:relative;border:1px solid #78602c;border-radius:10px;overflow:hidden;line-height:0}
-.bk-rot-art img{width:100%;height:148px;object-fit:cover;object-position:50% 38%;display:block;transition:transform 1.2s ease}
-.bk-rot:hover .bk-rot-art img{transform:scale(1.04)}
+.bk-rot-art img,.bk-rot-art video{width:100%;height:148px;object-fit:cover;object-position:50% 38%;display:block;transition:transform 1.2s ease}
+.bk-rot:hover .bk-rot-art img,.bk-rot:hover .bk-rot-art video{transform:scale(1.04)}
 .bk-rot-art .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,9,6,.05) 26%,rgba(10,9,6,.9) 90%)}
 .bk-rot-art .sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 42%,rgba(245,215,127,.16) 50%,transparent 58%);transform:translateX(-70%);animation:bkRotSheen 7s ease-in-out infinite;pointer-events:none}
 @keyframes bkRotSheen{0%,55%{transform:translateX(-70%)}85%,100%{transform:translateX(70%)}}
@@ -1081,11 +1081,15 @@ function patchRailSearch() {
 /* COMMUNITY PASS 2026-11-24 (Part B): factored out of sideHtml — the phone feed closes with this same Weekly Rotation. */
 /* WEEKLY ROTATION REDESIGN 2026-11-24 (founder): no record, no tracklist —
    the card is a cinema door to the Listen hub (the sanctuary music page);
-   the two entries keep their own doors as raised rows above the card door. */
+   the two entries keep their own doors as raised rows above the card door.
+   CROWD FILM SWAP 2026-11-25 (Living-Site census Wave 2, zero-gen): the
+   panel's art is the Now Playing crowd FILM itself (concert-crowd.mp4,
+   20s) playing in the same frame — the poster stands only under
+   reduced motion. */
 function rotationHtml() {
   return `<div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
     <section class="panel bk-tape bk-rot">
-      <div class="bk-rot-art"><img src="assets/video/concert-crowd-poster.webp" alt="The congregation in golden stage light, hands raised — the sound of the sanctuary" loading="lazy"><span class="shade"></span><span class="sheen"></span>
+      <div class="bk-rot-art" data-hubfilm>${(window.FaithFilm && window.FaithFilm.reduced) ? '<img src="assets/video/concert-crowd-poster.webp" alt="The congregation in golden stage light, hands raised — the sound of the sanctuary" loading="lazy">' : '<video muted loop playsinline autoplay preload="metadata" poster="assets/video/concert-crowd-poster.webp" aria-hidden="true"><source src="assets/video/concert-crowd.mp4" type="video/mp4"></video>'}<span class="shade"></span><span class="sheen"></span>
         <div class="cap"><div class="small">THE WEEKLY ROTATION</div><h3>FAITH HAS<br><em>A SOUND.</em></h3></div></div>
       <button type="button" class="bk-rot-door" data-hubgo="listen" aria-label="Explore the Listen hub — the sanctuary music page"></button>
       <button type="button" class="bk-rotrow" data-hubgo="pray"><span class="tt"><strong>THE PRAYER ROOM</strong><small>Bring what you carry.</small></span><span class="arr">↗</span></button>
