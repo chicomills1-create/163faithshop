@@ -225,6 +225,28 @@ function injectCss() {
     .pp-live,.pp-hero .rays,.pp-hero .river,.pp-potw::after,.pp-fruit.pulse{animation:none!important}
     .pp-loopvid{display:none}
   }
+/* ---------- PEOPLE ATMOSPHERE (2026-11-24, founder order) ----------
+   The People face sat on flat black — on a wide screen the flanks were
+   dead space ("the dead space is just so blah"). A fixed haze of
+   the hub's own Tree of Life — the great golden tree with
+   a river of light at its roots (tree-of-life, the People
+   hero's own art): its glow breathed out into the flanks of
+   the index and of every witness page
+   now breathes behind the People index + person pages (the hub's two face views): painted as the first node of the
+   view, so it leaves with the view and never reaches the hub's other
+   rooms. A haze you feel, not a picture you look at: heavy blur +
+   darkness at low opacity, radial-masked to nothing across the center
+   content column and at every edge. pointer-events none, aria-hidden
+   in the markup, fixed + inset 0 inside an overflow-hidden shell, so
+   it can never add a pixel of scroll. The drift is barely perceptible
+   and dies under prefers-reduced-motion; phones get a fainter, still
+   layer (their dead space is minimal). Same system as the Listen
+   pilot (.lsn-atmo), geared to this hub's own art. */
+.pp-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505}
+.pp-atmo::before{content:"";position:absolute;inset:-48px;background:url('assets/img/people/tree-of-life.webp') center 42%/cover no-repeat;opacity:.17;filter:blur(9px) brightness(.55) saturate(.85);-webkit-mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);animation:ppAtmoDrift 90s ease-in-out infinite alternate}
+@keyframes ppAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.pp-atmo::before{opacity:.07;animation:none}}
+@media(prefers-reduced-motion:reduce){.pp-atmo::before{animation:none}}
   `;
   document.head.appendChild(st);
 }
@@ -265,6 +287,7 @@ function indexHTML(doc) {
   const eras = ERA_ORDER.map((e) => ({ era: e, people: doc.people.filter((p) => p.era === e) })).filter((g) => g.people.length);
   const threadNodes = doc.thread.map((s) => by[s]).filter(Boolean);
   return `
+  <div class="pp-atmo" aria-hidden="true"></div>
   <section class="pp-hero reveal">
     <img class="tree pp-live slow" src="assets/img/people/tree-of-life.webp" alt="The Tree of Life — a great golden tree with a river of light winding from its roots, and witnesses gathered on its banks">
     <div class="shade"></div>
@@ -360,6 +383,7 @@ function personHTML(doc, p) {
   const isJesus = p.slug === 'jesus';
   const isDavid = p.slug === 'david';
   return `
+  <div class="pp-atmo" aria-hidden="true"></div>
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>
   <section class="pp-scene hero reveal">
     <img class="pp-live slow" src="${esc(p.scene)}" alt="${esc(p.name)} — the defining moment: ${esc(p.sceneCaption)}">
