@@ -823,7 +823,11 @@ export function render(root, { player }) {
        choir photo the hero below carries (his twice-on-one-face
        screenshot: "Get rid of the top pic"). The slot returns only
        when the real Listen film exists, as motion. The face now opens
-       on the radio eyebrow + the full-bleed hero. */
+       on the radio eyebrow + the full-bleed hero.
+       FILM LANDED (2026-11-25): "The Sound, Alive" (105s) now plays
+       inside the hero frame itself — the frame's still became the
+       film (poster = the same sanctuary art; reduced motion keeps
+       the still). No second framed picture was added. */
     viewEl.innerHTML = `
       <div class="lsn-atmo" aria-hidden="true"></div>
       <section class="lsn-hero reveal">
@@ -839,7 +843,7 @@ export function render(root, { player }) {
         </div>
         <div class="lsn-visual" aria-hidden="true">
           <div class="lsn-ring"></div>
-          <div class="lsn-frame"><img class="lsn-tape" src="assets/img/listen/sanctuary.webp" alt=""><div class="lsn-ribbon">THE SOUNDTRACK TO THE WALK</div><div class="lsn-stamp">ALL<br>PRAISE.</div></div>
+          <div class="lsn-frame" data-hubfilm>${(window.FaithFilm && window.FaithFilm.reduced) ? '<img class="lsn-tape" src="assets/img/listen/sanctuary.webp" alt="">' : '<video class="lsn-tape" muted loop playsinline autoplay preload="metadata" poster="assets/img/listen/sanctuary.webp" aria-hidden="true"><source src="assets/video/film-listen.mp4" type="video/mp4"></video>'}<div class="lsn-ribbon">THE SOUNDTRACK TO THE WALK</div><div class="lsn-stamp">ALL<br>PRAISE.</div></div>
           <div class="lsn-corner">✦ SELECTED BY THE HOUSE / 16:3</div>
         </div>
       </section>
