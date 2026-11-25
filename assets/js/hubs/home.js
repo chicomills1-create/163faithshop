@@ -36,9 +36,9 @@ const TILES = [
   { hub: 'watch',     num: '01', name: 'WATCH',     blurb: 'Films, series & teachings',    img: 'assets/img/home/tile-watch.webp',     alt: 'A singer performing into a microphone under a golden spotlight' },
   { hub: 'listen',    num: '02', name: 'LISTEN',    blurb: 'The Sanctuary — full songs',   img: 'assets/img/home/tile-listen.webp',    alt: 'A woman in headphones at a studio mixing console, eyes closed, lost in the music' },
   { hub: 'read',      num: '03', name: 'READ',      blurb: 'Bible, devotionals & the book', img: 'assets/img/home/tile-read.webp',     alt: 'A young woman with long braids reading an open book in warm window light' },
-  { hub: 'pray',      num: '04', name: 'PRAY',      blurb: 'The Prayer Room',              img: 'assets/img/home/tile-pray.webp',      alt: 'A young man in a black hoodie praying by a window, hands open in golden light' },
+  { hub: 'pray',      num: '04', name: 'PRAY',      blurb: 'The Prayer Room',              film: 'assets/video/tile-pray-loop.mp4', img: 'assets/img/home/tile-pray.webp',      alt: 'A young man in a black hoodie praying by a window, hands open in golden light' },
   { hub: 'community', num: '05', name: 'COMMUNITY', blurb: 'Feed, testimonies & members',  img: 'assets/img/home/tile-community.webp', alt: 'Friends laughing together around a shared table of food' },
-  { hub: 'give',      num: '06', name: 'GIVE',      blurb: 'Offerings & partnership',      img: 'assets/img/home/tile-give.webp',     alt: 'A young man handing a bag of groceries to a young woman at a produce table' },
+  { hub: 'give',      num: '06', name: 'GIVE',      blurb: 'Offerings & partnership',      film: 'assets/video/tile-give-loop.mp4', img: 'assets/img/home/tile-give.webp',     alt: 'A young man handing a bag of groceries to a young woman at a produce table' },
   { hub: 'people',    num: '08', name: 'THE PEOPLE', blurb: 'The Hall of Faith — their stories, words & films', img: 'assets/img/people/tree-of-life.webp', alt: 'The Tree of Life — a great golden tree with a river of light winding from its roots' },
   { hub: 'shop',      num: '07', name: 'SHOP',      blurb: 'Wear the work — gold on black', img: SHOP_TILE_IMG, wide: true,            alt: 'The Crowned Heavy Hoodie — a real 16:3 Faith product photo from the shop' },
 ];
@@ -511,8 +511,8 @@ export function render(root, { navigate }) {
 
     <div class="hubgrid reveal">
       ${TILES.map((t) => `
-        <button class="tile${t.wide ? ' wide' : ''}" type="button" data-hub="${t.hub}">
-          <img class="tile-img" src="${t.img}" alt="${esc(t.alt)}" loading="lazy">
+        <button class="tile${t.wide ? ' wide' : ''}" type="button" data-hub="${t.hub}"${t.film ? ' data-hubfilm' : ''}>
+          ${t.film && !REDUCED ? `<video class="tile-img" muted loop playsinline autoplay preload="metadata" poster="${t.img}" aria-label="${esc(t.alt)}"><source src="${t.film}" type="video/mp4"></video>` : `<img class="tile-img" src="${t.img}" alt="${esc(t.alt)}" loading="lazy">`}
           <span class="glow-sweep" aria-hidden="true"></span>
           <span class="tile-shade"></span>
           <span class="tile-num">${t.num}</span>
