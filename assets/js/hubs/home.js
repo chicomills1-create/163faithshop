@@ -152,7 +152,10 @@ section.pastor{box-shadow:0 0 0 1px rgba(212,175,55,.12),0 18px 50px rgba(0,0,0,
    reduced-motion / no-video face. The REAL photo is untouched. */
 .pastor .pastor-body{position:relative;overflow:hidden}
 .pastor .pastor-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0}
-.pastor .pastor-wash{position:absolute;inset:0;background:linear-gradient(100deg,rgba(10,9,5,.93),rgba(10,9,5,.86) 60%,rgba(10,9,5,.78));z-index:1}
+.pastor .pastor-wash{position:absolute;inset:0;background:linear-gradient(100deg,rgba(10,9,5,.88),rgba(10,9,5,.66) 55%,rgba(10,9,5,.36));z-index:1}
+/* WASH CURE 2026-11-25: the .93/.86/.78 wash buried the crowd film at ~15% strength —
+   pixel walks saw only the light sweep, never the crowd. Text side stays dark for
+   legibility; the open side drops to .36 so the film reads as MOTION. */
 .pastor .pastor-body>:not(.pastor-bg):not(.pastor-wash){position:relative;z-index:2}
 .hw-meta{font-size:12px;color:var(--mute);letter-spacing:.06em}
 .hw-title{margin-top:8px}
