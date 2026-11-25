@@ -477,7 +477,7 @@ function showDoors(root) {
   S.view = 'doors'; S.error = null;
   mount(root, `
     <div class="gv-atmo" aria-hidden="true"></div>
-    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/give/give-header.webp', title: 'Open hands. Open doors.', note: 'Give film · in production' }) : ''}
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-give.mp4', poster: 'assets/img/give/give-header.webp', title: 'Open hands. Open doors.', note: 'Give film · the full 105 seconds' }) : ''}
     <div class="gv-topline"><span><b>16:3</b> Faith / The Giving Sessions <i>///</i> Vol. 0163</span><span>Church is what we build together <i>✦</i> Sow it forward</span></div>
     <section class="gv-hero reveal">
       <div>
