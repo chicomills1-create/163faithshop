@@ -827,7 +827,7 @@ const PageTurn = {
    lays out exactly as if it were a direct child of #hub-root. */
 let navSeq = 0;
 async function navigate(name) {
-  if (![...HUB_ORDER, 'home', 'people'].includes(name)) name = 'home';
+  if (![...HUB_ORDER, 'home', 'people', 'pastor'].includes(name)) name = 'home';
   const from = currentHub;
   PageTurn.begin(name, from);
   const seq = ++navSeq;
