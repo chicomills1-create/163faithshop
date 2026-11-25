@@ -208,7 +208,28 @@ section.pastor{box-shadow:0 0 0 1px rgba(212,175,55,.12),0 18px 50px rgba(0,0,0,
   .hslide.on .hslide-in{animation:none}
   .motion .reveal{opacity:1;transform:none;transition:none}
 }
-</style>`;
+/* ---------- HOME ATMOSPHERE (2026-11-24, founder order) ----------
+   The Home face sat on flat black — on a wide screen the flanks were
+   dead space ("the dead space is just so blah"). A fixed haze of
+   the house's own crowd art — the sanctuary crowd under gold
+   stage light (concert-crowd-poster, the same art the Listen
+   pilot breathes). Home is the front door, so it carries the
+   master treatment at the top of the system's weight band
+   now breathes behind the Home face (the hub's single view): painted as the first node of the
+   view, so it leaves with the view and never reaches the hub's other
+   rooms. A haze you feel, not a picture you look at: heavy blur +
+   darkness at low opacity, radial-masked to nothing across the center
+   content column and at every edge. pointer-events none, aria-hidden
+   in the markup, fixed + inset 0 inside an overflow-hidden shell, so
+   it can never add a pixel of scroll. The drift is barely perceptible
+   and dies under prefers-reduced-motion; phones get a fainter, still
+   layer (their dead space is minimal). Same system as the Listen
+   pilot (.lsn-atmo), geared to this hub's own art. */
+.hm-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505}
+.hm-atmo::before{content:"";position:absolute;inset:-48px;background:url('assets/video/concert-crowd-poster.webp') center 38%/cover no-repeat;opacity:.18;filter:blur(9px) brightness(.5) saturate(.85);-webkit-mask-image:radial-gradient(ellipse 78% 68% at 50% 42%,transparent 34%,rgba(0,0,0,.85) 56%,rgba(0,0,0,.45) 80%,transparent 97%);mask-image:radial-gradient(ellipse 78% 68% at 50% 42%,transparent 34%,rgba(0,0,0,.85) 56%,rgba(0,0,0,.45) 80%,transparent 97%);animation:hmAtmoDrift 90s ease-in-out infinite alternate}
+@keyframes hmAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.hm-atmo::before{opacity:.08;animation:none}}
+@media(prefers-reduced-motion:reduce){.hm-atmo::before{animation:none}}</style>`;
 
 function hwFallback(body) {
   body.innerHTML = `
@@ -456,6 +477,7 @@ function armReveals(root) {
 export function render(root, { navigate }) {
   root.innerHTML = `
     ${HW_STYLE}
+    <div class="hm-atmo" aria-hidden="true"></div>
     <div class="${REDUCED ? '' : 'motion'}">
     <section class="hslider gold-frame" data-hslider aria-roledescription="carousel" aria-label="Featured in the house">
       <button type="button" class="hslide on" data-hub="home" aria-label="16:3 Faith — the house">
