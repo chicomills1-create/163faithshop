@@ -47,7 +47,8 @@ function injectCss() {
   /* ——— HERO: the Tree of Life / Cloud of Witnesses entrance ——— */
   .pp-hero{position:relative;border:1px solid var(--gold-dim);border-radius:22px;overflow:hidden;margin-top:14px;background:#000}
   .pp-hero img.tree{width:100%;height:min(72vh,560px);object-fit:cover;object-position:50% 42%;display:block}
-  @media(max-width:700px){.pp-hero img.tree{height:64vh}}
+  .pp-hero video.tree{width:100%;height:min(72vh,560px);object-fit:cover;object-position:50% 42%;display:block;background:#000}
+  @media(max-width:700px){.pp-hero img.tree{height:64vh}.pp-hero video.tree{height:64vh}}
   .pp-hero .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.42) 0%,rgba(5,5,5,0) 30%,rgba(5,5,5,0) 55%,rgba(5,5,5,.88) 100%)}
   .pp-hero .top{position:absolute;top:18px;left:0;right:0;text-align:center;padding:0 16px}
   .pp-presents{font-size:10px;letter-spacing:.34em;color:var(--gold-hi);text-transform:uppercase}
@@ -289,7 +290,7 @@ function indexHTML(doc) {
   return `
   <div class="pp-atmo" aria-hidden="true"></div>
   <section class="pp-hero reveal">
-    <img class="tree pp-live slow" src="assets/img/people/tree-of-life.webp" alt="The Tree of Life — a great golden tree with a river of light winding from its roots, and witnesses gathered on its banks">
+    <video class="tree pp-live" data-living src="assets/video/people/tree-film.mp4" poster="assets/img/people/tree-of-life.webp" muted loop playsinline preload="none" aria-label="The Tree of Life Film — from the dawn of Eden to the healing of the nations"></video>
     <div class="shade"></div>
     <div class="rays" aria-hidden="true"></div>
     <div class="river" aria-hidden="true"></div>
@@ -300,7 +301,7 @@ function indexHTML(doc) {
       <p class="sub">The Hall of Faith. Under the Tree of Life, beside the river that runs through the whole story, the witnesses stand gathered — every one of them with a story, their own words, and a film on the way.</p>
     </div>
     <div class="bot">
-      ${filmPlate('The Tree of Life Film · 90–120 sec')}
+      <span class="pp-filmslot"><span class="dot"></span>The Tree of Life Film · Now Playing</span>
       <span class="pp-fruitcount">${doc.people.length} fruits lit · Wave ${doc.wave} — the tree grows as the hall grows</span>
     </div>
   </section>
@@ -361,7 +362,7 @@ function indexHTML(doc) {
       <a class="go" href="#/community">Meet the Community ↗</a>
     </div>
   </section>
-  <p class="pp-note">Portraits and scenes are original AI artwork in one cinematic family — artwork, not photographs; the people of Scripture left no cameras. Verses are ${esc(doc.translation)}. Films of the hall are in production in waves — Jesus first, the Tree of Life alongside — and every film slot on this page says so honestly until its film lands.</p>`;
+  <p class="pp-note">Portraits and scenes are original AI artwork in one cinematic family — artwork, not photographs; the people of Scripture left no cameras. Verses are ${esc(doc.translation)}. Films of the hall premiere in waves — Jesus, Moses, David and Mary have premiered, and the Tree of Life film now plays over the hall itself; the remaining films are in production, and every film slot on this page says so honestly until its film lands.</p>`;
 }
 
 function personHTML(doc, p) {
