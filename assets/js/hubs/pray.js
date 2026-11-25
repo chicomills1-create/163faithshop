@@ -730,7 +730,7 @@ function showDoors(root) {
   const c = S.counters;
   mount(root, `
     <div class="pr-atmo" aria-hidden="true"></div>
-    ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/pray/pray-dawn.webp', title: 'Leave it on the wall.', note: 'Pray film · in production' }) : ''}
+    ${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/film-pray.mp4', poster: 'assets/img/pray/pray-dawn.webp', title: 'Leave it on the wall.', note: 'Pray film · the full 105 seconds' }) : ''}
     <div class="pr-topline"><span>16:3 FAITH <b>///</b> THE PRAYER ROOM</span><span class="pr-top-r">EVERYBODY&rsquo;S CARRYING SOMETHING. NOBODY HAS TO CARRY IT ALONE.</span></div>
     <section class="pr-hero reveal">
       <div class="pr-hero-copy">
