@@ -512,6 +512,7 @@ export function render(root, { navigate }) {
         <p><b>Founder &amp; Pastor of 16:3 Faith</b> — and a USAF veteran who believes the church should sound like the future and feel like family. No suit, no tie, no distance: just the Word, the music, and a house where everybody can walk in as they are.</p>
         <p>Every hub in this house carries his conviction from Proverbs 16:3 — commit the work, and let God establish it.</p>
         <p class="pastor-sign">— Pastor Jeremy</p>
+        <p style="margin-top:16px"><a class="btn-gold" href="#/pastor" style="display:inline-block;text-decoration:none">Discover more about Pastor Jeremy →</a></p>
       </div>
     </section>
     </div>`;
