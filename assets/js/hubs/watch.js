@@ -55,7 +55,25 @@ const fmtMs = (ms) => {
 };
 const runtimeOf = (t) => fmtMs(t.durationMs) || t.durationLabel || null;
 const byId = (id) => catalog.find((t) => t.id === id);
-const doorTitles = (slug) => catalog.filter((t) => (t.doors || [t.door]).includes(slug));
+const doorMembers = (slug) => catalog.filter((t) => (t.doors || [t.door]).includes(slug));
+/* FOUNDER DEDUPE CURE (2026-11-24 — founder screenshot + order: "in the
+   movie section, we dont need repeat movies in different areas"): door
+   MEMBERSHIP stays a set in the data (doorMembers — a live connect can
+   add doors, never take one away), but the hub DISPLAYS each title in
+   exactly ONE category shelf: its primary door. Primary = the title's
+   explicit category (t.door — the snapshot's curation, or the first
+   live row that filed it); if that names no known door, the first
+   membership door in the doors' presentation order (doorsMeta order).
+   Counts, rails and shelf views all read doorTitles, so a door's
+   number always equals what its shelf actually shows. */
+const primaryDoor = (t) => {
+  const order = doorsMeta.map((d) => d.slug);
+  if (t.door && order.includes(t.door)) return t.door;
+  const mem = t.doors || [t.door];
+  for (const s of order) if (mem.includes(s)) return s;
+  return t.door || mem[0] || null;
+};
+const doorTitles = (slug) => catalog.filter((t) => primaryDoor(t) === slug);
 const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
 const myList = () => new Set(lsGet('faith163.watch.mylist', []));
@@ -429,11 +447,18 @@ function renderDoors() {
   const heroRaw = (snapshot.titles || []).find((t) => t.id === snapshot.heroId);
   const hero = heroRaw ? { ...heroRaw, durationMs: OVERRIDES[heroRaw.id] ?? heroRaw.durationMs }
     : (byId(snapshot.heroId) || catalog[0]);
-  const featured = (snapshot.featuredIds || []).map(byId).filter(Boolean);
+  const featuredAll = (snapshot.featuredIds || []).map(byId).filter(Boolean);
   const cont = continueEntries().map((c) => byId(c.id)).filter(Boolean);
   const mine = [...myList()].map(byId).filter(Boolean);
   const doors = doorsMeta.filter((d) => d.slug === 'documentaries' || d.slug === 'faith' || d.slug === 'bible'
-    || d.slug === 'classics' || d.slug === 'series' || doorTitles(d.slug).length > 0);
+    || d.slug === 'classics' || d.slug === 'series' || doorMembers(d.slug).length > 0);
+  /* FOUNDER DEDUPE CURE (2026-11-24): the Featured rail keeps only
+     titles that render in NO category shelf on this page — a title
+     lives in its primary shelf or in Featured, never both — and never
+     repeats a title inside itself. */
+  const featured = featuredAll
+    .filter((t, i, arr) => arr.findIndex((x) => x.id === t.id) === i)
+    .filter((t) => { const p = primaryDoor(t); return !p || !doors.some((d) => d.slug === p); });
   const heroSaved = hero ? myList().has(hero.id) : false;
   const heroDoor = hero ? (doorsMeta.find((d) => d.slug === hero.door) || {}) : {};
   rootEl.innerHTML = `
@@ -810,7 +835,11 @@ async function openPlayer(t, episode) {
    snapshot curates under one door inside another door's row (the archive
    Bible epics ride Classics & Archival). A title therefore carries EVERY
    door that lists it — a live connect can add doors to a title, never
-   take one away, and door counts equal shelf contents by construction. */
+   take one away, and door counts equal shelf contents by construction.
+   DISPLAY (founder dedupe cure, 2026-11-24): the set still accumulates
+   here untouched, but rendering resolves each title to ONE primary
+   door (primaryDoor / doorTitles above) — membership is data, display
+   is singular, and counts equal shelf contents under that rule too. */
 function normalizeLiveFilm(raw) {
   if (!raw || typeof raw !== 'object') return null;
   const title = String(raw.title || '').trim();
