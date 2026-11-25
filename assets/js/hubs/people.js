@@ -136,7 +136,12 @@ function injectCss() {
   .pp-words blockquote{font-family:var(--serif);font-size:clamp(24px,5.4vw,40px);line-height:1.3;color:var(--bone);max-width:820px;margin:16px auto 10px}
   .pp-words .ref{font-size:11px;letter-spacing:.26em;color:var(--mute);text-transform:uppercase}
   .pp-feature{margin-top:26px;border:1px solid var(--gold-dim);border-radius:22px;overflow:hidden;position:relative;background:#000}
-  .pp-feature img{width:100%;height:320px;object-fit:cover;object-position:50% 20%;display:block;opacity:.85}
+  .pp-feature img{width:100%;object-fit:cover;display:block;opacity:.85}
+  /* STILL-PORTRAIT FEATURE FRAME (2026-11-24 cure): the portraits are tall posters;
+     the old 320px window at 50% 20% showed sky and hood, face cropped out.
+     Taller window + per-person framePos (people.json) put the face forward. */
+  .pp-feature img.pp-live{height:460px;object-position:50% 35%}
+  @media(max-width:768px){.pp-feature img.pp-live{height:400px}}
   .pp-feature .plate{position:absolute;inset:auto 0 0 0;padding:18px;background:linear-gradient(180deg,rgba(5,5,5,0),rgba(5,5,5,.92) 45%);text-align:center}
   .pp-feature .t{font-size:10.5px;letter-spacing:.3em;color:var(--gold-hi);text-transform:uppercase}
   .pp-feature .s{color:var(--bone);opacity:.88;font-size:13.5px;line-height:1.6;margin-top:7px;max-width:560px;margin-left:auto;margin-right:auto}
@@ -375,7 +380,7 @@ function personHTML(doc, p) {
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
   <section class="pp-feature reveal">
-    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : isMoses ? `<video data-living src="assets/video/people/moses-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Moses: The Film — the full feature, from the burning bush to the blessing of Joshua"></video>` : isDavid ? `<video data-living src="assets/video/people/david-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="David: The Film — the full feature, from the shepherd's lyre to the blessing of Solomon"></video>` : `<img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
+    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : isMoses ? `<video data-living src="assets/video/people/moses-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Moses: The Film — the full feature, from the burning bush to the blessing of Joshua"></video>` : isDavid ? `<video data-living src="assets/video/people/david-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="David: The Film — the full feature, from the shepherd's lyre to the blessing of Solomon"></video>` : `<img class="pp-live" style="object-position:${esc(p.framePos || '50% 35%')}" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
     <div class="plate">
       ${isJesus
         ? `<p class="t">✦ The Feature — 16:3 Faith Presents · Jesus: The Film</p>
