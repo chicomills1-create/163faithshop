@@ -213,8 +213,8 @@
     "When Haman, the king's chief officer, plotted to destroy all the Jews of the empire on a day fixed by lot, Mordecai sent word to Esther: she must go before the king — though approaching him unsummoned meant death unless he held out the golden sceptre. After three days of fasting, she went in. The king held out the sceptre (Esther 5).",
     "Across two banquets she exposed Haman's plot to the king. Haman was hanged on the gallows he had built for Mordecai, and the king's new decree let the Jews defend themselves; the days appointed for their destruction became the feast of Purim (Esther 7–9)."
    ],
-   "verses": [],
-   "versesPending": "Esther 4:14–16 and 7:3 — sourcing pass owed (API route flapped during this build)"
+   "verses": [{"text": "For if thou altogether holdest thy peace at this time, then shall there enlargement and deliverance arise to the Jews from another place; but thou and thy father's house shall be destroyed: and who knoweth whether thou art come to the kingdom for such a time as this?", "ref": "Esther 4:14"}, {"text": "Then Esther bade them return Mordecai this answer,", "ref": "Esther 4:15"}, {"text": "Go, gather together all the Jews that are present in Shushan, and fast ye for me, and neither eat nor drink three days, night or day: I also and my maidens will fast likewise; and so will I go in unto the king, which is not according to the law: and if I perish, I perish.", "ref": "Esther 4:16"}, {"text": "Then Esther the queen answered and said, If I have found favour in thy sight, O king, and if it please the king, let my life be given me at my petition, and my people at my request:", "ref": "Esther 7:3"}],
+   "versesPending": null
   },
   {
    "slug": "daniel",
@@ -296,8 +296,8 @@
     "She bore Jesus in Bethlehem, laid him in a manger, received shepherds and wise men, and kept all these things and pondered them in her heart (Luke 2). She raised him in Nazareth, was there at Cana when his first sign turned water into wine (John 2), and stood by the cross when he died, where he gave her into the care of the beloved disciple (John 19:25–27).",
     "After the resurrection she is found with the apostles in the upper room, continuing in prayer (Acts 1:14). She stands in the Scarlet Thread: through Mary, of the house of David, the promise reached its destination."
    ],
-   "verses": [],
-   "versesPending": "Luke 1:38, Luke 2:19 and John 2:5 — sourcing pass owed (API route flapped during this build)"
+   "verses": [{"text": "And Mary said, Behold the handmaid of the Lord; be it unto me according to thy word. And the angel departed from her.", "ref": "Luke 1:38"}, {"text": "But Mary kept all these things, and pondered them in her heart.", "ref": "Luke 2:19"}, {"text": "His mother saith unto the servants, Whatsoever he saith unto you, do it.", "ref": "John 2:5"}],
+   "versesPending": null
   },
   {
    "slug": "jesus",
@@ -358,8 +358,8 @@
     "At Caesarea Philippi he made the confession the church is built on: “Thou art the Christ, the Son of the living God” — and Jesus answered, “upon this rock I will build my church” (Matthew 16:16–18). In the night of the trial he denied Jesus three times, as Jesus had said; after the resurrection, by the Sea of Galilee, Jesus restored him three times: “Feed my sheep” (John 21).",
     "At Pentecost it was Peter who stood up and preached, and about three thousand were added that day (Acts 2). He opened the door of the gospel to the Gentiles at Cornelius's house (Acts 10), and his two letters still close the New Testament's witness: written, tradition holds, from Rome, where he died under Nero."
    ],
-   "verses": [],
-   "versesPending": "Matthew 16:16–18 and Acts 2:38 — sourcing pass owed (API route flapped during this build)"
+   "verses": [{"text": "And Simon Peter answered and said, Thou art the Christ, the Son of the living God.", "ref": "Matthew 16:16"}, {"text": "And Jesus answered and said unto him, Blessed art thou, Simon Bar–jona: for flesh and blood hath not revealed it unto thee, but my Father which is in heaven.", "ref": "Matthew 16:17"}, {"text": "And I say also unto thee, That thou art Peter, and upon this rock I will build my church; and the gates of hell shall not prevail against it.", "ref": "Matthew 16:18"}, {"text": "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost.", "ref": "Acts 2:38"}],
+   "versesPending": null
   },
   {
    "slug": "paul",
@@ -380,8 +380,8 @@
     "Blinded, then baptized by Ananias, he became the apostle to the Gentiles. Across three missionary journeys he planted churches through Cyprus, Galatia, Macedonia, Greece and Asia, preaching in synagogues and marketplaces, working as a tentmaker, enduring shipwreck, beatings, stonings and prison (Acts 13–28; 2 Corinthians 11).",
     "His letters — Romans, Corinthians, Galatians, Philippians and the rest — make up much of the New Testament. Arrested in Jerusalem, he appealed to Caesar and was carried to Rome, where Acts leaves him preaching the kingdom with all confidence, no man forbidding him (Acts 28:31)."
    ],
-   "verses": [],
-   "versesPending": "2 Timothy 4:7 and Philippians 4:13 — sourcing pass owed (API route flapped during this build)"
+   "verses": [{"text": "I have fought a good fight, I have finished my course, I have kept the faith:", "ref": "2 Timothy 4:7"}, {"text": "I can do all things through Christ which strengtheneth me.", "ref": "Philippians 4:13"}],
+   "versesPending": null
   }
  ]
 }
