@@ -349,7 +349,29 @@ function ensureStyle() {
     .w-ep .w-ep-thumb{width:96px}
     .w-toast{bottom:96px}
   }
-  @media(prefers-reduced-motion:reduce){.w-poster2 img,.w-play,.w-toast,.w-doorcard img{transition:none!important}}`;
+  @media(prefers-reduced-motion:reduce){.w-poster2 img,.w-play,.w-toast,.w-doorcard img{transition:none!important}}
+/* ---------- WATCH ATMOSPHERE (2026-11-24, founder order) ----------
+   The Watch face sat on flat black — on a wide screen the flanks were
+   dead space ("the dead space is just so blah"). A fixed haze of
+   the hub's own cinema art — congregation silhouettes
+   before a glowing screen in a smoky sanctuary (watch-header,
+   the same art the Watch film slot carries): projector-glow
+   haze for the dark-cinema room
+   now breathes behind the Watch landing (doors view) only: painted as the first node of the
+   view, so it leaves with the view and never reaches the hub's other
+   rooms. A haze you feel, not a picture you look at: heavy blur +
+   darkness at low opacity, radial-masked to nothing across the center
+   content column and at every edge. pointer-events none, aria-hidden
+   in the markup, fixed + inset 0 inside an overflow-hidden shell, so
+   it can never add a pixel of scroll. The drift is barely perceptible
+   and dies under prefers-reduced-motion; phones get a fainter, still
+   layer (their dead space is minimal). Same system as the Listen
+   pilot (.lsn-atmo), geared to this hub's own art. */
+.wa-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505}
+.wa-atmo::before{content:"";position:absolute;inset:-48px;background:url('assets/img/watch/watch-header.webp') center 40%/cover no-repeat;opacity:.2;filter:blur(9px) brightness(.6) saturate(.85);-webkit-mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);animation:waAtmoDrift 90s ease-in-out infinite alternate}
+@keyframes waAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.wa-atmo::before{opacity:.07;animation:none}}
+@media(prefers-reduced-motion:reduce){.wa-atmo::before{animation:none}}`;
   document.head.appendChild(st);
 }
 
@@ -463,6 +485,7 @@ function renderDoors() {
   const heroDoor = hero ? (doorsMeta.find((d) => d.slug === hero.door) || {}) : {};
   rootEl.innerHTML = `
   <section data-view="doors">
+    <div class="wa-atmo" aria-hidden="true"></div>
     ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/watch/watch-header.webp', title: 'Stories that stay with you.', note: 'Watch film · in production' }) : ''}
     ${hero ? `<div class="w-hero" data-hero>
       <img data-hero-poster src="${esc(hero.poster || '')}" alt="${esc(hero.title)}" onerror="this.closest('[data-hero]').classList.add('w-hero-noposter')">
