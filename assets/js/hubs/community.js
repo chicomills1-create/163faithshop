@@ -1518,9 +1518,29 @@ const CSS18 = `
  .bk-main{padding-inline:14px}
  .bk-stripchip{min-height:40px;padding:10px 14px;font-size:12px;display:inline-flex;align-items:center}
 }
-`;
+/* ---------- COMMUNITY ATMOSPHERE (2026-11-24, founder order) ----------
+   The Community face sat on flat black — on a wide screen the flanks were
+   dead space ("the dead space is just so blah"). A fixed haze of
+   the hub's own identity art — the Pentecost scene
+   (scene-pentecost, the Sanctuary's own artwork): tongues of
+   fire and gold light breathed into the shell's margins
+   now breathes behind the Community shell (the frame every Community view hangs in): painted as the first node of the
+   view, so it leaves with the view and never reaches the hub's other
+   rooms. A haze you feel, not a picture you look at: heavy blur +
+   darkness at low opacity, radial-masked to nothing across the center
+   content column and at every edge. pointer-events none, aria-hidden
+   in the markup, fixed + inset 0 inside an overflow-hidden shell, so
+   it can never add a pixel of scroll. The drift is barely perceptible
+   and dies under prefers-reduced-motion; phones get a fainter, still
+   layer (their dead space is minimal). Same system as the Listen
+   pilot (.lsn-atmo), geared to this hub's own art. */
+.cm-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505}
+.cm-atmo::before{content:"";position:absolute;inset:-48px;background:url('assets/img/community/scene-pentecost.webp') center 40%/cover no-repeat;opacity:.16;filter:blur(9px) brightness(.55) saturate(.85);-webkit-mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);mask-image:radial-gradient(ellipse 56% 64% at 50% 42%,transparent 40%,rgba(0,0,0,.85) 62%,rgba(0,0,0,.45) 85%,transparent 99%);animation:cmAtmoDrift 90s ease-in-out infinite alternate}
+@keyframes cmAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.cm-atmo::before{opacity:.07;animation:none}}
+@media(prefers-reduced-motion:reduce){.cm-atmo::before{animation:none}}`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}${CSS17}${CSS18}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}${CSS17}${CSS18}</style><div class="cm-atmo" aria-hidden="true"></div><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
