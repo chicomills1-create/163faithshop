@@ -69,7 +69,7 @@ const STYLE = `<style>
 .lsn-side{font-size:10px;letter-spacing:1.5px;color:#aa9572;font-weight:800;white-space:nowrap;text-transform:uppercase}
 .lsn-textact{background:none;border:none;border-bottom:1px solid var(--gold);color:var(--gold-hi);font-size:11px;letter-spacing:1px;font-weight:800;padding:8px 0;white-space:nowrap;text-transform:uppercase}
 /* hero */
-.lsn-hero{display:grid;grid-template-columns:1fr 1.01fr;align-items:center;gap:34px;padding:30px 0 8px}
+.lsn-hero{position:relative;display:grid;grid-template-columns:.68fr 1fr;align-items:stretch;gap:0;width:calc(100vw - var(--sbw,0px));margin:8px 0 0;margin-left:calc(50% - 50vw + var(--sbw,0px)/2);min-height:540px;background:#050505;overflow:hidden;isolation:isolate}
 .lsn-pretag{font-size:11px;letter-spacing:2.6px;font-weight:800;color:var(--gold);text-transform:uppercase}
 .lsn-pretag .ast{color:#e93d38;font-size:19px;margin-right:5px;vertical-align:-2px}
 .lsn-pretag .slash{color:#9d4e32;margin:0 9px}
@@ -93,6 +93,14 @@ const STYLE = `<style>
 .lsn-ribbon{position:absolute;bottom:24px;left:21px;background:#d9ae4d;color:#130e0a;padding:9px 14px;font-weight:900;font-size:10px;letter-spacing:1.8px;transform:rotate(-3deg);z-index:2}
 .lsn-stamp{position:absolute;right:14px;top:22px;width:90px;height:90px;display:flex;align-items:center;justify-content:center;border:3px dashed #fff2bf;background:#e93d38;color:#fff;border-radius:50%;transform:rotate(13deg);font-family:Impact,'Arial Black',sans-serif;font-size:23px;line-height:.88;text-align:center;z-index:3}
 .lsn-corner{position:absolute;right:0;bottom:2px;color:#947d5a;font-size:9px;letter-spacing:1.5px;font-weight:900}
+/* DECLUTTER CURE (2026-11-24): the hero art takes the dominant share of
+   the full-bleed band — text on black at left, the choir photo filling
+   its panel edge-to-edge at right (ALL PRAISE stamp + ribbon ride on). */
+.lsn-hero>div:first-child{align-self:center;padding:52px 10px 52px max(24px,4vw)}
+.lsn-hero .lsn-visual{height:auto;min-height:540px}
+.lsn-hero .lsn-frame{position:absolute;inset:0;height:auto;clip-path:none;border:0;border-left:1px solid #6b4c28}
+.lsn-hero .lsn-tape{width:100%;height:100%;max-height:none;object-fit:cover;object-position:center 30%;transform:none;filter:saturate(1.05) sepia(.1) contrast(1.02)}
+.lsn-hero .lsn-ring{display:none}
 /* marquee */
 .lsn-marquee{display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid #493522;border-bottom:1px solid #493522;padding:15px 0;margin-top:26px;color:#d4ba79;font-size:10px;letter-spacing:1.6px;font-weight:900}
 .lsn-marquee .sep{color:#e93d38}
@@ -215,10 +223,10 @@ const STYLE = `<style>
 .lsn-cta p{color:#aea18f;max-width:540px;line-height:1.55;font-size:13.5px}
 .lsn-ctabtns{display:flex;flex-direction:column;gap:14px;align-items:stretch;flex:none}
 @media(max-width:1020px){.lsn-crates{grid-template-columns:repeat(3,minmax(0,1fr))}.lsn-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.lsn-voices{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:920px){.lsn-hero{grid-template-columns:1fr;min-height:0;padding-top:36px}.lsn-visual{height:400px;max-width:640px;width:100%;margin:auto}.lsn-frame{height:370px}.lsn-feature{grid-template-columns:1fr}.lsn-mixes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:920px){.lsn-hero{grid-template-columns:1fr;min-height:0}.lsn-hero>div:first-child{padding:38px 20px 28px}.lsn-visual{height:340px;max-width:none;width:100%;margin:0}.lsn-hero .lsn-visual{min-height:0;height:340px}.lsn-frame{height:370px}.lsn-feature{grid-template-columns:1fr}.lsn-mixes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){
  .lsn-h1{font-size:clamp(54px,14.5vw,80px);letter-spacing:-2px}
- .lsn-visual{height:282px}.lsn-frame{height:276px}.lsn-stamp{width:64px;height:64px;font-size:16px;top:11px;right:8px;border-width:2px}
+ .lsn-visual{height:282px}.lsn-hero .lsn-visual{height:282px}.lsn-frame{height:276px}.lsn-stamp{width:64px;height:64px;font-size:16px;top:11px;right:8px;border-width:2px}
  .lsn-ribbon{font-size:7px;bottom:14px;left:10px;padding:7px 10px}.lsn-corner{font-size:7px}
  .lsn-marquee{justify-content:center;overflow:hidden}.lsn-marquee span:nth-child(n+4){display:none}
  .lsn-marquee span{white-space:nowrap;font-size:8.5px}
@@ -251,7 +259,7 @@ const STYLE = `<style>
    otherwise re-applies the roster's scroll offset after the artist
    paint (live-walk cure, 2026-11-24). */
 #hub-root{overflow-anchor:none}
-.artist-hero{position:relative;margin:8px 0 0;width:100vw;margin-left:calc(50% - 50vw);min-height:350px;display:flex;align-items:flex-end;overflow:hidden;background:#0a0906;isolation:isolate}
+.artist-hero{position:relative;margin:8px 0 0;width:calc(100vw - var(--sbw,0px));margin-left:calc(50% - 50vw + var(--sbw,0px)/2);min-height:350px;display:flex;align-items:flex-end;overflow:hidden;background:#0a0906;isolation:isolate}
 .artist-hero .ah-mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;font-size:170px;line-height:1;color:rgba(232,190,84,.45);background:radial-gradient(circle at 50% 26%,#3d2d11,#0c0b0a 72%);z-index:0}
 .artist-hero img.ah-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;filter:saturate(1.07) sepia(.16) contrast(1.03);animation:ahDrift 26s ease-in-out infinite alternate;z-index:1}
 @keyframes ahDrift{from{transform:scale(1.03)}to{transform:scale(1.13) translateY(-1.6%)}}
@@ -453,6 +461,16 @@ const MIX_SUBS = {
 };
 
 export function render(root, { player }) {
+  /* Full-bleed compensation (Pastor pattern): 100vw includes a classic
+     scrollbar's width while the centered column does not — the column
+     shift is half the scrollbar. Measured live, never guessed
+     (0 on phones / overlay scrollbars). */
+  const sbwProbe = document.createElement('div');
+  sbwProbe.style.cssText = 'position:absolute;top:-9999px;left:-9999px;width:100px;height:100px;overflow:scroll;';
+  document.body.appendChild(sbwProbe);
+  const sbw = sbwProbe.offsetWidth - sbwProbe.clientWidth;
+  sbwProbe.remove();
+  document.documentElement.style.setProperty('--sbw', Math.max(0, sbw) + 'px');
   window.__listen.ready = false;
   let view = { kind: 'doors' };
   let query = '';
@@ -772,8 +790,13 @@ export function render(root, { player }) {
     const extra = idx.artists.filter((a) => rowsPlayable(a) > 0 && !voices.includes(a))
       .sort((x, y) => rowsPlayable(y) - rowsPlayable(x))[0];
     if (extra) voices.push(extra);
+    /* DECLUTTER CURE (2026-11-24, founder order): the house film slot
+       no longer paints here — its framed still was the SAME sanctuary
+       choir photo the hero below carries (his twice-on-one-face
+       screenshot: "Get rid of the top pic"). The slot returns only
+       when the real Listen film exists, as motion. The face now opens
+       on the radio eyebrow + the full-bleed hero. */
     viewEl.innerHTML = `
-      ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/listen/sanctuary.webp', title: 'The sound, alive.', note: 'Listen film · in production' }) : ''}
       <section class="lsn-hero reveal">
         <div>
           <div class="lsn-pretag"><span class="ast">✳</span>16:3 Faith Radio <span class="slash">///</span> The Sanctuary / One House</div>
