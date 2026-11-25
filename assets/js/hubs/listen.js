@@ -309,6 +309,34 @@ const STYLE = `<style>
    right-side marker. The row stays a non-button — no fake affordance. */
 .trow.static .ttitle{color:#8d8172}
 .trow .tnotplay{color:#9a8a68;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+/* ---------- LISTEN ATMOSPHERE (2026-11-24, founder order) ----------
+   The face sat on flat black — on a wide screen the flanks were dead
+   space ("the dead space is just so blah"). A fixed haze of the house
+   crowd — the Now Playing stage poster's congregation, the same art
+   family as the player stage — now breathes behind the FACE only: the
+   layer is painted as the first node of doorsView, so lane rooms and
+   artist pages never carry it, and it leaves with the view. It is a
+   haze you feel, not a picture you look at: the poster is a dark
+   image, so its light is lifted (brightness 1.7) and then held to a
+   whisper by the 0.16 opacity, a 10px blur, and a radial mask (on the
+   layer itself, so it stays viewport-true) that melts it to nothing
+   across the center content column and at every edge. The poster's
+   stage light sits right of center, so the layer is built in two
+   halves — the right half carries the art as-is, the left half its
+   mirror — and both flanks get the glow; the seam hides inside the
+   mask's dead center. pointer-events none, aria-hidden in the markup,
+   fixed + inset 0 inside an overflow-hidden shell, so it can never
+   add a pixel of scroll. The drift is barely perceptible and dies
+   under prefers-reduced-motion; phones get a fainter, still layer
+   (their dead space is minimal). */
+.lsn-atmo{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#050505;-webkit-mask-image:radial-gradient(ellipse 92% 80% at 50% 44%,transparent 30%,rgba(0,0,0,.95) 52%,rgba(0,0,0,.55) 80%,transparent 97%);mask-image:radial-gradient(ellipse 92% 80% at 50% 44%,transparent 30%,rgba(0,0,0,.95) 52%,rgba(0,0,0,.55) 80%,transparent 97%)}
+.lsn-atmo::before,.lsn-atmo::after{content:"";position:absolute;top:-320px;bottom:-320px;width:calc(50% + 240px);background:url('assets/video/concert-crowd-poster.webp') 100% 50%/cover no-repeat;opacity:.16;filter:blur(10px) brightness(1.7) saturate(1.05)}
+.lsn-atmo::before{left:50%;animation:lsnAtmoDrift 90s ease-in-out infinite alternate}
+.lsn-atmo::after{right:50%;transform:scaleX(-1);animation:lsnAtmoDriftM 90s ease-in-out infinite alternate}
+@keyframes lsnAtmoDrift{from{transform:scale(1.03) translate3d(0,0,0)}to{transform:scale(1.09) translate3d(-1.2%,1%,0)}}
+@keyframes lsnAtmoDriftM{from{transform:scaleX(-1) scale(1.03) translate3d(0,0,0)}to{transform:scaleX(-1) scale(1.09) translate3d(-1.2%,1%,0)}}
+@media(max-width:768px){.lsn-atmo::before,.lsn-atmo::after{opacity:.07;animation:none}}
+@media(prefers-reduced-motion:reduce){.lsn-atmo::before,.lsn-atmo::after{animation:none}}
 </style>`;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -797,6 +825,7 @@ export function render(root, { player }) {
        when the real Listen film exists, as motion. The face now opens
        on the radio eyebrow + the full-bleed hero. */
     viewEl.innerHTML = `
+      <div class="lsn-atmo" aria-hidden="true"></div>
       <section class="lsn-hero reveal">
         <div>
           <div class="lsn-pretag"><span class="ast">✳</span>16:3 Faith Radio <span class="slash">///</span> The Sanctuary / One House</div>
