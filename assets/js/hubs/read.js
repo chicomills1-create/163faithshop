@@ -251,7 +251,7 @@ function mount(root, html) {
 function faceHTML() {
   return `
   <div class="fr-atmo" aria-hidden="true"></div>
-  ${window.FaithFilm ? window.FaithFilm.slotHtml({ poster: 'assets/img/home/word-slide.webp', title: 'The Word, alive.', note: 'Read film · in production' }) : ''}
+  ${window.FaithFilm ? window.FaithFilm.slotHtml({ src: 'assets/video/read-loop.mp4', poster: 'assets/img/home/word-slide.webp', title: 'The Word, alive.', note: 'Read · a living loop' }) : ''}
   <div id="faith-read-app">
   <section class="fread-hero" aria-labelledby="fread-hero-title"><div class="fread-hero-grit" aria-hidden="true"></div><div class="fread-container fread-hero-grid">
   <div class="fread-hero-copy"><div class="fread-smalltag"><span class="fread-red-dot"></span> THE 16:3 FAITH READING ROOM <span class="fread-line"></span> VOL. 001</div>
