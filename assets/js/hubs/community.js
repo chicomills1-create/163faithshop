@@ -932,6 +932,14 @@ function trioCellsHtml() {
   const cell = (key, label) => `<div><b>${t ? t[key] : '…'}</b><span>${label}</span></div>`;
   return `${cell('posts', 'POSTS')}${cell('testimonies', 'TESTIMONIES')}${cell('lifted', 'PRAYERS LIFTED')}`;
 }
+/* COMMUNITY PASS 2026-11-24 (Part B): the guest card is factored
+   out of railHtml so the phone feed can carry the SAME card above
+   the timeline (guests only) — one source, two slots. */
+function guestCardHtml() {
+  return `<div class="panel bk-idcard"><div class="bk-idhead"><span class="bk-ava house">16:3</span><div><span class="eyebrow">JOIN THE FAMILY</span><strong>Welcome home.</strong><small>The family's own wall — read it all as a guest. Posting opens with member sign-in.</small></div></div>
+    <div class="bk-countline">${countersLine()}</div>
+    <button type="button" class="bk-goldbtn" data-lobbyjoin>SIGN IN</button></div>`;
+}
 function railHtml() {
   const v = S.view;
   const me = myId();
@@ -946,9 +954,7 @@ function railHtml() {
     <div class="bk-trio" data-trio>${trioCellsHtml()}</div>
     <div class="bk-countline">${countersLine()}</div></div>`;
   } else {
-    card = `<div class="panel bk-idcard"><div class="bk-idhead"><span class="bk-ava house">16:3</span><div><span class="eyebrow">JOIN THE FAMILY</span><strong>Welcome home.</strong><small>The family's own wall — read it all as a guest. Posting opens with member sign-in.</small></div></div>
-    <div class="bk-countline">${countersLine()}</div>
-    <button type="button" class="bk-goldbtn" data-lobbyjoin>SIGN IN</button></div>`;
+    card = guestCardHtml();
   }
   return `<aside class="bk-rail">
     ${card}
@@ -1050,11 +1056,32 @@ function memberSearchHtml() {
    a patched copy wires its own, the standing one-liner pattern). */
 function patchRailSearch() {
   if (!S.root) return;
-  const box = S.root.querySelector('[data-railsearchbox]');
-  if (!box) return;
-  box.innerHTML = railSearchResultsHtml();
-  box.querySelectorAll('[data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
-  box.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); window.scrollTo(0, 0); }));
+  /* COMMUNITY PASS 2026-11-24 (Part B): the phone feed carries a
+     second Member Search card — every results box patches in step,
+     so the visible copy always answers (desktop still has one). */
+  S.root.querySelectorAll('[data-railsearchbox]').forEach((box) => {
+    box.innerHTML = railSearchResultsHtml();
+    box.querySelectorAll('[data-profile]').forEach((n) => n.addEventListener('click', () => { const pid = n.getAttribute('data-profile'); if (pid) openProfile(pid); }));
+    box.querySelectorAll('[data-view]').forEach((n) => n.addEventListener('click', () => { S.view = n.dataset.view; S.gateOpen = false; paint(); window.scrollTo(0, 0); }));
+  });
+}
+/* COMMUNITY PASS 2026-11-24 (Part B): factored out of sideHtml — the phone feed closes with this same Weekly Rotation. */
+function rotationHtml() {
+  return `<div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
+    <section class="panel bk-tape"><div class="small">THE WEEKLY ROTATION <span>VOL. 01</span></div><h3>FAITH HAS<br><em>A SOUND.</em></h3>
+      <div class="bk-disc"><div class="bk-dring">16:3</div></div>
+      <button type="button" class="bk-track" data-hubgo="pray"><span class="no">01</span><span class="tt"><strong>THE PRAYER ROOM</strong><small>Bring what you carry.</small></span><span class="wv">▂▅▃▇▅▂</span></button>
+      <button type="button" class="bk-track" data-view="testimonies"><span class="no">02</span><span class="tt"><strong>STILL STANDING</strong><small>Stories from the family.</small></span><span class="wv">▇▂▄▅▃▆</span></button>
+      <button type="button" class="bk-goldbtn" data-hubgo="listen">EXPLORE THE LISTEN HUB ↗</button></section>`;
+}
+/* COMMUNITY PASS 2026-11-24 (Part B): factored out of sideHtml for the phone feed interleave. */
+function prayPanelHtml() {
+  return `<section class="panel bk-sidecard bk-praypanel"><div class="phead"><span class="eyebrow">YOUR PEOPLE NEED YOU</span><span class="x">✛</span></div><h3>PRAY WITH<br>SOMEBODY.</h3><p>You don't need the right words. Just show up with an open heart.</p><button type="button" class="bk-goldbtn" data-hubgo="pray">OPEN THE PRAYER WALL ↗</button></section>`;
+}
+/* COMMUNITY PASS 2026-11-24 (Part B): factored out of sideHtml for the phone feed interleave. */
+function familyCodeHtml() {
+  return `<section class="panel bk-sidecard bk-code"><div class="phead"><span class="eyebrow">THE FAMILY CODE</span><span style="color:#8d7a4d;font-size:10px;font-weight:900">0163</span></div>
+      <p><b>COME AS YOU ARE.</b><br>Protect each other's stories. Pray, don't shame. Listen before you judge. Love people out loud.</p></section>`;
 }
 function sideHtml() {
   return `<aside class="bk-side">
@@ -1062,17 +1089,11 @@ function sideHtml() {
     ${aiHighlightsHtml()}
     ${sceneCardHtml()}
     ${pymkHtml()}
-    <div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
-    <section class="panel bk-tape"><div class="small">THE WEEKLY ROTATION <span>VOL. 01</span></div><h3>FAITH HAS<br><em>A SOUND.</em></h3>
-      <div class="bk-disc"><div class="bk-dring">16:3</div></div>
-      <button type="button" class="bk-track" data-hubgo="pray"><span class="no">01</span><span class="tt"><strong>THE PRAYER ROOM</strong><small>Bring what you carry.</small></span><span class="wv">▂▅▃▇▅▂</span></button>
-      <button type="button" class="bk-track" data-view="testimonies"><span class="no">02</span><span class="tt"><strong>STILL STANDING</strong><small>Stories from the family.</small></span><span class="wv">▇▂▄▅▃▆</span></button>
-      <button type="button" class="bk-goldbtn" data-hubgo="listen">EXPLORE THE LISTEN HUB ↗</button></section>
-    <section class="panel bk-sidecard bk-praypanel"><div class="phead"><span class="eyebrow">YOUR PEOPLE NEED YOU</span><span class="x">✛</span></div><h3>PRAY WITH<br>SOMEBODY.</h3><p>You don't need the right words. Just show up with an open heart.</p><button type="button" class="bk-goldbtn" data-hubgo="pray">OPEN THE PRAYER WALL ↗</button></section>
+    ${rotationHtml()}
+    ${prayPanelHtml()}
     ${latestTestCardHtml()}
     ${suggestedGroupsCardHtml()}
-    <section class="panel bk-sidecard bk-code"><div class="phead"><span class="eyebrow">THE FAMILY CODE</span><span style="color:#8d7a4d;font-size:10px;font-weight:900">0163</span></div>
-      <p><b>COME AS YOU ARE.</b><br>Protect each other's stories. Pray, don't shame. Listen before you judge. Love people out loud.</p></section>
+    ${familyCodeHtml()}
     <div class="bk-sidefoot">16:3 FAITH © 2026<br>A DIFFERENT KIND OF SUNDAY. EVERY DAY.</div>
   </aside>`;
 }
@@ -1449,8 +1470,38 @@ const CSS17 = `
 .bk-ppanel[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.bk-profcovimg,.bk-profglow{animation:none}}
 `;
+const CSS18 = `
+/* ---------- COMMUNITY PASS 2026-11-24 — PRESENTS SOUND SWITCH +
+   PHONE REFLOW (founder 17:57 + 18:01 MST) ----------
+   Part A: the gold feed-sound button rides every Presents stage —
+   42px, above the tap layer (z 4); the end/fail overlays sit at
+   z 3, so the ended/failed card states hide it explicitly. Part B:
+   phone (≤768px) REFLOWS, never compresses — the new in-thread
+   rail slots (.bk-phone) wake only there, the guest join card and
+   the Weekly Rotation take their feed positions, the column gains
+   real side padding, and the shortcut strip's chips become
+   full-size targets with readable type. Above 768px every wrapper
+   here is display:none and the desktop grid never sees these
+   rules. */
+.bk .bk-pv-snd{position:absolute;right:10px;bottom:10px;z-index:4;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(10,8,4,.78);border:2px solid rgba(212,175,55,.85);color:#f3c34b;cursor:pointer;box-shadow:0 0 18px rgba(212,175,55,.25);padding:0}
+.bk .bk-pv-snd svg{width:21px;height:21px;display:block}
+.bk .bk-pv-snd .ic-on{display:none}
+.bk .bk-pv-snd.on .ic-on{display:block}
+.bk .bk-pv-snd.on .ic-off{display:none}
+.bk .bk-pv-snd:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.bk-pv-card.ended .bk-pv-snd,.bk-pv-card.failed .bk-pv-snd{display:none}
+.bk-inthread.bk-phone{display:none}
+.bk-phonejoin,.bk-phonerot{display:none}
+@media(max-width:768px){
+ .bk-inthread.bk-phone{display:block}
+ .bk-phonejoin{display:block;margin:2px 0 16px}
+ .bk-phonerot{display:block;margin-top:18px}
+ .bk-main{padding-inline:14px}
+ .bk-stripchip{min-height:40px;padding:10px 14px;font-size:12px;display:inline-flex;align-items:center}
+}
+`;
 function frame(mainHtml) {
-  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}${CSS17}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
+  return `<style>${CSS}${CSS2}${CSS3}${CSS4}${CSS5}${CSS6}${CSS7}${CSS8}${CSS9}${CSS10}${CSS11}${CSS12}${CSS13}${CSS14}${CSS15}${CSS16}${CSS17}${CSS18}</style><div class="bk"><div class="bk-shell">${railHtml()}<div class="bk-main">${mainHtml}</div>${sideHtml()}</div></div>`;
 }
 
 
@@ -1542,6 +1593,19 @@ function stripHtml() {
     ${chip('feed', '⌂ Sanctuary')}${chip('members', '◎ Directory')}${chip('groups', '◉ Circles')}<button type="button" class="bk-stripchip" data-hubgo="pray">✛ Pray</button>${chip('testimonies', '✦ Testimonies')}
     ${S.groups.map((g) => `<button type="button" class="bk-stripchip grp" data-view="groups">${esc(g.name)}</button>`).join('')}
   </nav>`;
+}
+/* COMMUNITY PASS 2026-11-24 (Part B): phone-only feed furniture,
+   standing OUTSIDE the append-only card list so endless growth can
+   never duplicate or strand them — the guest Welcome-home card
+   above the timeline (guests only; a member's corner rides the
+   rail) and the Weekly Rotation closing the feed at the bottom.
+   Both wrappers are display:none above 768px, where the rails
+   carry the same cards. */
+function phoneJoinHtml() {
+  return myId() ? '' : `<div class="bk-phonejoin">${guestCardHtml()}</div>`;
+}
+function phoneRotationHtml() {
+  return `<div class="bk-phonerot">${rotationHtml()}</div>`;
 }
 /* P1-9: on phone/narrow widths the right rail's content stacks BELOW
    the feed instead of disappearing. CSS shows this ≤1240px, where the
@@ -1978,6 +2042,129 @@ const PV_REDUCED = (() => { try { return window.matchMedia('(prefers-reduced-mot
 const PV_MAX_LIVE = 3;
 const pvLive = []; /* mounted cards, in mount order — the budget ledger */
 let pvObserver = null;
+/* ---------- COMMUNITY PASS 2026-11-24 — PART A: FACEBOOK-STYLE
+   AUTOPLAY + THE FEED-SOUND SWITCH (founder 17:57 MST: "more like
+   facebook, like the auto start on videos when you scroll to it,
+   with a mute and un mute option"; ChatGPT consult
+   chatcmpl-EnvclMMolUxGUIOezY3MnKS3xOpBl + the pass brief).
+   What the 2C-2 system already did: muted ambient mounts in view,
+   tap-to-engage with sound. What it could NOT do: a YouTube card
+   carried no API handle (enablejsapi was never set), so it could
+   not be paused or muted in place — it was unmounted off-screen —
+   there was no mute control anywhere, and every in-view native
+   video played at once. This pass adds: (1) enablejsapi=1 + a
+   YT.Player wrap per YouTube card, so pause / mute / ended sit
+   under house control; (2) pvArbitrate() — ONE card plays at a
+   time, the most visible (an engaged card the member tapped holds
+   the slot while it stays ≥25% visible); play starts at ≥50%
+   visible, pause lands under 25%, and an incumbent between the
+   two holds its slot until another card reaches 50%; (3) the gold
+   sound button on every Presents card driving ONE global
+   feed-sound state, remembered per session (sessionStorage) —
+   default muted; an unmute tap is the user gesture that lets
+   later winners start with sound, and any browser refusal
+   degrades that one play to muted, never an error; (4) Save-Data
+   joins reduced-motion in the no-ambient gate. Member posts and
+   member-shared media are NEVER touched: autoplay belongs to the
+   house's Presents cards only. */
+const PV_SAVEDATA = (() => { try { return !!(navigator.connection && navigator.connection.saveData); } catch { return false; } })();
+const PV_AMBIENT_OK = !PV_REDUCED && !PV_SAVEDATA;
+const PV_SOUND_KEY = 'bk-pv-sound';
+let pvSoundOn = false;
+try { pvSoundOn = sessionStorage.getItem(PV_SOUND_KEY) === '1'; } catch { /* private mode: in-memory only */ }
+let pvNow = null; /* the card arbitration last handed the playing slot to */
+let pvYtApiP = null;
+function pvLoadYtApi() {
+  if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+  if (pvYtApiP) return pvYtApiP;
+  pvYtApiP = new Promise((resolve) => {
+    let done = false;
+    const fin = () => { if (!done) { done = true; resolve(window.YT && window.YT.Player ? window.YT : null); } };
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { try { if (typeof prev === 'function') prev(); } catch { /* a co-tenant callback never blocks ours */ } fin(); };
+    if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+      const s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api'; s.async = true;
+      document.head.appendChild(s);
+    }
+    setTimeout(fin, 9000); /* API unreachable: the plain embed still autoplays muted; its pause falls back to unmount */
+  });
+  return pvYtApiP;
+}
+function pvYtWrap(card, f) {
+  pvLoadYtApi().then((YT) => {
+    if (!YT || f._pvPlayer || !card.isConnected || !pvLive.includes(card)) return;
+    try {
+      f._pvPlayer = new YT.Player(f, {
+        events: {
+          onReady: () => { if (pvNow === card) pvPlayCard(card); else pvPauseCard(card); },
+          onStateChange: (ev) => {
+            if (ev.data === YT.PlayerState.ENDED) { card.classList.remove('playing'); card.classList.add('ended'); delete card.dataset.engaged; card.classList.remove('engaged'); if (pvNow === card) pvNow = null; }
+          },
+        },
+      });
+    } catch { /* the embed plays on without API control — never an error surface */ }
+  });
+}
+function pvSetSound(on) {
+  pvSoundOn = !!on;
+  try { sessionStorage.setItem(PV_SOUND_KEY, pvSoundOn ? '1' : '0'); } catch { /* private mode */ }
+  if (S.root) S.root.querySelectorAll('[data-pvsnd]').forEach((b) => {
+    b.classList.toggle('on', pvSoundOn);
+    b.setAttribute('aria-pressed', pvSoundOn ? 'true' : 'false');
+    b.setAttribute('aria-label', pvSoundOn ? 'Sound on — tap to mute the feed' : 'Sound off — tap to unmute the feed');
+  });
+  for (const card of [...pvLive]) {
+    const m = card.querySelector('[data-pvmedia]'); if (!m) continue;
+    if (m.tagName === 'VIDEO') m.muted = !pvSoundOn;
+    else if (m.tagName === 'IFRAME' && m._pvPlayer) { try { if (pvSoundOn) m._pvPlayer.unMute(); else m._pvPlayer.mute(); } catch { /* no-op */ } }
+  }
+}
+function pvPlayCard(card) {
+  const m = card.querySelector('[data-pvmedia]'); if (!m) return;
+  if (m.tagName === 'VIDEO') {
+    const wantSound = !!card.dataset.engaged || pvSoundOn;
+    m.muted = !wantSound;
+    const pr = m.play();
+    if (pr && pr.catch) pr.catch(() => {
+      /* A browser that refuses audible autoplay gets the muted play
+         instead — the card degrades, it never fails or errors. */
+      if (wantSound && !m.muted) { m.muted = true; const p2 = m.play(); if (p2 && p2.catch) p2.catch(() => {}); }
+    });
+    return;
+  }
+  if (m.tagName === 'IFRAME' && m._pvPlayer && typeof m._pvPlayer.playVideo === 'function') {
+    try { if (pvSoundOn || card.dataset.engaged) m._pvPlayer.unMute(); else m._pvPlayer.mute(); } catch { /* no-op */ }
+    try { m._pvPlayer.playVideo(); } catch { /* no-op */ }
+  }
+  /* A YouTube iframe with no API handle yet plays by its own
+     autoplay=1&mute=1 src — muted, as the ambient law requires. */
+}
+function pvPauseCard(card) {
+  const m = card.querySelector('[data-pvmedia]'); if (!m) return;
+  if (m.tagName === 'VIDEO') { try { m.pause(); } catch { /* already gone */ } return; }
+  if (m.tagName === 'IFRAME') {
+    if (m._pvPlayer && typeof m._pvPlayer.pauseVideo === 'function') { try { m._pvPlayer.pauseVideo(); } catch { /* no-op */ } }
+    else pvUnmount(card); /* no API handle: the standing off-screen behavior */
+  }
+}
+function pvArbitrate() {
+  let eng = null, best = null, bestR = 0;
+  for (const card of pvLive) {
+    if (!card.isConnected || card.classList.contains('ended') || card.classList.contains('failed')) continue;
+    const r = card._pvRatio || 0;
+    if (card.dataset.engaged && r >= 0.25) { eng = card; break; }
+    if (r > bestR) { bestR = r; best = card; }
+  }
+  let winner = eng || (best && bestR >= 0.5 ? best : null);
+  if (!winner && pvNow && pvLive.includes(pvNow) && pvNow.isConnected
+    && !pvNow.classList.contains('ended') && !pvNow.classList.contains('failed')
+    && (pvNow._pvRatio || 0) >= 0.25) winner = pvNow; /* incumbent holds between 0.25 and 0.5 */
+  if (winner && !winner.dataset.engaged && !PV_AMBIENT_OK) winner = null;
+  for (const card of [...pvLive]) if (card !== winner) pvPauseCard(card);
+  pvNow = winner;
+  if (winner) pvPlayCard(winner);
+}
 const pvEntry = (id) => (S.presents || []).find((e) => e.id === id) || null;
 function presentsCardHtml(e) {
   const poster = e.poster
@@ -1989,6 +2176,7 @@ function presentsCardHtml(e) {
     <p class="bk-pv-sub">Presented by ${esc(e.presenter)} · ${esc(e.category)} · plays here in the wall</p>
     <div class="bk-pv-stage" data-pvstage>${poster}
       <button type="button" class="bk-pv-tap" data-pvtap aria-label="Play ${esc(e.title)} with sound"><span class="bk-pv-glyph">▶</span></button>
+      <button type="button" class="bk-pv-snd${pvSoundOn ? ' on' : ''}" data-pvsnd aria-pressed="${pvSoundOn ? 'true' : 'false'}" aria-label="${pvSoundOn ? 'Sound on — tap to mute the feed' : 'Sound off — tap to unmute the feed'}" title="Feed sound"><svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.7a4.6 4.6 0 010 6.6M19 6.2a8.2 8.2 0 010 11.6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
       <div class="bk-pv-end"><div><span class="bk-badge bk-badge-presents">16:3 FAITH PRESENTS</span><h4>Keep watching the house</h4><p>That presentation has ended. The house has more — films and features in Watch, the full songbook in Listen.</p><div class="bk-pv-doors"><button type="button" class="bk-pv-door" data-hubgo="watch">OPEN WATCH ↗</button><button type="button" class="bk-pv-door" data-hubgo="listen">OPEN LISTEN ↗</button></div></div></div>
       <div class="bk-pv-fail"><div><span class="bk-badge bk-badge-presents">16:3 FAITH PRESENTS</span><h4>This one won't play here just now</h4><p>The stream didn't answer inside the wall. It lives in the house libraries — open one and keep going.</p><div class="bk-pv-doors"><button type="button" class="bk-pv-door" data-hubgo="watch">OPEN WATCH ↗</button><button type="button" class="bk-pv-door" data-hubgo="listen">OPEN LISTEN ↗</button></div></div></div>
     </div>
@@ -2049,7 +2237,7 @@ function pvMount(card, engaged) {
     }, true);
     stage.insertBefore(v, stage.querySelector('.bk-pv-tap'));
     pvLive.push(card);
-    const pr = v.play(); if (pr && pr.catch) pr.catch(() => { if (!engaged) pvFail(card); });
+    pvArbitrate();
   } else if (e.source === 'watch-jfp') {
     pvLive.push(card);
     (async () => {
@@ -2070,7 +2258,7 @@ function pvMount(card, engaged) {
         v.addEventListener('ended', () => { card.classList.remove('playing'); card.classList.add('ended'); delete card.dataset.engaged; card.classList.remove('engaged'); });
         v.addEventListener('error', () => pvFail(card), true);
         stage.insertBefore(v, stage.querySelector('.bk-pv-tap'));
-        const pr = v.play(); if (pr && pr.catch) pr.catch(() => { if (!engaged) pvFail(card); });
+        pvArbitrate();
       } catch { pvFail(card); }
     })();
   } else { /* watch-youtube / listen-youtube */
@@ -2078,16 +2266,18 @@ function pvMount(card, engaged) {
     f.className = 'bk-pv-media'; f.setAttribute('data-pvmedia', 'youtube');
     f.title = e.title;
     f.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
-    f.src = `https://www.youtube.com/embed/${encodeURIComponent(e.ref)}?controls=${engaged ? 1 : 0}&autoplay=1&mute=${engaged ? 0 : 1}&playsinline=1&rel=0&modestbranding=1`;
+    f.src = `https://www.youtube.com/embed/${encodeURIComponent(e.ref)}?controls=${engaged ? 1 : 0}&autoplay=1&mute=${engaged ? 0 : 1}&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
     let settled = false;
-    f.addEventListener('load', () => { settled = true; card.classList.add('playing'); });
+    f.addEventListener('load', () => { settled = true; card.classList.add('playing'); pvYtWrap(card, f); });
     setTimeout(() => { if (!settled && card.isConnected && pvLive.includes(card)) pvFail(card); }, 9000);
     stage.insertBefore(f, stage.querySelector('.bk-pv-tap'));
     pvLive.push(card);
+    pvArbitrate();
   }
 }
 function pvUnmount(card) {
   const i = pvLive.indexOf(card); if (i >= 0) pvLive.splice(i, 1);
+  if (pvNow === card) pvNow = null;
   const stage = card.querySelector('[data-pvstage]'); if (!stage) return;
   stage.querySelectorAll('[data-pvmedia]').forEach((m) => { try { if (m.tagName === 'VIDEO') { m.pause(); m.removeAttribute('src'); m.load(); } } catch { /* already gone */ } m.remove(); });
   card.classList.remove('playing');
@@ -2097,15 +2287,24 @@ function pvEngage(card) {
   if (card.dataset.engaged) return;
   card.dataset.engaged = '1';
   card.classList.add('engaged');
-  const media = card.querySelector('[data-pvmedia]');
   card.classList.remove('ended', 'failed');
+  /* COMMUNITY PASS 2026-11-24 (Part A): the tap means "play WITH
+     sound" — the global feed-sound switch follows the tap, and
+     arbitration hands this card the wall's one playing slot. */
+  pvSetSound(true);
+  const media = card.querySelector('[data-pvmedia]');
   if (!media) { pvMount(card, true); return; }
   if (media.tagName === 'VIDEO') {
     media.muted = false; media.controls = true;
     const pr = media.play(); if (pr && pr.catch) pr.catch(() => {});
+    pvArbitrate();
   } else if (media.tagName === 'IFRAME') {
-    /* Engaged YouTube = reload the embed with controls + sound (§3). */
-    media.src = `https://www.youtube.com/embed/${encodeURIComponent(e.ref)}?controls=1&autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+    /* Engaged YouTube = reload the embed with controls + sound (§3),
+       API-enabled so the wall keeps pause/mute authority over it;
+       the mount-time load listener re-wraps the fresh document. */
+    media._pvPlayer = null;
+    media.src = `https://www.youtube.com/embed/${encodeURIComponent(e.ref)}?controls=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
+    pvArbitrate();
   }
 }
 function pvObserve(root) {
@@ -2114,26 +2313,29 @@ function pvObserve(root) {
   for (let i = pvLive.length - 1; i >= 0; i--) if (!pvLive[i].isConnected) pvLive.splice(i, 1);
   if (!('IntersectionObserver' in window)) return;
   if (!pvObserver) {
+    /* COMMUNITY PASS 2026-11-24 (Part A): the observer now only
+       RECORDS each card's visibility and lazy-mounts on approach
+       (≥0.25); the play/pause decision itself lives in
+       pvArbitrate() — one card at a time, the most visible,
+       Facebook-style (play ≥0.5, pause <0.25, incumbent holds
+       between). Reduced-motion and Save-Data visitors get no
+       ambient mounts at all: poster + tap-to-play only. */
     pvObserver = new IntersectionObserver((entries) => {
+      let dirty = false;
       for (const en of entries) {
         const card = en.target;
         if (!card.isConnected) { pvObserver.unobserve(card); continue; }
-        const stage = card.querySelector('[data-pvstage]');
-        const media = stage?.querySelector('[data-pvmedia]');
-        if (en.intersectionRatio >= 0.5) {
-          if (!media) { if (!PV_REDUCED) pvMount(card, false); }
-          else if (media.tagName === 'VIDEO' && media.paused && !card.classList.contains('ended')) { const pr = media.play(); if (pr && pr.catch) pr.catch(() => {}); }
-        } else if (en.intersectionRatio >= 0.25) {
-          if (!media && !PV_REDUCED) pvMount(card, false); /* approach: lazy-mount, still muted */
-        } else {
-          if (media && media.tagName === 'VIDEO') media.pause();
-          else if (media && media.tagName === 'IFRAME') pvUnmount(card); /* iframes unmount off-screen */
-        }
+        card._pvRatio = en.intersectionRatio;
+        const media = card.querySelector('[data-pvmedia]');
+        if (en.intersectionRatio >= 0.25 && !media && PV_AMBIENT_OK) pvMount(card, false);
+        dirty = true;
       }
+      if (dirty) pvArbitrate();
     }, { threshold: [0, 0.25, 0.5, 0.75] });
   }
   root.querySelectorAll('[data-presents]').forEach((card) => {
     card.querySelector('[data-pvtap]')?.addEventListener('click', () => pvEngage(card));
+    card.querySelector('[data-pvsnd]')?.addEventListener('click', (ev) => { ev.stopPropagation(); pvSetSound(!pvSoundOn); });
     pvObserver.observe(card);
   });
 }
@@ -2141,6 +2343,21 @@ function pvObserve(root) {
 function feedCardsHtml(shown) {
   const aiSlot = `<div class="bk-inthread" data-inthread="ai">${aiHighlightsHtml()}</div>`;
   const railSlot = `<div class="bk-inthread" data-inthread="rail">${latestTestCardHtml()}${suggestedGroupsCardHtml()}</div>`;
+  /* COMMUNITY PASS 2026-11-24 (Part B): the rest of the right rail
+     rides into the phone feed too (≤768px only — the .bk-phone
+     wrappers stay display:none above it, where the rail itself
+     carries these cards): Member Search after the 5th member post,
+     the First Community scene after the 11th, Pray With Somebody
+     after the 16th, the Family Code after the 21st — the standing
+     slot pattern (fire in-loop at the count; end-append in slot
+     order when the window is shorter, so nothing the rail carries
+     disappears on phone). The Weekly Rotation is NOT a slot: it
+     closes the feed from viewFeed, outside the append-only list,
+     and the guest join card stands above the feed the same way. */
+  const searchSlot = `<div class="bk-inthread bk-phone" data-inthread="search">${memberSearchHtml()}</div>`;
+  const sceneSlot = `<div class="bk-inthread bk-phone" data-inthread="scene">${sceneCardHtml()}</div>`;
+  const praySlot = `<div class="bk-inthread bk-phone" data-inthread="pray">${prayPanelHtml()}</div>`;
+  const codeSlot = `<div class="bk-inthread bk-phone" data-inthread="code">${familyCodeHtml()}</div>`;
   /* 2C-1 slots ride at member positions (AI after the 3rd member post,
      rail cards after the 8th; end-appended when the window is shorter).
      2C-2 §6: mixPresents weaves the Presents cards through the member
@@ -2149,17 +2366,25 @@ function feedCardsHtml(shown) {
      (they are house cards, never counted as member posts). */
   const mixed = mixPresents(shown.map((p) => postCard(p)), shown.length);
   const out = [];
-  let m = 0, aiDone = false, railDone = false;
+  let m = 0, aiDone = false, railDone = false, searchDone = false, sceneDone = false, prayDone = false, codeDone = false;
   for (const c of mixed) {
     out.push(c);
     if (!c.includes('data-presents')) {
       m++;
       if (m === 3) { out.push(aiSlot); aiDone = true; }
+      if (m === 5) { out.push(searchSlot); searchDone = true; }
       if (m === 8) { out.push(railSlot); railDone = true; }
+      if (m === 11) { out.push(sceneSlot); sceneDone = true; }
+      if (m === 16) { out.push(praySlot); prayDone = true; }
+      if (m === 21) { out.push(codeSlot); codeDone = true; }
     }
   }
   if (!aiDone) out.push(aiSlot);
   if (!railDone) out.push(railSlot);
+  if (!searchDone) out.push(searchSlot);
+  if (!sceneDone) out.push(sceneSlot);
+  if (!prayDone) out.push(praySlot);
+  if (!codeDone) out.push(codeSlot);
   /* 2C-4 PYMK phone placement: its own in-thread wrapper AFTER the
      last member card — a later in-thread position that displaces
      neither ruled slot (AI after 3rd, rail after 8th). Desktop and
@@ -2216,6 +2441,7 @@ function viewFeed() {
     : null;
   return `${lobbyHtml()}${stripHtml()}${storiesHtml()}${composerHtml()}
   ${sceneBreakHtml()}
+  ${phoneJoinHtml()}
   <section class="bk-feedsec"><div class="bk-feedhead"><div><span class="eyebrow">THE TIMELINE</span><h2>The <em>family feed.</em></h2></div><span class="bk-feedtruth">SHOW UP AS YOU ARE. ♡</span></div>
     <p class="bk-note">${srcNote}</p>
     ${pillsHtml()}
@@ -2226,7 +2452,7 @@ function viewFeed() {
     ${isWatch ? '' : (list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)
       ? `<div class="bk-sentinel" data-sentinel aria-hidden="true"></div>`
       : (list.length ? endFeedHtml() : ''))}
-  </section>${belowFeedHtml()}${isWatch || !(list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)) ? closeHtml() : ''}`;
+  </section>${phoneRotationHtml()}${belowFeedHtml()}${isWatch || !(list.length > S.feedShown || (S.mode === 'live' && S.feedHasMore)) ? closeHtml() : ''}`;
 }
 /* FOLD E (2026-11-23, founder): Bible scene art dresses the wall's
    section break — the break between the composer and the feed
@@ -3185,8 +3411,7 @@ function paint(keepScroll = false) {
   /* R-6: the right rail's Member Search — the same live directory
      search, answered into the rail's results box in place (no
      repaint: the reader never loses the wall or their scroll). */
-  const railForm = S.root.querySelector('[data-railsearch]');
-  if (railForm) railForm.addEventListener('submit', async (e) => {
+  S.root.querySelectorAll('[data-railsearch]').forEach((railForm) => railForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const q = railForm.querySelector('input').value.trim();
     S.railSearchQ = q;
@@ -3200,7 +3425,7 @@ function paint(keepScroll = false) {
       S.railSearch = { source: 'directory', rows: (S.members || []).filter((m) => m.id && (m.name + ' ' + (m.location || '')).toLowerCase().includes(q.toLowerCase())).slice(0, 5).map((m) => ({ userId: m.id, name: m.name, avatar: m.avatar, sub: m.location || '' })) };
     }
     patchRailSearch();
-  });
+  }));
   wirePosts(main);
   pvObserve(main);
   /* 2C-1 §4.3 + 2C-4 §8c: a story tap opens the full-screen viewer
@@ -3275,8 +3500,19 @@ function appendFeedCards() {
   if (target <= S.feedShown) return false;
   const tmp = document.createElement('div');
   tmp.innerHTML = feedCardsHtml(list.slice(0, target));
-  const have = listEl.children.length;
-  const fresh = [...tmp.children].slice(have);
+  /* COMMUNITY PASS 2026-11-24 (Part B): growth used to slice the
+     recomputed window by CHILD COUNT — but trailing slots (PYMK,
+     and any slot end-appended in a short window then fired in-loop
+     in a longer one) shift position between computations, so the
+     count-slice could skip a post and duplicate a slot. Growth is
+     keyed now: every feed child carries a stable key (data-post /
+     data-presents / data-inthread) and only children whose key the
+     wall does not already hold are appended. A slot whose position
+     moved keeps its held place instead of duplicating; every post
+     lands exactly once. */
+  const keyOf = (el) => el.dataset?.post ? `p:${el.dataset.post}` : el.dataset?.presents ? `v:${el.dataset.presents}` : el.dataset?.inthread ? `s:${el.dataset.inthread}` : null;
+  const held = new Set([...listEl.children].map(keyOf).filter(Boolean));
+  const fresh = [...tmp.children].filter((n) => { const k = keyOf(n); return !k || !held.has(k); });
   if (!fresh.length) return false;
   const hold = document.createElement('div');
   fresh.forEach((n) => hold.appendChild(n));
