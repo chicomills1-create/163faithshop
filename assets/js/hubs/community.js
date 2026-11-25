@@ -189,21 +189,34 @@ const CSS3 = `
 /* ---------- right rail ---------- */
 .bk-sidelabel{font-size:9px;letter-spacing:2px;font-weight:900;color:#c7b388;display:flex;align-items:center;gap:8px;margin:4px 0 12px}
 .bk-reddot{width:8px;height:8px;background:#ef5748;border-radius:50%;box-shadow:0 0 0 4px #3c1e18}
+/* WEEKLY ROTATION REDESIGN 2026-11-24 (founder): the record-store styling is
+   retired — no disc, no track numbers, no EQ bars, no VOL. tag. The card is a
+   cinema door to the Listen hub: the concert-crowd art (the Now Playing crowd
+   stage's own poster — a congregation in golden stage light) in a gold frame,
+   the headline over the shade, the two rotation doors as plain titled rows,
+   and a full-card door under them all routing to #/listen. */
 .bk-tape{padding:17px;position:relative;overflow:hidden;background:linear-gradient(157deg,#222018,#131313 54%,#241b11)}
-.bk-tape .small{display:flex;justify-content:space-between;font-size:9px;color:#b1a17d;font-weight:900;letter-spacing:1.1px}
-.bk-tape .small span{color:var(--gold)}
-.bk-tape h3{font-family:Impact,"Arial Black",sans-serif;font-weight:900;font-size:34px;line-height:.98;letter-spacing:.5px;margin:18px 0 0;color:var(--cream)}
+.bk-rot{cursor:pointer}
+.bk-rot-art{position:relative;border:1px solid #78602c;border-radius:10px;overflow:hidden;line-height:0}
+.bk-rot-art img{width:100%;height:148px;object-fit:cover;object-position:50% 38%;display:block;transition:transform 1.2s ease}
+.bk-rot:hover .bk-rot-art img{transform:scale(1.04)}
+.bk-rot-art .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,9,6,.05) 26%,rgba(10,9,6,.9) 90%)}
+.bk-rot-art .sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 42%,rgba(245,215,127,.16) 50%,transparent 58%);transform:translateX(-70%);animation:bkRotSheen 7s ease-in-out infinite;pointer-events:none}
+@keyframes bkRotSheen{0%,55%{transform:translateX(-70%)}85%,100%{transform:translateX(70%)}}
+.bk-rot-art .cap{position:absolute;left:12px;right:12px;bottom:10px;z-index:1;line-height:1.15}
+.bk-tape .small{font-size:9px;color:#e8cf8f;font-weight:900;letter-spacing:1.6px;text-shadow:0 1px 8px rgba(0,0,0,.9)}
+.bk-tape h3{font-family:Impact,"Arial Black",sans-serif;font-weight:900;font-size:30px;line-height:.98;letter-spacing:.5px;margin:7px 0 0;color:var(--cream);text-shadow:0 2px 14px rgba(0,0,0,.85)}
 .bk-tape h3 em{color:var(--gold);font-style:normal}
-.bk-disc{height:158px;display:flex;align-items:center;justify-content:center;position:relative;margin:2px 0 -2px}
-.bk-disc:before{content:"";height:156px;width:156px;border-radius:50%;background:repeating-radial-gradient(circle,#111 0,#111 3px,#333 4px,#0b0b0b 6px);position:absolute;box-shadow:0 12px 20px rgba(0,0,0,.6)}
-.bk-dring{height:82px;width:82px;border-radius:50%;background:#e5b940;display:grid;place-items:center;position:relative;z-index:1;border:7px solid #d1a637;box-shadow:inset 0 0 0 5px #32291d;font-family:Georgia,serif;font-weight:900;font-size:25px;color:#20160b}
-.bk-track{display:flex;gap:9px;align-items:center;padding:10px 0;border-bottom:1px solid #3b3426;width:100%;text-align:left;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;color:var(--cream)}
-.bk-track:hover strong{color:var(--gold)}
-.bk-track .no{font-size:12px;font-family:Georgia,serif;color:var(--gold)}
-.bk-track .tt{flex:1;min-width:0}
-.bk-track strong{display:block;font-size:10.5px;letter-spacing:.4px}
-.bk-track small{display:block;font-size:10px;color:#948a75;margin-top:3px}
-.bk-track .wv{font-size:11px;color:var(--gold)}
+.bk-rot-door{position:absolute;inset:0;z-index:1;width:100%;height:100%;background:transparent;border:0;padding:0;cursor:pointer}
+.bk-rot-door:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.bk-rotrow{display:flex;gap:9px;align-items:center;padding:11px 2px;border-bottom:1px solid #3b3426;width:100%;text-align:left;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;color:var(--cream);position:relative;z-index:2}
+.bk-rotrow:hover strong{color:var(--gold)}
+.bk-rotrow .tt{flex:1;min-width:0}
+.bk-rotrow strong{display:block;font-size:10.5px;letter-spacing:.4px}
+.bk-rotrow small{display:block;font-size:10px;color:#948a75;margin-top:3px}
+.bk-rotrow .arr{font-size:12px;color:var(--gold);flex:none}
+.bk-rot .bk-goldbtn{position:relative;z-index:2}
+@media(prefers-reduced-motion:reduce){.bk-rot-art .sheen{animation:none}.bk-rot-art img{transition:none}}
 .bk-goldbtn{border:1px solid #765921;background:transparent;border-radius:5px;width:100%;padding:11px;margin-top:14px;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.5px;cursor:pointer}
 .bk-goldbtn:hover{background:#312411}
 .bk-sidecard{margin-top:14px;padding:17px}
@@ -1066,13 +1079,19 @@ function patchRailSearch() {
   });
 }
 /* COMMUNITY PASS 2026-11-24 (Part B): factored out of sideHtml — the phone feed closes with this same Weekly Rotation. */
+/* WEEKLY ROTATION REDESIGN 2026-11-24 (founder): no record, no tracklist —
+   the card is a cinema door to the Listen hub (the sanctuary music page);
+   the two entries keep their own doors as raised rows above the card door. */
 function rotationHtml() {
   return `<div class="bk-sidelabel"><span class="bk-reddot"></span> ON THE BLOCK</div>
-    <section class="panel bk-tape"><div class="small">THE WEEKLY ROTATION <span>VOL. 01</span></div><h3>FAITH HAS<br><em>A SOUND.</em></h3>
-      <div class="bk-disc"><div class="bk-dring">16:3</div></div>
-      <button type="button" class="bk-track" data-hubgo="pray"><span class="no">01</span><span class="tt"><strong>THE PRAYER ROOM</strong><small>Bring what you carry.</small></span><span class="wv">▂▅▃▇▅▂</span></button>
-      <button type="button" class="bk-track" data-view="testimonies"><span class="no">02</span><span class="tt"><strong>STILL STANDING</strong><small>Stories from the family.</small></span><span class="wv">▇▂▄▅▃▆</span></button>
+    <section class="panel bk-tape bk-rot">
+      <div class="bk-rot-art"><img src="assets/video/concert-crowd-poster.webp" alt="The congregation in golden stage light, hands raised — the sound of the sanctuary" loading="lazy"><span class="shade"></span><span class="sheen"></span>
+        <div class="cap"><div class="small">THE WEEKLY ROTATION</div><h3>FAITH HAS<br><em>A SOUND.</em></h3></div></div>
+      <button type="button" class="bk-rot-door" data-hubgo="listen" aria-label="Explore the Listen hub — the sanctuary music page"></button>
+      <button type="button" class="bk-rotrow" data-hubgo="pray"><span class="tt"><strong>THE PRAYER ROOM</strong><small>Bring what you carry.</small></span><span class="arr">↗</span></button>
+      <button type="button" class="bk-rotrow" data-view="testimonies"><span class="tt"><strong>STILL STANDING</strong><small>Stories from the family.</small></span><span class="arr">↗</span></button>
       <button type="button" class="bk-goldbtn" data-hubgo="listen">EXPLORE THE LISTEN HUB ↗</button></section>`;
+
 }
 /* COMMUNITY PASS 2026-11-24 (Part B): factored out of sideHtml for the phone feed interleave. */
 function prayPanelHtml() {
