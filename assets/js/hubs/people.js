@@ -342,7 +342,7 @@ function indexHTML(doc) {
       <img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
       <span class="shade"></span>
       <span class="pres">16:3 Faith Presents</span>
-      <span class="film">${p.slug === 'jesus' || p.slug === 'moses' || p.slug === 'david' ? 'The Film · Now Playing' : 'Film in production'}</span>
+      <span class="film">${p.slug === 'jesus' || p.slug === 'moses' || p.slug === 'david' || p.slug === 'mary' ? 'The Film · Now Playing' : 'Film in production'}</span>
       <span class="body">
         <h3>${esc(p.name)}</h3>
         <span class="id">${esc(p.identity)}</span>
@@ -375,13 +375,15 @@ function personHTML(doc, p) {
      living loop over its poster; Jesus' feature frame plays his
      completed feature film (JESUS FILM STITCH 2026-11-24), and
      Moses' feature frame plays his (MOSES FILM STITCH 2026-11-24),
-     as does David's (DAVID FILM STITCH 2026-11-24). */
+     as does David's (DAVID FILM STITCH 2026-11-24),
+     and Mary's (MARY FILM STITCH 2026-11-24). */
   const idx = doc.people.findIndex((x) => x.slug === p.slug);
   const prev = idx > 0 ? doc.people[idx - 1] : null;
   const next = idx >= 0 && idx < doc.people.length - 1 ? doc.people[idx + 1] : null;
   const isMoses = p.slug === 'moses';
   const isJesus = p.slug === 'jesus';
   const isDavid = p.slug === 'david';
+  const isMary = p.slug === 'mary';
   return `
   <div class="pp-atmo" aria-hidden="true"></div>
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>
@@ -404,7 +406,7 @@ function personHTML(doc, p) {
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
   <section class="pp-feature reveal">
-    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : isMoses ? `<video data-living src="assets/video/people/moses-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Moses: The Film — the full feature, from the burning bush to the blessing of Joshua"></video>` : isDavid ? `<video data-living src="assets/video/people/david-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="David: The Film — the full feature, from the shepherd's lyre to the blessing of Solomon"></video>` : `<img class="pp-live" style="object-position:${esc(p.framePos || '50% 35%')}" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
+    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : isMoses ? `<video data-living src="assets/video/people/moses-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Moses: The Film — the full feature, from the burning bush to the blessing of Joshua"></video>` : isDavid ? `<video data-living src="assets/video/people/david-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="David: The Film — the full feature, from the shepherd's lyre to the blessing of Solomon"></video>` : isMary ? `<video data-living src="assets/video/people/mary-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Mary: The Film — the full feature, from the annunciation to the assumption"></video>` : `<img class="pp-live" style="object-position:${esc(p.framePos || '50% 35%')}" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
     <div class="plate">
       ${isJesus
         ? `<p class="t">✦ The Feature — 16:3 Faith Presents · Jesus: The Film</p>
@@ -415,6 +417,9 @@ function personHTML(doc, p) {
         : isDavid
         ? `<p class="t">✦ The Feature — 16:3 Faith Presents · David: The Film</p>
            <p class="s">The feature has premiered — the whole story in one film, playing in this frame: the shepherd's lyre in the fields, the anointing by Samuel, the harp before Saul, the run at Goliath, the covenant with Jonathan, mercy in the cave, the dance before the Ark, repentance before Nathan, grief for Absalom, a psalm written by lamplight, and the blessing of Solomon. 105 seconds, his whole road.</p>`
+        : isMary
+        ? `<p class="t">✦ The Feature — 16:3 Faith Presents · Mary: The Film</p>
+           <p class="s">The feature has premiered — the whole story in one film, playing in this frame: the annunciation in a blaze of light at the well, the visitation, the journey to Bethlehem, the nativity under the star, the presentation in the temple, the flight to Egypt, the finding of Jesus in the temple, the wedding at Cana, standing at the foot of the cross, the fire of Pentecost, and the assumption into glory. 105 seconds, her whole road.</p>`
         : `<p class="t">✦ The Feature — ${esc(p.name)}: The Film · 90–120 seconds · In Production</p>
            <p class="s">The films of the hall are being produced in waves — Jesus first. Until ${esc(p.name.split(' ')[0])}'s film lands, this frame holds their portrait. No borrowed footage, no fake player — when the film arrives, it premieres here.</p>`}
     </div>
