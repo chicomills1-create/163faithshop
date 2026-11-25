@@ -736,7 +736,10 @@ function setActiveNav(name) {
 async function loadHub(name) {
   if (!loaded.has(name)) {
     const t0 = performance.now();
-    const module = await import(`./hubs/${name}.js`);
+    /* SIGN-IN PAGE (2026-11-24): #/join is the same module as #/signin —
+       hubs/signin.js reads the hash to pick its mode. */
+    const file = name === 'join' ? 'signin' : name;
+    const module = await import(`./hubs/${file}.js`);
     loaded.set(name, { module, loadedAt: performance.now(), loadMs: performance.now() - t0 });
   }
   return loaded.get(name).module;
@@ -827,9 +830,11 @@ const PageTurn = {
    lays out exactly as if it were a direct child of #hub-root. */
 let navSeq = 0;
 async function navigate(name) {
-  if (![...HUB_ORDER, 'home', 'people', 'pastor'].includes(name)) name = 'home';
+  if (![...HUB_ORDER, 'home', 'people', 'pastor', 'signin', 'join'].includes(name)) name = 'home';
   const from = currentHub;
-  PageTurn.begin(name, from);
+  /* The account page is a desk, not a chapter: no page-turn plane. */
+  if (name === 'signin' || name === 'join') PageTurn.cancel();
+  else PageTurn.begin(name, from);
   const seq = ++navSeq;
   const mod = await loadHub(name);
   if (seq !== navSeq) return; // superseded while the module loaded
@@ -890,14 +895,21 @@ navigate(routeFromHash());
      a member write answers 403 TERMS_ACCEPTANCE_REQUIRED. Accepting
      POSTs /api/terms/acceptance with the session token; the server
      records its own current terms version (201 = membership open).
-   - signed-in chrome: avatar/name + sign-out replace the guest buttons. */
+   - signed-in chrome: avatar/name + sign-out replace the guest buttons.
+   - the sign-in PAGE (2026-11-24): openAuth navigates to #/signin /
+     #/join (hubs/signin.js) — no modal, no overlay; mountIntoPage
+     embeds the Clerk component there and the page returns the visitor
+     to the hub they came from. The #auth-overlay DOM in index.html is
+     retired furniture: nothing opens it anymore. */
 const Auth = {
   PK: 'pk_live_Y2xlcmsuMTYzZmFpdGguY29tJA',
   SRC: 'https://clerk.163faith.com/npm/@clerk/clerk-js@6/dist/clerk.browser.js',
   UI_SRC: 'https://clerk.163faith.com/npm/@clerk/ui@1/dist/ui.browser.js',
   API: 'https://faith-hub-api-railway-production.up.railway.app',
   state: 'loading',        // 'loading' | 'ready' | 'error'
-  pendingIntent: null,     // 'signin' | 'join' clicked before Clerk was ready
+  pendingIntent: null,     // legacy field (pre-page openAuth); cleared on load, no longer set
+  _readyWaiters: [],       // mountIntoPage callbacks settled when Clerk load resolves/fails
+  _pageNode: null,         // the sign-in page's Clerk mount node (for clean unmount on re-mount)
   lastUserId: null,
   termsPromise: null,      // in-flight terms step, shared by concurrent 403s
 
@@ -963,58 +975,99 @@ const Auth = {
     try { window.Clerk?.unmountSignUp?.(node); } catch { /* noop */ }
   },
 
-  openAuth(kind) {
-    if (kind === 'join') { try { sessionStorage.setItem('faith-just-joined', '1'); } catch { /* private mode */ } }
-    if (this.state === 'error') {
-      this.openOverlay();
-      this.showNote('<b>Sign-in couldn\'t load from this network.</b> The whole house stays open to read — try again in a moment.');
-      this.pendingIntent = kind;
-      this.load();
-      return;
-    }
-    if (this.state !== 'ready' || !window.Clerk) {
-      this.pendingIntent = kind;
-      this.openOverlay();
-      this.showNote('One moment — the sign-in desk is still opening…');
-      return;
-    }
-    this.mount(kind);
+  /* ----- the dedicated sign-in page (founder directive 2026-11-24
+     17:48 MST: "The sign in page, needs to be an independent sign in
+     page") ----- Sign-in/join is its own PAGE now (#/signin, #/join;
+     module hubs/signin.js). openAuth NO LONGER opens Clerk's modal or
+     the house overlay from anywhere: it remembers where the visitor
+     was and navigates to the page, which mounts the Clerk component
+     embedded in its own gold-framed card via mountIntoPage. Every
+     caller funnels here — the header buttons directly, and the hubs'
+     in-page doors by clicking those buttons — so every door in the
+     house lands on the page. After sign-in, the page returns the
+     visitor to the stored target (default: home). */
+  returnKey: 'faith-auth-return',
+
+  storeReturn() {
+    try {
+      const path = location.hash.replace(/^#/, '');
+      /* On the account page itself, keep whatever target is stored —
+         switching modes must not overwrite the real origin. */
+      if (!path || path === '/' || /^\/(signin|join)(\/|$)/.test(path)) return;
+      sessionStorage.setItem(this.returnKey, path);
+    } catch { /* private mode — the return simply defaults to home */ }
   },
 
-  mount(kind) {
-    const C = window.Clerk;
-    if (!C) return;
-    /* Clerk's own modal first: it carries the form, the email-code step
-       and the smart CAPTCHA, and its footer switches between sign-in
-       and join in place. No redirect URLs — the member lands back on
-       the hub they were reading. */
-    try {
-      if (kind === 'join' && typeof C.openSignUp === 'function') { C.openSignUp({ appearance: this.appearance }); return; }
-      if (kind === 'signin' && typeof C.openSignIn === 'function') { C.openSignIn({ appearance: this.appearance }); return; }
-    } catch (err) { console.warn('[FaithAuth] Clerk modal open failed, falling back to mount:', err); }
-    /* Fallback: mount the component into the shell's own overlay. */
-    this.openOverlay();
-    const node = $('auth-mount');
+  takeReturn() {
+    let path = null;
+    try { path = sessionStorage.getItem(this.returnKey); sessionStorage.removeItem(this.returnKey); } catch { /* noop */ }
+    if (!path || !/^\/(home|watch|listen|read|pray|community|give|shop|people|pastor)(\/|$)/.test(path)) path = '/home';
+    return `#${path}`;
+  },
+
+  openAuth(kind) {
+    if (kind === 'join') { try { sessionStorage.setItem('faith-just-joined', '1'); } catch { /* private mode */ } }
+    this.storeReturn();
+    const route = kind === 'join' ? 'join' : 'signin';
+    if (routeFromHash() === route) navigate(route);
+    else location.hash = `#/${route}`;
+  },
+
+  /* Readiness for the page: cb(null) once Clerk is usable, cb(err)
+     when the load has failed. Fires immediately when already settled. */
+  whenReady(cb) {
+    if (this.state === 'ready') { cb(null); return; }
+    if (this.state === 'error') { cb(new Error('clerk-unavailable')); return; }
+    this._readyWaiters.push(cb);
+  },
+  _settleReady(err) {
+    const ws = this._readyWaiters.splice(0);
+    ws.forEach((cb) => { try { cb(err); } catch { /* a page waiter never breaks the shell */ } });
+  },
+
+  /* Called by hubs/signin.js on render (and on its Try again). Waits
+     out the Clerk load, then mounts the component into the page node;
+     on failure the page carries the house's honest note — never a
+     hang, never a blank card. */
+  mountIntoPage(node, kind) {
     if (!node) return;
+    if (this.state === 'error') this.load(); // retry a failed Clerk load
+    if (this.state === 'ready' && window.Clerk) { this._mountPage(node, kind); return; }
+    node.innerHTML = '<p class="si-wait">One moment — the sign-in desk is opening…</p>';
+    this.whenReady((err) => {
+      if (!node.isConnected) return; // the visitor moved on; the new page mounts its own node
+      if (err || !window.Clerk) { this._pageNote(node, kind); return; }
+      if (this.signedIn()) { node.innerHTML = '<p class="si-wait">You are signed in — taking you back…</p>'; return; }
+      this._mountPage(node, kind);
+    });
+  },
+
+  _mountPage(node, kind) {
+    const C = window.Clerk;
+    if (!C) { this._pageNote(node, kind); return; }
+    if (this._pageNode && this._pageNode !== node) {
+      try { C.unmountSignIn?.(this._pageNode); } catch { /* noop */ }
+      try { C.unmountSignUp?.(this._pageNode); } catch { /* noop */ }
+    }
     try { C.unmountSignIn?.(node); } catch { /* noop */ }
     try { C.unmountSignUp?.(node); } catch { /* noop */ }
     node.innerHTML = '';
+    this._pageNode = node;
     try {
       if (kind === 'join' && typeof C.mountSignUp === 'function') C.mountSignUp(node, { appearance: this.appearance });
       else if (typeof C.mountSignIn === 'function') C.mountSignIn(node, { appearance: this.appearance });
-      else { this.showNote('<b>The sign-in form didn\'t open.</b> Try again in a moment — nothing about the house is locked to reading.'); return; }
+      else { this._pageNote(node, kind); return; }
     } catch (err) {
-      /* never swallow silently again — the hidden throw behind this note
+      /* never swallow silently — the hidden throw behind a silent note
          cost a full live cycle (MOUNT CURE, 2026-11-22) */
-      console.warn('[FaithAuth] Clerk mount failed:', err);
-      this.showNote('<b>The sign-in form didn\'t open.</b> Try again in a moment — nothing about the house is locked to reading.');
-      return;
+      console.warn('[FaithAuth] Clerk page mount failed:', err);
+      this._pageNote(node, kind);
     }
-    const other = kind === 'join' ? 'signin' : 'join';
-    this.showNote(kind === 'join'
-      ? 'Already a member? <button type="button" class="auth-switch" data-switch="signin">Sign in</button>'
-      : 'New here? <button type="button" class="auth-switch" data-switch="join">Join free</button>');
-    $('auth-status')?.querySelector('[data-switch]')?.addEventListener('click', () => this.mount(other));
+  },
+
+  _pageNote(node, kind) {
+    node.innerHTML = '<p class="si-note"><b>Sign-in couldn\'t load from this network.</b><br>The whole house stays open to read — nothing here is locked. <button type="button" class="si-retry">Try again</button></p>';
+    node.querySelector('.si-retry')?.addEventListener('click', () => this.mountIntoPage(node, kind));
   },
 
   /* ----- the terms step (JOIN gate) ----- */
@@ -1110,7 +1163,7 @@ const Auth = {
     if (this.state === 'ready' || this._loading) return;
     this._loading = true;
     this.state = 'loading';
-    const fail = () => { this._loading = false; if (this.state !== 'ready') this.state = 'error'; };
+    const fail = () => { this._loading = false; if (this.state !== 'ready') { this.state = 'error'; this._settleReady(new Error('Clerk failed to load')); } };
     const loadScript = (src, attrs = {}) => new Promise((resolve, reject) => {
       const s = document.createElement('script');
       s.src = src;
@@ -1140,9 +1193,8 @@ const Auth = {
         this._loading = false;
         window.Clerk.addListener(() => this.onAuthChange());
         this.onAuthChange();
-        if (this.pendingIntent) {
-          const k = this.pendingIntent; this.pendingIntent = null; this.mount(k);
-        }
+        this.pendingIntent = null;
+        this._settleReady(null);
       } catch { fail(); }
     })();
     setTimeout(fail, 25000);
@@ -1297,11 +1349,12 @@ if (new URLSearchParams(location.search).has('selftest')) {
       /* ---- F-CLERK battery (2026-11-22) ----
          Guest state: the account chrome shows Sign in / Join, the member
          chrome stays hidden, FaithAuth exists, and a guest token reads
-         null. Then the sign-in door itself: clicking Sign in must open
-         the overlay with either the real Clerk form mounted (this
+         null. Then the sign-in door itself (SIGN-IN PAGE, 2026-11-24):
+         clicking Sign in must NAVIGATE to the dedicated #/signin page,
+         where the Clerk form mounts inside the page's card (this
          sandbox's route to the Clerk host permitting) or the honest
-         "still opening / couldn't load" note — the fail-soft contract.
-         A hang or a blank overlay fails. */
+         note renders — and the old #auth-overlay must NEVER open.
+         A hang, a blank page, or an opened overlay fails. */
       const fa = window.FaithAuth;
       ok('F-CLERK: FaithAuth surface exists', !!fa && typeof fa.getToken === 'function' && typeof fa.apiFetch === 'function', fa ? `state=${fa.state}` : 'window.FaithAuth missing');
       const guestTok = fa ? await fa.getToken() : undefined;
@@ -1314,20 +1367,19 @@ if (new URLSearchParams(location.search).has('selftest')) {
       if (signinBtn) {
         signinBtn.click();
         const opened = await waitFor(() => {
+          if (location.hash !== '#/signin') return null;
           const ov = document.getElementById('auth-overlay');
-          if (!ov || ov.hidden) {
-            /* Clerk's own modal path: an iframe/component at body level. */
-            return document.querySelector('.cl-modalBackdrop, .cl-modal, [data-clerk-modal]') ? 'clerk-modal' : null;
-          }
-          const mount = document.getElementById('auth-mount');
-          const note = document.getElementById('auth-status');
-          if (mount && mount.children.length > 0) return 'mounted-form';
-          if (note && !note.hidden && note.textContent.trim()) return 'honest-note';
+          if (ov && !ov.hidden) return null; // the retired overlay must never open
+          if (document.querySelector('.cl-modalBackdrop, .cl-modal, [data-clerk-modal]')) return null; // nor Clerk's modal
+          const m = document.querySelector('.si-mount');
+          if (!m) return null;
+          if (m.querySelector('.si-note')) return 'page-honest-note';
+          if (m.children.length > 0 && !m.querySelector('.si-wait')) return 'page-form';
           return null;
         }, 30000);
-        ok('F-CLERK: sign-in door opens (Clerk form or honest note, never a hang)', !!opened, opened ? `via=${opened}` : 'overlay stayed empty for 30s');
-        const x = document.getElementById('btn-auth-close');
-        if (x) x.click();
+        ok('F-CLERK: sign-in door lands on the dedicated page (form or honest note, overlay never opens)', !!opened, opened ? `via=${opened}` : 'page never settled for 30s');
+        location.hash = '#/home';
+        await sleep(450);
       }
       const resources = performance.getEntriesByType('resource')
         .filter((e) => /\.(js|css)(\?|$)/.test(e.name) || /listen-index\.json/.test(e.name))
