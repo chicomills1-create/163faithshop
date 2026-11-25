@@ -297,7 +297,24 @@ function ensureStyle() {
   .w-stage .w-stage-msg{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--mute);font-size:14.5px;line-height:1.6}
   .w-stage .w-stage-msg b{color:var(--gold-hi);font-family:var(--serif);font-size:18px}
   .w-player-foot{padding:13px 20px;font-size:12px;color:var(--mute);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .w-chip:focus-visible,.w-save:focus-visible,.w-hero-save:focus-visible,.wcard2-hit:focus-visible,.w-rail-arrow:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+  /* SITE-WIDE AI INTENSITY (2026-11-23, consult chatcmpl-EnXUONbVHMo4IMZGg0P2PVyM96dHg):
+     the doors are pictured WORLDS, not text chips — one cinematic AI scene
+     per door, the door's live title count carried over the art. The chips
+     remain beneath as compact nav; rails keep real posters only. */
+  .w-doors{display:grid;grid-template-columns:1fr;gap:12px;margin:4px 0 18px}
+  @media(min-width:700px){.w-doors{grid-template-columns:1fr 1fr}}
+  @media(min-width:1100px){.w-doors{grid-template-columns:repeat(3,1fr)}}
+  .w-doorcard{position:relative;border:1px solid rgba(212,175,55,.35);border-radius:16px;overflow:hidden;background:#000;padding:0;cursor:pointer;text-align:left;color:var(--bone);aspect-ratio:16/8.4;width:100%;display:block}
+  .w-doorcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+  .w-doorcard:hover img,.w-doorcard:focus-visible img{transform:scale(1.04)}
+  .w-doorcard-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.05) 38%,rgba(5,5,5,.88))}
+  .w-doorcard-type{position:absolute;left:16px;right:16px;bottom:13px;display:block}
+  .w-doorcard-name{font-family:var(--serif);font-size:22px;display:block;text-shadow:0 2px 12px rgba(0,0,0,.8);color:#fff}
+  .w-doorcard-blurb{font-size:12.5px;color:var(--bone);opacity:.92;display:block;margin-top:2px;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+  .w-doorcard-count{display:inline-block;margin-top:8px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#050505;background:var(--gold);border-radius:999px;padding:4px 10px;font-weight:700}
+  .w-doorbanner{width:100%;height:150px;object-fit:cover;border-radius:14px;border:1px solid rgba(212,175,55,.3);margin:4px 0 18px;display:block}
+  @media(min-width:861px){.w-doorbanner{height:200px}}
+  .w-chip:focus-visible,.w-save:focus-visible,.w-hero-save:focus-visible,.wcard2-hit:focus-visible,.w-rail-arrow:focus-visible,.w-doorcard:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
   @media(max-width:760px){
     .w-hero{min-height:0;display:block}
     .w-hero img[data-hero-poster]{position:relative;height:230px}
@@ -314,7 +331,7 @@ function ensureStyle() {
     .w-ep .w-ep-thumb{width:96px}
     .w-toast{bottom:96px}
   }
-  @media(prefers-reduced-motion:reduce){.w-poster2 img,.w-play,.w-toast{transition:none!important}}`;
+  @media(prefers-reduced-motion:reduce){.w-poster2 img,.w-play,.w-toast,.w-doorcard img{transition:none!important}}`;
   document.head.appendChild(st);
 }
 
@@ -456,6 +473,18 @@ function renderDoors() {
     <div class="hub-search"><input type="search" data-watch-search placeholder="Search films & series" aria-label="Search Watch"></div>
     <!-- AUDIT CURE D-WATCH-1 (2026-11-24): a door with no titles yet says so — the Documentaries chip used to render a bare 0, an empty door with no honest state. Its badge now carries OPENING SOON until the door has a first title. -->
     <p class="w-chips-label">Pick a door</p>
+    <div class="w-doors">
+      ${doors.map((d) => { const n = doorTitles(d.slug).length; return `<button type="button" class="w-doorcard gold-frame" data-door="${esc(d.slug)}" aria-label="${esc(d.name)} — ${n} title${n === 1 ? '' : 's'}">
+        <img src="assets/img/watch/door-${esc(d.slug)}.webp" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">
+        <span class="w-doorcard-shade"></span>
+        <span class="glow-sweep" aria-hidden="true"></span>
+        <span class="w-doorcard-type">
+          <span class="w-doorcard-name">${esc(d.name)}</span>
+          ${d.blurb ? `<span class="w-doorcard-blurb">${esc(d.blurb)}</span>` : ''}
+          <span class="w-doorcard-count">${n ? `${n} title${n === 1 ? '' : 's'} · Enter →` : 'Opening soon'}</span>
+        </span>
+      </button>`; }).join('')}
+    </div>
     <div class="w-chips" role="group" aria-label="Watch doors">
       ${doors.map((d) => { const n = doorTitles(d.slug).length; return `<button type="button" class="w-chip" data-door="${esc(d.slug)}">${esc(d.name)}<span class="w-chip-n">${n || 'Opening soon'}</span></button>`; }).join('')}
     </div>
@@ -523,6 +552,7 @@ function renderShelf(doorSlug) {
     <p class="kicker">Watch · ${esc(meta.name)}</p>
     <h1>${esc(meta.name)}</h1>
     ${meta.blurb ? `<p class="lede">${esc(meta.blurb)}</p>` : ''}
+    <img class="w-doorbanner" src="assets/img/watch/door-${esc(doorSlug)}.webp" alt="" aria-hidden="true" loading="lazy" onerror="this.remove()">
     ${gridShelfHtml(doorSlug, titles, meta.name)}
   </section>`;
   rootEl.querySelector('[data-back]').addEventListener('click', () => { view = { name: 'doors' }; renderView(); });
