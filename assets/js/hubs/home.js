@@ -146,6 +146,14 @@ const HW_STYLE = `<style>
 @media(min-width:861px){.hw-card{grid-template-columns:38% 1fr}.hw-art{height:100%;min-height:280px}}
 section.pastor{box-shadow:0 0 0 1px rgba(212,175,55,.12),0 18px 50px rgba(0,0,0,.55)}
 .pastor .pastor-body{background:linear-gradient(100deg,rgba(10,9,5,.93),rgba(10,9,5,.86) 60%,rgba(10,9,5,.78)),url('assets/video/concert-crowd-poster.webp') center 30%/cover no-repeat}
+/* CROWD FILM SWAP 2026-11-25 (Living-Site census Wave 2, zero-gen): the
+   pastor card's text side now carries the crowd FILM itself playing
+   under the same heavy dark wash — the poster above remains the
+   reduced-motion / no-video face. The REAL photo is untouched. */
+.pastor .pastor-body{position:relative;overflow:hidden}
+.pastor .pastor-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;z-index:0}
+.pastor .pastor-wash{position:absolute;inset:0;background:linear-gradient(100deg,rgba(10,9,5,.93),rgba(10,9,5,.86) 60%,rgba(10,9,5,.78));z-index:1}
+.pastor .pastor-body>:not(.pastor-bg):not(.pastor-wash){position:relative;z-index:2}
 .hw-meta{font-size:12px;color:var(--mute);letter-spacing:.06em}
 .hw-title{margin-top:8px}
 .hw-quote{border-left:2px solid var(--gold);padding:6px 0 6px 16px;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.6;margin-top:14px}
@@ -528,7 +536,8 @@ export function render(root, { navigate }) {
         <span class="mono">JM</span>
         <img src="assets/img/home/pastor.webp" alt="Pastor Jeremy Mills preaching — microphone in hand, arm raised, wearing a black “It Is FINISHED” 16:3 Faith shirt" loading="lazy" onerror="this.remove()">
       </div>
-      <div class="pastor-body">
+      <div class="pastor-body" data-hubfilm>
+        ${(window.FaithFilm && window.FaithFilm.reduced) ? '' : '<video class="pastor-bg" muted loop playsinline autoplay preload="metadata" poster="assets/video/concert-crowd-poster.webp" aria-hidden="true"><source src="assets/video/concert-crowd.mp4" type="video/mp4"></video><span class="pastor-wash" aria-hidden="true"></span>'}
         <p class="kicker">Meet the Pastor</p>
         <h2>Pastor Jeremy <span class="g">“Chico” Mills</span></h2>
         <p><b>Founder &amp; Pastor of 16:3 Faith</b> — and a USAF veteran who believes the church should sound like the future and feel like family. No suit, no tie, no distance: just the Word, the music, and a house where everybody can walk in as they are.</p>
@@ -538,6 +547,7 @@ export function render(root, { navigate }) {
       </div>
     </section>
     </div>`;
+  if (window.FaithFilm) window.FaithFilm.wire(root);
   root.querySelectorAll('[data-hub]').forEach((el) => {
     el.addEventListener('click', () => { location.hash = `#/${el.dataset.hub}`; });
   });
