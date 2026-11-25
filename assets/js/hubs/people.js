@@ -271,6 +271,12 @@ function potwSlug(doc) {
   return rot[((weeks % rot.length) + rot.length) % rot.length];
 }
 
+/* HUB LABEL CURE 2026-11-25: the card label hardcoded the first four premieres
+   (jesus/moses/david/mary) — after the Wave 3 train landed, the other eight cards
+   still read 'Film in production' while their pages played the films. FILMS is the
+   landed set; new hall members honestly read 'in production' until theirs lands. */
+const FILMS = new Set(['jesus', 'moses', 'david', 'mary', 'abraham', 'peter', 'paul', 'john-the-baptist', 'esther', 'ruth', 'daniel', 'joseph']);
+
 function filmPlate(label) {
   return `<span class="pp-filmslot"><span class="dot"></span>${esc(label)} · Film in production</span>`;
 }
@@ -298,7 +304,7 @@ function indexHTML(doc) {
     <div class="top">
       <p class="pp-presents">16:3 Faith Presents</p>
       <h1>THE <span class="g">PEOPLE</span></h1>
-      <p class="sub">The Hall of Faith. Under the Tree of Life, beside the river that runs through the whole story, the witnesses stand gathered — every one of them with a story, their own words, and a film on the way.</p>
+      <p class="sub">The Hall of Faith. Under the Tree of Life, beside the river that runs through the whole story, the witnesses stand gathered — every one of them with a story, their own words, and a film of their own.</p>
     </div>
     <div class="bot">
       <span class="pp-filmslot"><span class="dot"></span>The Tree of Life Film · Now Playing</span>
@@ -343,7 +349,7 @@ function indexHTML(doc) {
       <img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
       <span class="shade"></span>
       <span class="pres">16:3 Faith Presents</span>
-      <span class="film">${p.slug === 'jesus' || p.slug === 'moses' || p.slug === 'david' || p.slug === 'mary' ? 'The Film · Now Playing' : 'Film in production'}</span>
+      <span class="film">${FILMS.has(p.slug) ? 'The Film · Now Playing' : 'Film in production'}</span>
       <span class="body">
         <h3>${esc(p.name)}</h3>
         <span class="id">${esc(p.identity)}</span>
@@ -362,7 +368,7 @@ function indexHTML(doc) {
       <a class="go" href="#/community">Meet the Community ↗</a>
     </div>
   </section>
-  <p class="pp-note">Portraits and scenes are original AI artwork in one cinematic family — artwork, not photographs; the people of Scripture left no cameras. Verses are ${esc(doc.translation)}. Films of the hall premiere in waves — Jesus, Moses, David and Mary have premiered, and the Tree of Life film now plays over the hall itself; the remaining films are in production, and every film slot on this page says so honestly until its film lands.</p>`;
+  <p class="pp-note">Portraits and scenes are original AI artwork in one cinematic family — artwork, not photographs; the people of Scripture left no cameras. Verses are ${esc(doc.translation)}. Every film in the hall has premiered — all twelve now play on their pages, and the Tree of Life film plays over the hall itself; as the hall grows, every new film slot will say so honestly until its film lands.</p>`;
 }
 
 function personHTML(doc, p) {
