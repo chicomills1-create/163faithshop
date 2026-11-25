@@ -380,7 +380,8 @@ function personHTML(doc, p) {
      and Mary's (MARY FILM STITCH 2026-11-24),
      and Abraham's (ABRAHAM FILM STITCH 2026-11-25),
      and Peter's (PETER FILM STITCH 2026-11-25),
-     and Paul's (PAUL FILM STITCH 2026-11-25). */
+     and Paul's (PAUL FILM STITCH 2026-11-25),
+     and John the Baptist's (JOHN THE BAPTIST FILM STITCH 2026-11-25). */
   const idx = doc.people.findIndex((x) => x.slug === p.slug);
   const prev = idx > 0 ? doc.people[idx - 1] : null;
   const next = idx >= 0 && idx < doc.people.length - 1 ? doc.people[idx + 1] : null;
@@ -391,6 +392,7 @@ function personHTML(doc, p) {
   const isAbraham = p.slug === 'abraham';
   const isPeter = p.slug === 'peter';
   const isPaul = p.slug === 'paul';
+  const isJohnBaptist = p.slug === 'john-the-baptist';
   return `
   <div class="pp-atmo" aria-hidden="true"></div>
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>
@@ -413,7 +415,7 @@ function personHTML(doc, p) {
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
   <section class="pp-feature reveal">
-    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : isMoses ? `<video data-living src="assets/video/people/moses-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Moses: The Film — the full feature, from the burning bush to the blessing of Joshua"></video>` : isDavid ? `<video data-living src="assets/video/people/david-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="David: The Film — the full feature, from the shepherd's lyre to the blessing of Solomon"></video>` : isMary ? `<video data-living src="assets/video/people/mary-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Mary: The Film — the full feature, from the annunciation to the assumption"></video>` : isAbraham ? `<video data-living src="assets/video/people/abraham-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Abraham: The Film — the full feature, from the call out of Ur to the promise kept"></video>` : isPeter ? `<video data-living src="assets/video/people/peter-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Peter: The Film — the full feature, from the nets of Galilee to the rooftop at Joppa"></video>` : isPaul ? `<video data-living src="assets/video/people/paul-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Paul: The Film — the full feature, from the road to Damascus to the final charge"></video>` : `<img class="pp-live" style="object-position:${esc(p.framePos || '50% 35%')}" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
+    ${isJesus ? `<video data-living src="assets/video/people/jesus-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Jesus: The Film — the full feature, from the baptism to the ascension"></video>` : isMoses ? `<video data-living src="assets/video/people/moses-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Moses: The Film — the full feature, from the burning bush to the blessing of Joshua"></video>` : isDavid ? `<video data-living src="assets/video/people/david-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="David: The Film — the full feature, from the shepherd's lyre to the blessing of Solomon"></video>` : isMary ? `<video data-living src="assets/video/people/mary-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Mary: The Film — the full feature, from the annunciation to the assumption"></video>` : isAbraham ? `<video data-living src="assets/video/people/abraham-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Abraham: The Film — the full feature, from the call out of Ur to the promise kept"></video>` : isPeter ? `<video data-living src="assets/video/people/peter-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Peter: The Film — the full feature, from the nets of Galilee to the rooftop at Joppa"></video>` : isPaul ? `<video data-living src="assets/video/people/paul-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="Paul: The Film — the full feature, from the road to Damascus to the final charge"></video>` : isJohnBaptist ? `<video data-living src="assets/video/people/john-the-baptist-film.mp4" poster="${esc(p.portrait)}" muted loop playsinline preload="none" aria-label="John the Baptist: The Film — the full feature, from the wilderness to the Jordan"></video>` : `<img class="pp-live" style="object-position:${esc(p.framePos || '50% 35%')}" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">`}
     <div class="plate">
       ${isJesus
         ? `<p class="t">✦ The Feature — 16:3 Faith Presents · Jesus: The Film</p>
@@ -436,6 +438,9 @@ function personHTML(doc, p) {
         : isPaul
         ? `<p class="t">✦ The Feature — 16:3 Faith Presents · Paul: The Film</p>
            <p class="s">The feature has premiered — the whole story in one film, playing in this frame: the persecutor striding through Jerusalem, the road to Damascus and the blinding light, blind in the city, the scales falling, the escape in the basket, the preacher in the agora, midnight singing in Philippi, the earthquake and open doors, the shipwreck shore, writing by lamplight in Rome, and the final charge — an old man at peace. 105 seconds, his whole road.</p>`
+        : isJohnBaptist
+        ? `<p class="t">✦ The Feature — 16:3 Faith Presents · John the Baptist: The Film</p>
+           <p class="s">The feature has premiered — the whole story in one film, playing in this frame: the lone figure in the wilderness, the voice over the crowd, the crowds descending into the Jordan, the baptism, the dove descending, the Lamb pointed out on the far shore, wild honey in the desert, the axe at the root, the warning in Herod's court, the prison question at dusk, and the voice at rest as the Jordan shines on. 105 seconds, his whole road.</p>`
         : `<p class="t">✦ The Feature — ${esc(p.name)}: The Film · 90–120 seconds · In Production</p>
            <p class="s">The films of the hall are being produced in waves — Jesus first. Until ${esc(p.name.split(' ')[0])}'s film lands, this frame holds their portrait. No borrowed footage, no fake player — when the film arrives, it premieres here.</p>`}
     </div>
