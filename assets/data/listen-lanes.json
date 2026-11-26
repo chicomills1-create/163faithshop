@@ -10,7 +10,8 @@
   "hymns": "assets/video/lanes/lane-hymns.mp4",
   "prayer": "assets/video/lanes/lane-prayer.mp4",
   "rb-soul": "assets/video/lanes/lane-rb-soul.mp4",
-  "voices": "assets/video/lanes/lane-voices.mp4"
+  "voices": "assets/video/lanes/lane-voices.mp4",
+  "healing": "assets/video/lanes/lane-healing.mp4"
  },
  "generatedAt": "2026-11-23",
  "source": "backfill-b0/b1-batch33/projection/web-discography.json (sha ee4033c7) — release/track titles + isLive + roster names; primary doors stay the index door field (genre-reference audit)",
