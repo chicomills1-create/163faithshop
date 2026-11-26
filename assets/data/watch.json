@@ -81,16 +81,16 @@
    "id": "ten-commandments-1923",
    "title": "The Ten Commandments",
    "description": "Cecil B. DeMille's original 1923 epic — Moses leads the Israelites from Egypt in this breathtaking silent spectacle with hand-colored sequences.",
-   "poster": "https://archive.org/services/img/ten-commandments-1923",
+   "poster": "https://archive.org/services/img/TheTenCommandments1923NR_201503",
    "year": 1923,
    "badge": "Cecil B. DeMille",
-   "durationMs": 8172000,
+   "durationMs": 8164870,
    "durationLabel": "2h 16m",
    "source": "Internet Archive",
    "rights": "Public Domain",
    "play": {
     "type": "mp4",
-    "src": "https://archive.org/download/ten-commandments-1923/TEN%20COMMANDMENTs%20(1923).ia.mp4",
+    "src": "https://archive.org/download/TheTenCommandments1923NR_201503/The%20Ten%20Commandments%20(1923)%20%5BNR%5D.mp4",
     "apiStreamPath": "/api/sanctuary/archive-films/ten-commandments-1923/stream"
    },
    "cast": [
