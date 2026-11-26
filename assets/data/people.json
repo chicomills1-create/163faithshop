@@ -1146,6 +1146,239 @@
     }
    ],
    "versesPending": null
+  },
+  {
+   "slug": "matthew",
+   "name": "Matthew",
+   "identity": "The tax collector who left the ledger",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-matthew.webp",
+   "scene": "assets/img/people/scene-matthew-custom-house.webp",
+   "sceneCaption": "At the receipt of custom — Matthew 9",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Matthew sat at the receipt of custom — a publican, a tax collector gathering Rome's revenue from his own people, counted by them a collaborator and a sinner. Jesus, passing by, saw him there: 'And as Jesus passed forth from thence, he saw a man, named Matthew, sitting at the receipt of custom: and he saith unto him, Follow me. And he arose, and followed him' (Matthew 9:9). Mark and Luke tell the same call and name the man Levi (Mark 2:14; Luke 5:27) — the same man, under the name their accounts carry. Two words from Jesus, and the ledger, the booth and the income were left on the table.",
+    "Matthew's first act as a follower was a feast. He made Jesus a great feast in his own house (Luke 5:29), and filled it with his own kind: 'many publicans and sinners came and sat down with him and his disciples' (Matthew 9:10). When the Pharisees demanded to know why Jesus ate with such company, the answer he gave explains Matthew's whole story: 'I am not come to call the righteous, but sinners to repentance' (Matthew 9:13). The tax collector had been called exactly as he was, from exactly where he sat.",
+    "Matthew stands in every list of the twelve, and in his own Gospel's list the old trade stays attached to his name — 'Matthew the publican' (Matthew 10:3) — as if the record refuses to let him hide where grace found him. After the ascension he is there in the upper room with the rest (Acts 1:13). The Gospel that bears his name opens the New Testament: 'The book of the generation of Jesus Christ, the son of David, the son of Abraham' (Matthew 1:1). Scripture records no spoken words of Matthew — his voice is the Gospel itself; the man who once kept Rome's ledger became a keeper of the King's."
+   ],
+   "verses": [
+    {
+     "text": "And as Jesus passed forth from thence, he saw a man, named Matthew, sitting at the receipt of custom: and he saith unto him, Follow me. And he arose, and followed him.",
+     "ref": "Matthew 9:9"
+    },
+    {
+     "text": "Philip, and Bartholomew; Thomas, and Matthew the publican; James the son of Alpheus, and Lebbeus, whose surname was Thaddeus;",
+     "ref": "Matthew 10:3"
+    },
+    {
+     "text": "And Levi made him a great feast in his own house: and there was a great company of publicans and of others that sat down with them.",
+     "ref": "Luke 5:29"
+    },
+    {
+     "text": "And when they were come in, they went up into an upper room, where abode both Peter, and James, and John, and Andrew, Philip, and Thomas, Bartholomew, and Matthew, James the son of Alpheus, and Simon Zelotes, and Judas the brother of James.",
+     "ref": "Acts 1:13"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "thomas",
+   "name": "Thomas",
+   "identity": "The doubter who confessed",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-thomas.webp",
+   "scene": "assets/img/people/scene-thomas-confession.webp",
+   "sceneCaption": "My Lord and my God — John 20",
+   "ownWords": {
+    "text": "And Thomas answered and said unto him, My Lord and my God.",
+    "ref": "John 20:28"
+   },
+   "hallLine": null,
+   "story": [
+    "Thomas, called Didymus — the Twin (John 11:16; 20:24). When Jesus set his face toward Bethany and the grave of Lazarus, into the very danger the other disciples feared, it was Thomas who spoke: 'Let us also go, that we may die with him' (John 11:16). Whatever else Thomas was, he was no coward and no fair-weather follower; when the road looked like death, his instinct was to walk it beside his Lord.",
+    "At the last supper, when Jesus spoke of going away to prepare a place, Thomas asked the honest question: 'Lord, we know not whither thou goest; and how can we know the way?' (John 14:5). The answer his question drew is among the most treasured sentences Jesus ever spoke: 'I am the way, the truth, and the life' (John 14:6). Thomas's questions have a way of pulling gold out of Jesus — he asked because he truly wanted to know, and he would not pretend to understand what he did not.",
+    "Thomas was not with the others when the risen Jesus first came to them (John 20:24), and he would not take the resurrection on another man's word: 'Except I shall see in his hands the print of the nails, and put my finger into the print of the nails, and thrust my hand into his side, I will not believe' (John 20:25). Eight days later Jesus came again and spoke to Thomas by name: 'be not faithless, but believing' (John 20:27). Thomas's answer is the fullest confession any disciple makes in all the Gospels: 'My Lord and my God' (John 20:28). He is remembered not for the doubt but for where the doubt ended — on his knees, confessing. He stands by the sea of Tiberias when Jesus shows himself again (John 21:2), and in the upper room after the ascension (Acts 1:13)."
+   ],
+   "verses": [
+    {
+     "text": "Then said Thomas, which is called Didymus, unto his fellowdisciples, Let us also go, that we may die with him.",
+     "ref": "John 11:16"
+    },
+    {
+     "text": "Thomas saith unto him, Lord, we know not whither thou goest; and how can we know the way?",
+     "ref": "John 14:5"
+    },
+    {
+     "text": "The other disciples therefore said unto him, We have seen the Lord. But he said unto them, Except I shall see in his hands the print of the nails, and put my finger into the print of the nails, and thrust my hand into his side, I will not believe.",
+     "ref": "John 20:25"
+    },
+    {
+     "text": "And Thomas answered and said unto him, My Lord and my God.",
+     "ref": "John 20:28"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "james-alphaeus",
+   "name": "James son of Alphaeus",
+   "identity": "Named among the Twelve",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-james-alphaeus.webp",
+   "scene": "assets/img/people/scene-james-alphaeus-upper-room.webp",
+   "sceneCaption": "In the upper room — Acts 1",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "James the son of Alphaeus is named in every list of the twelve — Matthew 10:3, Mark 3:18, Luke 6:15, and again in the upper room in Acts 1:13 — and Scripture singles him out nowhere else. He must be kept distinct from the other men of his name: he is not James the son of Zebedee, John's brother, who fell by Herod's sword, and he is not James the brother of the Lord, who later led the church at Jerusalem. This James is simply, steadily, one of the twelve — chosen by Jesus, counted in every list, and never once missing from his place in it.",
+    "No word of his is recorded, and no scene in the Gospels bears his name alone. What the record gives is the company he kept: called with the twelve and sent out with them (Matthew 10:1–5), and after the ascension present in the upper room, where the eleven 'all continued with one accord in prayer and supplication' (Acts 1:13–14). He heard the same teaching, walked the same roads, waited for the same promise as every other apostle — the whole of it shared, none of it spotlighted.",
+    "There is a kind of faithfulness the record honors by inclusion rather than by story. James son of Alphaeus has no scene, no speech and no miracle in Scripture; his biography is his name, written four times among the twelve. The hall keeps a place for him because Jesus did. Not every witness is given a moment; some are given a place in the list, and in this list, a place is no small thing. Scripture records no words of James son of Alphaeus."
+   ],
+   "verses": [
+    {
+     "text": "Philip, and Bartholomew; Thomas, and Matthew the publican; James the son of Alpheus, and Lebbeus, whose surname was Thaddeus;",
+     "ref": "Matthew 10:3"
+    },
+    {
+     "text": "And Andrew, and Philip, and Bartholomew, and Matthew, and Thomas, and James the son of Alpheus, and Thaddeus, and Simon the Canaanite,",
+     "ref": "Mark 3:18"
+    },
+    {
+     "text": "Matthew and Thomas, James the son of Alpheus, and Simon called Zelotes,",
+     "ref": "Luke 6:15"
+    },
+    {
+     "text": "And when they were come in, they went up into an upper room, where abode both Peter, and James, and John, and Andrew, Philip, and Thomas, Bartholomew, and Matthew, James the son of Alpheus, and Simon Zelotes, and Judas the brother of James.",
+     "ref": "Acts 1:13"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "thaddaeus",
+   "name": "Thaddaeus (Jude)",
+   "identity": "He asked why the world would not see",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-thaddaeus.webp",
+   "scene": "assets/img/people/scene-thaddaeus-question.webp",
+   "sceneCaption": "Lord, how is it…? — John 14",
+   "ownWords": {
+    "text": "Judas saith unto him, not Iscariot, Lord, how is it that thou wilt manifest thyself unto us, and not unto the world?",
+    "ref": "John 14:22"
+   },
+   "hallLine": null,
+   "story": [
+    "He stands in the lists of the twelve under more than one name. Matthew and Mark call him Thaddaeus — Matthew's list gives him in full as 'Lebbaeus, whose surname was Thaddaeus' (Matthew 10:3) — while Luke, in both his Gospel and Acts, calls him 'Judas the brother of James' (Luke 6:16; Acts 1:13). One man, named differently by the different lists; the record keeps all of his names and lets them stand together, and this page carries the name the first lists gave him.",
+    "His one recorded moment is a question, asked at the last supper. Jesus had just said that he would manifest himself to his disciples; and 'Judas saith unto him, not Iscariot, Lord, how is it that thou wilt manifest thyself unto us, and not unto the world?' (John 14:22). John is careful to mark him off from the betrayer — not Iscariot — and the question itself is the honest one believers have asked ever since: why made known to us, and not plainly to everyone?",
+    "The answer Jesus gave him answers every such question: it runs by love and obedience — 'If a man love me, he will keep my words: and my Father will love him, and we will come unto him, and make our abode with him' (John 14:23). After the ascension Thaddaeus is there in the upper room, named among the eleven who continued in prayer (Acts 1:13–14). The man of three names asked one question, and the question drew one of the tenderest promises in the Gospel: God making his home with those who love him."
+   ],
+   "verses": [
+    {
+     "text": "Philip, and Bartholomew; Thomas, and Matthew the publican; James the son of Alpheus, and Lebbeus, whose surname was Thaddeus;",
+     "ref": "Matthew 10:3"
+    },
+    {
+     "text": "And Andrew, and Philip, and Bartholomew, and Matthew, and Thomas, and James the son of Alpheus, and Thaddeus, and Simon the Canaanite,",
+     "ref": "Mark 3:18"
+    },
+    {
+     "text": "Judas saith unto him, not Iscariot, Lord, how is it that thou wilt manifest thyself unto us, and not unto the world?",
+     "ref": "John 14:22"
+    },
+    {
+     "text": "And when they were come in, they went up into an upper room, where abode both Peter, and James, and John, and Andrew, Philip, and Thomas, Bartholomew, and Matthew, James the son of Alpheus, and Simon Zelotes, and Judas the brother of James.",
+     "ref": "Acts 1:13"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "simon-zealot",
+   "name": "Simon the Zealot",
+   "identity": "The zealot called to a greater kingdom",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-simon-zealot.webp",
+   "scene": "assets/img/people/scene-simon-zealot-galilee.webp",
+   "sceneCaption": "Called from zeal to the Kingdom — Luke 6",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "Simon is named in every list of the twelve with a title attached to him. Luke calls him 'Simon called Zelotes' — Simon the Zealot (Luke 6:15; Acts 1:13) — and Matthew and Mark carry the same word in its Aramaic form, 'Simon the Canaanite' (Matthew 10:4; Mark 3:18): not a man from Canaan, but a kananaios, a zealot — one whose heart burned with zeal for Israel and for deliverance from the power of Rome.",
+    "Consider the company Jesus put him in. In the same apostolic band sat Matthew, who had grown rich collecting Rome's taxes, and Simon, whose zeal ran against everything Rome stood for. Jesus called them both, and set them at one table under one Lord. Whatever Simon's fire had been fixed on before, it was re-aimed at a different kingdom — the kingdom Jesus would describe before Pilate: 'My kingdom is not of this world' (John 18:36). The zealot was not told to stop burning; he was given something worth the flame.",
+    "No words of Simon are recorded, and no scene in the Gospels bears his name alone. After the ascension he is in the upper room with the rest, named in Acts 1:13 among those who 'continued with one accord in prayer and supplication' (Acts 1:14) — the tax collector and the zealot, still in one room, still in one accord. Scripture records no words of Simon the Zealot; his testimony is the place he kept: a man who longed for a kingdom, found a greater one, and stayed."
+   ],
+   "verses": [
+    {
+     "text": "Simon the Canaanite, and Judas Iscariot, who also betrayed him.",
+     "ref": "Matthew 10:4"
+    },
+    {
+     "text": "Matthew and Thomas, James the son of Alpheus, and Simon called Zelotes,",
+     "ref": "Luke 6:15"
+    },
+    {
+     "text": "And when they were come in, they went up into an upper room, where abode both Peter, and James, and John, and Andrew, Philip, and Thomas, Bartholomew, and Matthew, James the son of Alpheus, and Simon Zelotes, and Judas the brother of James.",
+     "ref": "Acts 1:13"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "judas-iscariot",
+   "name": "Judas Iscariot",
+   "identity": "The betrayer — a warning written in sorrow",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-judas-iscariot.webp",
+   "scene": "assets/img/people/scene-judas-betrayal.webp",
+   "sceneCaption": "The kiss in the garden — Matthew 26",
+   "ownWords": {
+    "text": "Saying, I have sinned in that I have betrayed the innocent blood. And they said, What is that to us? see thou to that.",
+    "ref": "Matthew 27:4"
+   },
+   "hallLine": null,
+   "story": [
+    "Judas Iscariot, the son of Simon (John 6:71), was one of the twelve — chosen with the rest, sent with the rest, and trusted with the common purse: he 'had the bag, and bare what was put therein' (John 12:6). Scripture does not hide what else it says of him. At the supper in Bethany, when Mary anointed Jesus' feet with costly ointment, it was Judas who objected to the expense — and John records his reason plainly: 'not that he cared for the poor; but because he was a thief, and had the bag' (John 12:6). And long before the end, Jesus had said of the twelve he chose, 'Have not I chosen you twelve, and one of you is a devil?' (John 6:70).",
+    "In the last week Judas went to the chief priests and covenanted with them to deliver Jesus for thirty pieces of silver (Matthew 26:14–16). At the supper Jesus named what was coming — 'Verily I say unto you, that one of you shall betray me' (Matthew 26:21) — and gave the sop to Judas; after the sop, John says, Satan entered into him, and he went out, 'and it was night' (John 13:26–30). In the garden he came at the head of a band of men, and betrayed the Son of man with the sign he had chosen: 'Hail, master; and kissed him' (Matthew 26:49). Jesus' word to him in that moment is among the saddest in the Gospels: 'Friend, wherefore art thou come?' (Matthew 26:50).",
+    "When Judas saw that Jesus was condemned, he repented himself, and brought back the thirty pieces of silver to the chief priests, confessing, 'I have sinned in that I have betrayed the innocent blood' (Matthew 27:3–4). They would not receive it from him; he cast the money down in the temple and departed, and Matthew records his end plainly and briefly (Matthew 27:5). Acts, choosing another in his place, tells of the field bought with the reward of iniquity, called Aceldama — the field of blood (Acts 1:18–20). His page stands in the hall as Scripture's own warning, told without softening and without triumph: nearness to holy things is not the same as a heart given to them."
+   ],
+   "verses": [
+    {
+     "text": "And said unto them, What will ye give me, and I will deliver him unto you? And they covenanted with him for thirty pieces of silver.",
+     "ref": "Matthew 26:15"
+    },
+    {
+     "text": "And forthwith he came to Jesus, and said, Hail, master; and kissed him.",
+     "ref": "Matthew 26:49"
+    },
+    {
+     "text": "Saying, I have sinned in that I have betrayed the innocent blood. And they said, What is that to us? see thou to that.",
+     "ref": "Matthew 27:4"
+    },
+    {
+     "text": "Now this man purchased a field with the reward of iniquity; and falling headlong, he burst asunder in the midst, and all his bowels gushed out.",
+     "ref": "Acts 1:18"
+    }
+   ],
+   "versesPending": null
   }
  ]
 }
