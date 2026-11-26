@@ -262,7 +262,7 @@ async function loadPeople() {
 }
 
 const FRUITS = [[17,30],[25,19],[32,37],[40,15],[47,29],[54,13],[59,33],[65,21],[71,37],[77,17],[83,29],[49,43]];
-const ERA_ORDER = ['patriarchs', 'exodus', 'kingdom', 'exile', 'forerunner', 'witnesses', 'jesus', 'apostle'];
+const ERA_ORDER = ['patriarchs', 'exodus', 'kingdom', 'exile', 'forerunner', 'witnesses', 'jesus', 'apostle', 'apostles'];
 
 function potwSlug(doc) {
   const epoch = Date.UTC(2026, 10, 23); // Monday of launch week — rotation starts with Jesus
@@ -368,7 +368,7 @@ function indexHTML(doc) {
       <a class="go" href="#/community">Meet the Community ↗</a>
     </div>
   </section>
-  <p class="pp-note">Portraits and scenes are original AI artwork in one cinematic family — artwork, not photographs; the people of Scripture left no cameras. Verses are ${esc(doc.translation)}. Every film in the hall has premiered — all twelve now play on their pages, and the Tree of Life film plays over the hall itself; as the hall grows, every new film slot will say so honestly until its film lands.</p>`;
+  <p class="pp-note">Portraits and scenes are original AI artwork in one cinematic family — artwork, not photographs; the people of Scripture left no cameras. Verses are ${esc(doc.translation)}. The first twelve films of the hall have premiered and play on their pages, and the Tree of Life film plays over the hall itself; as the hall grows, every new film slot says so honestly until its film lands.</p>`;
 }
 
 function personHTML(doc, p) {
