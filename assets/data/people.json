@@ -596,6 +596,47 @@
    "versesPending": null
   },
   {
+   "slug": "king-saul",
+   "name": "King Saul",
+   "identity": "The first king, who lost the kingdom",
+   "era": "kingdom",
+   "eraLabel": "The Kingdom Road",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-king-saul.webp",
+   "scene": "assets/img/people/scene-saul-anointed.webp",
+   "sceneCaption": "Anointed by Samuel — 1 Samuel 10",
+   "ownWords": {
+    "text": "And Saul said unto Samuel, I have sinned: for I have transgressed the commandment of the Lord, and thy words: because I feared the people, and obeyed their voice.",
+    "ref": "1 Samuel 15:24"
+   },
+   "hallLine": null,
+   "story": [
+    "Israel asked for a king to rule them like the nations, and the man God gave them was Saul the son of Kish, of the tribe of Benjamin — head and shoulders taller than any man in Israel, with none goodlier among the people (1 Samuel 9:1–2). Samuel anointed him with oil in private, then presented him to the tribes at Mizpeh; when the lot fell on Saul he was found hidden among the baggage, and the people shouted, 'God save the king' (1 Samuel 10:17–24). His reign opened in victory: he mustered Israel and broke the Ammonite siege of Jabesh-gilead (1 Samuel 11).",
+    "The cracks came early, and they were cracks of obedience. At Gilgal, with his army scattering, Saul forced himself and offered the burnt offering that was Samuel's to give (1 Samuel 13). Sent against Amalek with a plain command to destroy all, he spared King Agag and the best of the flocks — and blamed the people when Samuel confronted him (1 Samuel 15). Samuel's sentence over Saul's reign has never been improved: 'to obey is better than sacrifice' — and the kingdom was torn from Saul that day, and given to a neighbour better than he (1 Samuel 15:22, 28).",
+    "Twice Saul said the words — 'I have sinned' (1 Samuel 15:24, 30) — yet in the same breath he asked Samuel to honour him before the elders of the people, and the crown still passed to David, the shepherd Samuel anointed in Bethlehem. Saul spent his last years hunting the man he knew would replace him, while David spared his life twice. He died on Mount Gilboa, fallen on his own sword in the Philistine rout (1 Samuel 31) — and Paul keeps his place in the story exact: God gave Israel Saul, 'and when he had removed him, he raised up unto them David' (Acts 13:21–22)."
+   ],
+   "verses": [
+    {
+     "text": "And he had a son, whose name was Saul, a choice young man, and a goodly: and there was not among the children of Israel a goodlier person than he: from his shoulders and upward he was higher than any of the people.",
+     "ref": "1 Samuel 9:2"
+    },
+    {
+     "text": "And Samuel said to all the people, See ye him whom the Lord hath chosen, that there is none like him among all the people? And all the people shouted, and said, God save the king.",
+     "ref": "1 Samuel 10:24"
+    },
+    {
+     "text": "And Saul said unto Samuel, I have sinned: for I have transgressed the commandment of the Lord, and thy words: because I feared the people, and obeyed their voice.",
+     "ref": "1 Samuel 15:24"
+    },
+    {
+     "text": "Then he said, I have sinned: yet honour me now, I pray thee, before the elders of my people, and before Israel, and turn again with me, that I may worship the Lord thy God.",
+     "ref": "1 Samuel 15:30"
+    }
+   ],
+   "versesPending": null
+  },
+  {
    "slug": "david",
    "name": "David",
    "identity": "The shepherd king",
@@ -904,6 +945,204 @@
     {
      "text": "I can do all things through Christ which strengtheneth me.",
      "ref": "Philippians 4:13"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "andrew",
+   "name": "Andrew",
+   "identity": "The first to follow, who brought others",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-andrew.webp",
+   "scene": "assets/img/people/scene-andrew-jordan.webp",
+   "sceneCaption": "By the Jordan — John 1",
+   "ownWords": {
+    "text": "He first findeth his own brother Simon, and saith unto him, We have found the Messias, which is, being interpreted, the Christ.",
+    "ref": "John 1:41"
+   },
+   "hallLine": null,
+   "story": [
+    "Andrew was a disciple of John the Baptist before he was a disciple of Jesus. Standing by the Jordan, he heard John point at Jesus — 'Behold the Lamb of God' — and followed, and stayed with Jesus that day (John 1:35–40). The first thing the record shows him doing is the thing he always does: 'He first findeth his own brother Simon Peter, and saith unto him, We have found the Messias... And he brought him to Jesus' (John 1:41–42).",
+    "It is Andrew again at the feeding of the five thousand — the one who finds the lad with five barley loaves and two small fishes, and names the gap honestly: 'but what are they among so many?' (John 6:8–9). Jesus took what Andrew found and fed the multitude with it. And when Greeks came up to the feast asking to see Jesus, they came to Philip, Philip came to Andrew, and Andrew and Philip together told Jesus (John 12:20–22).",
+    "The Gospels give Andrew no miracles and no sermons; his gift is introductions — a brother, a boy with a lunch, strangers from Greece. He stands in every list of the twelve (Matthew 10:2), and after the ascension he is there in the upper room, continuing in prayer with the rest (Acts 1:13–14). The first man to follow Jesus is remembered, fittingly, for the people he brought with him."
+   ],
+   "verses": [
+    {
+     "text": "He first findeth his own brother Simon, and saith unto him, We have found the Messias, which is, being interpreted, the Christ.",
+     "ref": "John 1:41"
+    },
+    {
+     "text": "One of his disciples, Andrew, Simon Peter’s brother, saith unto him,",
+     "ref": "John 6:8"
+    },
+    {
+     "text": "There is a lad here, which hath five barley loaves, and two small fishes: but what are they among so many?",
+     "ref": "John 6:9"
+    },
+    {
+     "text": "Philip cometh and telleth Andrew: and again Andrew and Philip tell Jesus.",
+     "ref": "John 12:22"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "james-zebedee",
+   "name": "James son of Zebedee",
+   "identity": "A son of thunder, first of the twelve to fall",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-james-zebedee.webp",
+   "scene": "assets/img/people/scene-james-nets.webp",
+   "sceneCaption": "Mending nets by the sea — Matthew 4",
+   "ownWords": {
+    "text": "They said unto him, Grant unto us that we may sit, one on thy right hand, and the other on thy left hand, in thy glory.",
+    "ref": "Mark 10:37"
+   },
+   "hallLine": null,
+   "story": [
+    "James was in the boat with his father Zebedee and his brother John, mending their nets, when Jesus came along the shore of Galilee and called them: 'And going on from thence, he saw other two brethren, James the son of Zebedee, and John his brother, in a ship with Zebedee their father, mending their nets; and he called them. And immediately they left the ship and their father, and followed him' (Matthew 4:21–22).",
+    "With Peter and John, James was taken closest in: present when Jesus raised Jairus's daughter, on the mountain when he was transfigured, and near him in Gethsemane (Mark 5:37; 9:2; 14:33). Jesus surnamed the brothers Boanerges — 'the sons of thunder' (Mark 3:17) — and the thunder shows: they asked to call fire down on a Samaritan village that would not receive Jesus (Luke 9:54), and they came asking for the thrones at his right and left hand in his glory (Mark 10:37). Jesus answered with a cup and a baptism they did not yet understand — and of the two brothers, James drank of that cup first.",
+    "After Pentecost, when Herod the king stretched forth his hands to vex the church, 'he killed James the brother of John with the sword' (Acts 12:2). James is the first of the twelve to die for the name of Jesus — the only one of the twelve whose martyrdom Scripture itself records. The son of thunder who asked for a seat in glory received instead the martyr's crown, first of the twelve to wear it."
+   ],
+   "verses": [
+    {
+     "text": "And going on from thence, he saw other two brethren, James the son of Zebedee, and John his brother, in a ship with Zebedee their father, mending their nets; and he called them.",
+     "ref": "Matthew 4:21"
+    },
+    {
+     "text": "And they immediately left the ship and their father, and followed him.",
+     "ref": "Matthew 4:22"
+    },
+    {
+     "text": "They said unto him, Grant unto us that we may sit, one on thy right hand, and the other on thy left hand, in thy glory.",
+     "ref": "Mark 10:37"
+    },
+    {
+     "text": "And he killed James the brother of John with the sword.",
+     "ref": "Acts 12:2"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "john-apostle",
+   "name": "John the Apostle",
+   "identity": "The disciple whom Jesus loved",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-john-apostle.webp",
+   "scene": "assets/img/people/scene-john-cross.webp",
+   "sceneCaption": "At the foot of the cross — John 19",
+   "ownWords": null,
+   "hallLine": null,
+   "story": [
+    "John was the younger of Zebedee's sons, called with James from the nets (Matthew 4:21–22) and taken, with Peter and James, closer than the rest — into Jairus's house, up the mountain of transfiguration, and a little farther into Gethsemane (Mark 5:37; 9:2; 14:33). In his own Gospel he never writes his name. He is 'the disciple whom Jesus loved' (John 13:23; 21:20) — the one who leaned on Jesus' breast at the last supper and asked who the betrayer would be (John 13:23–25).",
+    "Of the twelve, John alone is placed at the cross: 'When Jesus therefore saw his mother, and the disciple standing by, whom he loved, he saith unto his mother, Woman, behold thy son! Then saith he to the disciple, Behold thy mother! And from that hour that disciple took her unto his own home' (John 19:26–27). On the resurrection morning he outran Peter to the sepulchre, stooped down, saw the linen clothes lying — 'and believed' (John 20:2–8).",
+    "His Gospel signs itself: 'This is the disciple which testifieth of these things, and wrote these things: and we know that his testimony is true' (John 21:24). Three letters carry his name, and the last book of the Bible came to him in exile — 'I John, who also am your brother, and companion in tribulation... was in the isle that is called Patmos, for the word of God, and for the testimony of Jesus Christ' (Revelation 1:9). The son of thunder became the apostle of love: 'God is love' is his summary of the whole matter (1 John 4:8)."
+   ],
+   "verses": [
+    {
+     "text": "When Jesus therefore saw his mother, and the disciple standing by, whom he loved, he saith unto his mother, Woman, behold thy son!",
+     "ref": "John 19:26"
+    },
+    {
+     "text": "Then saith he to the disciple, Behold thy mother! And from that hour that disciple took her unto his own home.",
+     "ref": "John 19:27"
+    },
+    {
+     "text": "This is the disciple which testifieth of these things, and wrote these things: and we know that his testimony is true.",
+     "ref": "John 21:24"
+    },
+    {
+     "text": "I John, who also am your brother, and companion in tribulation, and in the kingdom and patience of Jesus Christ, was in the isle that is called Patmos, for the word of God, and for the testimony of Jesus Christ.",
+     "ref": "Revelation 1:9"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "philip",
+   "name": "Philip",
+   "identity": "The one who said, Come and see",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-philip.webp",
+   "scene": "assets/img/people/scene-philip-come-see.webp",
+   "sceneCaption": "Come and see — John 1",
+   "ownWords": {
+    "text": "Philip findeth Nathanael, and saith unto him, We have found him, of whom Moses in the law, and the prophets, did write, Jesus of Nazareth, the son of Joseph.",
+    "ref": "John 1:45"
+   },
+   "hallLine": null,
+   "story": [
+    "Philip was from Bethsaida, the city of Andrew and Peter (John 1:44). The day after Andrew first followed Jesus, 'Jesus... findeth Philip, and saith unto him, Follow me' (John 1:43). Philip's first recorded act is Andrew's act — he went and found someone: 'Philip findeth Nathanael, and saith unto him, We have found him, of whom Moses in the law, and the prophets, did write, Jesus of Nazareth, the son of Joseph' (John 1:45).",
+    "Philip is the apostle Jesus tested with a sum. Seeing the great crowd coming, Jesus asked him where bread could be bought to feed them — 'and this he said to prove him: for he himself knew what he would do' (John 6:5–6). Philip answered from the ledger: 'Two hundred pennyworth of bread is not sufficient for them, that every one of them may take a little' (John 6:7). The feeding, when it came, did not come out of Philip's arithmetic; it came from a boy's loaves in Jesus' hands.",
+    "At the last supper Philip made the request the whole church has prayed since: 'Lord, shew us the Father, and it sufficeth us' (John 14:8). The answer stands among the greatest sentences in the Gospel: 'Have I been so long time with you, and yet hast thou not known me, Philip? he that hath seen me hath seen the Father' (John 14:9). Philip is named among the apostles waiting in the upper room after the ascension (Acts 1:13). (The Philip of Acts 8 — the evangelist who baptized the Ethiopian — is another man, one of the seven; this Philip is the apostle from Bethsaida.)"
+   ],
+   "verses": [
+    {
+     "text": "Philip findeth Nathanael, and saith unto him, We have found him, of whom Moses in the law, and the prophets, did write, Jesus of Nazareth, the son of Joseph.",
+     "ref": "John 1:45"
+    },
+    {
+     "text": "When Jesus then lifted up his eyes, and saw a great company come unto him, he saith unto Philip, Whence shall we buy bread, that these may eat?",
+     "ref": "John 6:5"
+    },
+    {
+     "text": "Philip answered him, Two hundred pennyworth of bread is not sufficient for them, that every one of them may take a little.",
+     "ref": "John 6:7"
+    },
+    {
+     "text": "Philip saith unto him, Lord, shew us the Father, and it sufficeth us.",
+     "ref": "John 14:8"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "bartholomew",
+   "name": "Bartholomew",
+   "identity": "An Israelite indeed, in whom is no guile",
+   "era": "apostles",
+   "eraLabel": "The Twelve",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-bartholomew.webp",
+   "scene": "assets/img/people/scene-bartholomew-fig-tree.webp",
+   "sceneCaption": "Under the fig tree — John 1",
+   "ownWords": {
+    "text": "Nathanael answered and saith unto him, Rabbi, thou art the Son of God; thou art the King of Israel.",
+    "ref": "John 1:49"
+   },
+   "hallLine": null,
+   "story": [
+    "Bartholomew stands in every list of the twelve — in Matthew, Mark and Luke always near Philip (Matthew 10:3; Mark 3:18; Luke 6:14), and again in the upper room in Acts (Acts 1:13) — yet no word of a man called Bartholomew is recorded anywhere in Scripture. The church has long known him as Nathanael of Cana, the man Philip brought to Jesus in John 1: Bartholomew is a surname — son of Tolmai — and Nathanael the given name it would carry. That identification is the church's tradition, held for centuries, and it is as Nathanael that his story is told here.",
+    "Philip found Nathanael and told him the news — Jesus of Nazareth, the one Moses and the prophets wrote of. Nathanael's answer was the honest skeptic's question: 'Can there any good thing come out of Nazareth?' Philip did not argue the point; he said, 'Come and see' (John 1:46). Jesus saw him coming and said of him, 'Behold an Israelite indeed, in whom is no guile!' — and when Nathanael asked how Jesus knew him, the answer undid him: 'Before that Philip called thee, when thou wast under the fig tree, I saw thee' (John 1:47–48).",
+    "Nathanael's confession is one of the first and fullest in all the Gospels: 'Rabbi, thou art the Son of God; thou art the King of Israel' (John 1:49). Jesus promised the guileless man greater things than a fig tree — heaven opened, and the angels of God ascending and descending upon the Son of man (John 1:51). Nathanael is named again at the end, standing with the disciples by the sea of Tiberias when the risen Jesus showed himself to them (John 21:2) — still there, from the fig tree to the empty tomb to the upper room."
+   ],
+   "verses": [
+    {
+     "text": "And Nathanael said unto him, Can there any good thing come out of Nazareth? Philip saith unto him, Come and see.",
+     "ref": "John 1:46"
+    },
+    {
+     "text": "Nathanael answered and saith unto him, Rabbi, thou art the Son of God; thou art the King of Israel.",
+     "ref": "John 1:49"
+    },
+    {
+     "text": "There were together Simon Peter, and Thomas called Didymus, and Nathanael of Cana in Galilee, and the sons of Zebedee, and two other of his disciples.",
+     "ref": "John 21:2"
     }
    ],
    "versesPending": null
