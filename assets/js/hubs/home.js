@@ -33,14 +33,14 @@
    tile — the real 16:3 mark on the real garment is the point. */
 const SHOP_TILE_IMG = 'https://files.cdn.printful.com/files/165/16596b1e990f2038c70450d8a836d73b_preview.png';
 const TILES = [
-  { hub: 'watch',     num: '01', name: 'WATCH',     blurb: 'Films, series & teachings',    img: 'assets/img/home/tile-watch.webp',     alt: 'A singer performing into a microphone under a golden spotlight' },
-  { hub: 'listen',    num: '02', name: 'LISTEN',    blurb: 'The Sanctuary — full songs',   img: 'assets/img/home/tile-listen.webp',    alt: 'A woman in headphones at a studio mixing console, eyes closed, lost in the music' },
-  { hub: 'read',      num: '03', name: 'READ',      blurb: 'Bible, devotionals & the book', img: 'assets/img/home/tile-read.webp',     alt: 'A young woman with long braids reading an open book in warm window light' },
+  { hub: 'watch',     num: '01', name: 'WATCH',     blurb: 'Films, series & teachings',    film: 'assets/video/loop-watch.mp4', img: 'assets/img/home/tile-watch.webp',     alt: 'A singer performing into a microphone under a golden spotlight' },
+  { hub: 'listen',    num: '02', name: 'LISTEN',    blurb: 'The Sanctuary — full songs',   film: 'assets/video/tile-listen-loop.mp4', img: 'assets/img/home/tile-listen.webp',    alt: 'A woman in headphones at a studio mixing console, eyes closed, lost in the music' },
+  { hub: 'read',      num: '03', name: 'READ',      blurb: 'Bible, devotionals & the book', film: 'assets/video/loop-read.mp4', img: 'assets/img/home/tile-read.webp',     alt: 'A young woman with long braids reading an open book in warm window light' },
   { hub: 'pray',      num: '04', name: 'PRAY',      blurb: 'The Prayer Room',              film: 'assets/video/tile-pray-loop.mp4', img: 'assets/img/home/tile-pray.webp',      alt: 'A young man in a black hoodie praying by a window, hands open in golden light' },
-  { hub: 'community', num: '05', name: 'COMMUNITY', blurb: 'Feed, testimonies & members',  img: 'assets/img/home/tile-community.webp', alt: 'Friends laughing together around a shared table of food' },
+  { hub: 'community', num: '05', name: 'COMMUNITY', blurb: 'Feed, testimonies & members',  film: 'assets/video/loop-community.mp4', img: 'assets/img/home/tile-community.webp', alt: 'Friends laughing together around a shared table of food' },
   { hub: 'give',      num: '06', name: 'GIVE',      blurb: 'Offerings & partnership',      film: 'assets/video/tile-give-loop.mp4', img: 'assets/img/home/tile-give.webp',     alt: 'A young man handing a bag of groceries to a young woman at a produce table' },
-  { hub: 'people',    num: '08', name: 'THE PEOPLE', blurb: 'The Hall of Faith — their stories, words & films', img: 'assets/img/people/tree-of-life.webp', alt: 'The Tree of Life — a great golden tree with a river of light winding from its roots' },
-  { hub: 'shop',      num: '07', name: 'SHOP',      blurb: 'Wear the work — gold on black', img: SHOP_TILE_IMG, wide: true,            alt: 'The Crowned Heavy Hoodie — a real 16:3 Faith product photo from the shop' },
+  { hub: 'people',    num: '08', name: 'THE PEOPLE', blurb: 'The Hall of Faith — their stories, words & films', film: 'assets/video/tile-people-loop.mp4', img: 'assets/img/people/tree-of-life.webp', alt: 'The Tree of Life — a great golden tree with a river of light winding from its roots' },
+  { hub: 'shop',      num: '07', name: 'SHOP',      blurb: 'Wear the work — gold on black', film: 'assets/video/tile-shop-loop.mp4', img: SHOP_TILE_IMG, wide: true,            alt: 'The Crowned Heavy Hoodie — a real 16:3 Faith product photo from the shop' },
 ];
 /* Counters — ONE SOURCE for every surface in the house (SPEC §2 D4): the
    live pulse, GET /api/community/pulse on the production API (members /
