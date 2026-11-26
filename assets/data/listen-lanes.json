@@ -7,7 +7,8 @@
   "worship": "assets/video/lanes/lane-worship.mp4",
   "choir": "assets/video/lanes/lane-choir.mp4",
   "live": "assets/video/lanes/lane-live.mp4",
-  "hymns": "assets/video/lanes/lane-hymns.mp4"
+  "hymns": "assets/video/lanes/lane-hymns.mp4",
+  "prayer": "assets/video/lanes/lane-prayer.mp4"
  },
  "generatedAt": "2026-11-23",
  "source": "backfill-b0/b1-batch33/projection/web-discography.json (sha ee4033c7) — release/track titles + isLive + roster names; primary doors stay the index door field (genre-reference audit)",
