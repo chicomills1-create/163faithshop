@@ -25,6 +25,172 @@
  ],
  "people": [
   {
+   "slug": "adam",
+   "name": "Adam",
+   "identity": "Formed from dust, in God's image",
+   "era": "patriarchs",
+   "eraLabel": "The Patriarchs",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-adam.webp",
+   "scene": "assets/img/people/scene-adam-eden.webp",
+   "sceneCaption": "In the garden of Eden — Genesis 2",
+   "ownWords": {
+    "text": "This is now bone of my bones, and flesh of my flesh: she shall be called Woman, because she was taken out of Man.",
+    "ref": "Genesis 2:23"
+   },
+   "hallLine": null,
+   "story": [
+    "God formed him from the dust of the ground and breathed into his nostrils the breath of life, and man became a living soul (Genesis 2:7) — created in the image of God (Genesis 1:27), placed in Eden to dress it and to keep it, given every tree but one, and one command.",
+    "Alone among the creatures he had no counterpart, until God took from his side and made the woman — and Adam's first recorded words are a poem of recognition: 'This is now bone of my bones, and flesh of my flesh' (Genesis 2:23). And they were both naked, the man and his wife, and were not ashamed.",
+    "Then came the serpent, the fruit, and the fall — and Adam's next recorded words are an excuse: 'The woman whom thou gavest to be with me, she gave me of the tree, and I did eat' (Genesis 3:12). The ground was cursed for his sake; yet even in judgment God clothed them with coats of skins (Genesis 3:21), and Adam named his wife Eve, mother of all living — holding the promise that her seed would bruise the serpent's head (Genesis 3:15, 20)."
+   ],
+   "verses": [
+    {
+     "text": "So God created man in his own image, in the image of God created he him; male and female created he them.",
+     "ref": "Genesis 1:27"
+    },
+    {
+     "text": "And the Lord God formed man of the dust of the ground, and breathed into his nostrils the breath of life; and man became a living soul.",
+     "ref": "Genesis 2:7"
+    },
+    {
+     "text": "And Adam said, This is now bone of my bones, and flesh of my flesh: she shall be called Woman, because she was taken out of Man.",
+     "ref": "Genesis 2:23"
+    },
+    {
+     "text": "And the man said, The woman whom thou gavest to be with me, she gave me of the tree, and I did eat.",
+     "ref": "Genesis 3:12"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "eve",
+   "name": "Eve",
+   "identity": "The mother of all living",
+   "era": "patriarchs",
+   "eraLabel": "The Patriarchs",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-eve.webp",
+   "scene": "assets/img/people/scene-eve-tree.webp",
+   "sceneCaption": "The tree in the midst of the garden — Genesis 3",
+   "ownWords": {
+    "text": "I have gotten a man from the Lord.",
+    "ref": "Genesis 4:1"
+   },
+   "hallLine": null,
+   "story": [
+    "She was taken from Adam's side while he slept — 'And the rib, which the Lord God had taken from man, made he a woman, and brought her unto the man' (Genesis 2:22) — the crown of the creation, a help meet for him, bearing with him the image of God.",
+    "The serpent came to her first, questioning the one command — and she took of the fruit, and gave also unto her husband with her, and he did eat. Questioned by God, her recorded words are honest and short: 'The serpent beguiled me, and I did eat' (Genesis 3:13).",
+    "Judgment fell — and inside it, a promise aimed past her to her seed, who would bruise the serpent's head (Genesis 3:15): the first gospel, spoken over the first sinners. Adam named her Eve, because she was the mother of all living (Genesis 3:20); and her own voice rings with hope at her firstborn's birth: 'I have gotten a man from the Lord' (Genesis 4:1)."
+   ],
+   "verses": [
+    {
+     "text": "And the rib, which the Lord God had taken from man, made he a woman, and brought her unto the man.",
+     "ref": "Genesis 2:22"
+    },
+    {
+     "text": "And the Lord God said unto the woman, What is this that thou hast done? And the woman said, The serpent beguiled me, and I did eat.",
+     "ref": "Genesis 3:13"
+    },
+    {
+     "text": "And I will put enmity between thee and the woman, and between thy seed and her seed; it shall bruise thy head, and thou shalt bruise his heel.",
+     "ref": "Genesis 3:15"
+    },
+    {
+     "text": "And Adam called his wife’s name Eve; because she was the mother of all living.",
+     "ref": "Genesis 3:20"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "noah",
+   "name": "Noah",
+   "identity": "He found grace, and built",
+   "era": "patriarchs",
+   "eraLabel": "The Patriarchs",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-noah.webp",
+   "scene": "assets/img/people/scene-noah-bow.webp",
+   "sceneCaption": "The bow in the cloud — Genesis 9",
+   "ownWords": {
+    "text": "Blessed be the Lord God of Shem; and Canaan shall be his servant.",
+    "ref": "Genesis 9:26"
+   },
+   "hallLine": {
+    "text": "By faith Noah, being warned of God of things not seen as yet, moved with fear, prepared an ark to the saving of his house; by the which he condemned the world, and became heir of the righteousness which is by faith:",
+    "ref": "Hebrews 11:7"
+   },
+   "story": [
+    "In a generation where the wickedness of man was great and every imagination of his heart was only evil continually, one man stood out: 'But Noah found grace in the eyes of the Lord' — 'a just man and perfect in his generations, and Noah walked with God' (Genesis 6:8–9).",
+    "Warned of a flood no eye had ever seen, he believed the warning and built — 'By faith Noah, being warned of God of things not seen as yet, moved with fear, prepared an ark to the saving of his house' (Hebrews 11:7). The record's verdict on that enormous obedience is one line: 'Thus did Noah; according to all that God commanded him, so did he' (Genesis 6:22).",
+    "Through the flood and out the other side, Noah built an altar, and God set His bow in the cloud as the token of His covenant with every living creature (Genesis 9:13). His recorded words bless the line of Shem — 'Blessed be the Lord God of Shem' (Genesis 9:26) — the line through which the promise would travel; and of his three sons was the whole earth overspread (Genesis 9:19)."
+   ],
+   "verses": [
+    {
+     "text": "But Noah found grace in the eyes of the Lord.",
+     "ref": "Genesis 6:8"
+    },
+    {
+     "text": "These are the generations of Noah: Noah was a just man and perfect in his generations, and Noah walked with God.",
+     "ref": "Genesis 6:9"
+    },
+    {
+     "text": "Thus did Noah; according to all that God commanded him, so did he.",
+     "ref": "Genesis 6:22"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "jacob",
+   "name": "Jacob",
+   "identity": "The wrestler who would not let go",
+   "era": "patriarchs",
+   "eraLabel": "The Patriarchs",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-jacob.webp",
+   "scene": "assets/img/people/scene-jacob-ladder.webp",
+   "sceneCaption": "The ladder at Bethel — Genesis 28",
+   "ownWords": {
+    "text": "I will not let thee go, except thou bless me.",
+    "ref": "Genesis 32:26"
+   },
+   "hallLine": {
+    "text": "By faith Jacob, when he was a dying, blessed both the sons of Joseph; and worshipped, leaning upon the top of his staff.",
+    "ref": "Hebrews 11:21"
+   },
+   "story": [
+    "The younger twin who grasped his brother's heel, bought the birthright for a meal, and took the blessing in disguise — Jacob ran from home with a staff and a promise he had not yet made his own. At Bethel he dreamed of a ladder set up on the earth, its top reaching to heaven, and woke in awe: 'Surely the Lord is in this place; and I knew it not... this is none other but the house of God, and this is the gate of heaven' (Genesis 28:16–17).",
+    "Twenty years of exile followed — wives, children, flocks — and on the way home, facing the brother he had wronged, Jacob was left alone at the ford Jabbok, 'and there wrestled a man with him until the breaking of the day' (Genesis 32:24). Wounded in the hollow of his thigh, he still would not release his grip: 'I will not let thee go, except thou bless me' (Genesis 32:26).",
+    "He came away with a new name — 'Thy name shall be called no more Jacob, but Israel: for as a prince hast thou power with God and with men, and hast prevailed' (Genesis 32:28) — and a limp he carried the rest of his life. The twelve tribes bear his sons' names; and Hebrews remembers his end in worship, blessing Joseph's sons, leaning upon the top of his staff (Hebrews 11:21)."
+   ],
+   "verses": [
+    {
+     "text": "And Jacob awaked out of his sleep, and he said, Surely the Lord is in this place; and I knew it not.",
+     "ref": "Genesis 28:16"
+    },
+    {
+     "text": "And he was afraid, and said, How dreadful is this place! this is none other but the house of God, and this is the gate of heaven.",
+     "ref": "Genesis 28:17"
+    },
+    {
+     "text": "And he said, Let me go, for the day breaketh. And he said, I will not let thee go, except thou bless me.",
+     "ref": "Genesis 32:26"
+    },
+    {
+     "text": "And he said, Thy name shall be called no more Jacob, but Israel: for as a prince hast thou power with God and with men, and hast prevailed.",
+     "ref": "Genesis 32:28"
+    }
+   ],
+   "versesPending": null
+  },
+  {
    "slug": "abraham",
    "name": "Abraham",
    "identity": "The father of faith",
@@ -356,6 +522,47 @@
    "versesPending": null
   },
   {
+   "slug": "isaiah",
+   "name": "Isaiah",
+   "identity": "The prophet who saw the King",
+   "era": "kingdom",
+   "eraLabel": "The Kingdom Road",
+   "testament": "OT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-isaiah.webp",
+   "scene": "assets/img/people/scene-isaiah-throne.webp",
+   "sceneCaption": "Holy, holy, holy — Isaiah 6",
+   "ownWords": {
+    "text": "Here am I; send me.",
+    "ref": "Isaiah 6:8"
+   },
+   "hallLine": null,
+   "story": [
+    "In the year that King Uzziah died, Isaiah saw the Lord sitting upon a throne, high and lifted up, His train filling the temple, seraphim crying 'Holy, holy, holy' until the posts of the door moved (Isaiah 6:1–4). The vision first undid him — 'Woe is me! for I am undone; because I am a man of unclean lips' (Isaiah 6:5) — then a seraph touched his mouth with a live coal from the altar, and his sin was purged.",
+    "Cleansed, he heard the question that has echoed through every calling since: 'Whom shall I send, and who will go for us?' His answer is the shortest commission in Scripture: 'Here am I; send me' (Isaiah 6:8). He was sent to a people who would hear and not understand — and he went anyway, prophesying through the reigns of kings for a lifetime.",
+    "From Isaiah's scroll shines the clearest sight of Jesus in all the Old Testament: the child whose name shall be called 'Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace' (Isaiah 9:6) — and the suffering servant, 'wounded for our transgressions, bruised for our iniquities... and with his stripes we are healed' (Isaiah 53:5). Seven centuries early, he saw Him whole."
+   ],
+   "verses": [
+    {
+     "text": "Then said I, Woe is me! for I am undone; because I am a man of unclean lips, and I dwell in the midst of a people of unclean lips: for mine eyes have seen the King, the Lord of hosts.",
+     "ref": "Isaiah 6:5"
+    },
+    {
+     "text": "Also I heard the voice of the Lord, saying, Whom shall I send, and who will go for us? Then said I, Here am I; send me.",
+     "ref": "Isaiah 6:8"
+    },
+    {
+     "text": "For unto us a child is born, unto us a son is given: and the government shall be upon his shoulder: and his name shall be called Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace.",
+     "ref": "Isaiah 9:6"
+    },
+    {
+     "text": "But he was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed.",
+     "ref": "Isaiah 53:5"
+    }
+   ],
+   "versesPending": null
+  },
+  {
    "slug": "ruth",
    "name": "Ruth",
    "identity": "The loyalty that entered the line",
@@ -548,6 +755,47 @@
     {
      "text": "His mother saith unto the servants, Whatsoever he saith unto you, do it.",
      "ref": "John 2:5"
+    }
+   ],
+   "versesPending": null
+  },
+  {
+   "slug": "mary-magdalene",
+   "name": "Mary Magdalene",
+   "identity": "First to see Him risen",
+   "era": "witnesses",
+   "eraLabel": "The First Witnesses",
+   "testament": "NT",
+   "thread": false,
+   "portrait": "assets/img/people/portrait-mary-magdalene.webp",
+   "scene": "assets/img/people/scene-mary-magdalene-tomb.webp",
+   "sceneCaption": "Rabboni — John 20",
+   "ownWords": {
+    "text": "Rabboni",
+    "ref": "John 20:16"
+   },
+   "hallLine": null,
+   "story": [
+    "She first appears in the record among the women who followed Jesus from Galilee and ministered unto Him — 'Mary called Magdalene, out of whom went seven devils' (Luke 8:2). Whatever had held her, He had cast it out; and from then on she is never far from Him — standing by the cross when most had fled, watching where He was laid.",
+    "On the first day of the week she came to the sepulchre early, when it was yet dark, and found the stone taken away (John 20:1). She ran for Peter and John — but when they went home, she stayed: weeping at the tomb, questioning the angels, pleading with a man she supposed to be the gardener to tell her where they had laid Him, that she might take Him away.",
+    "Then He spoke her name — 'Mary' — and she turned and answered with one word: 'Rabboni; which is to say, Master' (John 20:16). The risen Jesus appeared first to Mary Magdalene (Mark 16:9), and He sent her as the first messenger of the resurrection: 'Mary Magdalene came and told the disciples that she had seen the Lord, and that he had spoken these things unto her' (John 20:18)."
+   ],
+   "verses": [
+    {
+     "text": "And certain women, which had been healed of evil spirits and infirmities, Mary called Magdalene, out of whom went seven devils,",
+     "ref": "Luke 8:2"
+    },
+    {
+     "text": "Now when Jesus was risen early the first day of the week, he appeared first to Mary Magdalene, out of whom he had cast seven devils.",
+     "ref": "Mark 16:9"
+    },
+    {
+     "text": "Jesus saith unto her, Mary. She turned herself, and saith unto him, Rabboni; which is to say, Master.",
+     "ref": "John 20:16"
+    },
+    {
+     "text": "Mary Magdalene came and told the disciples that she had seen the Lord, and that he had spoken these things unto her.",
+     "ref": "John 20:18"
     }
    ],
    "versesPending": null
