@@ -15,7 +15,8 @@
   "spiritual-warfare": "assets/video/lanes/lane-spiritual-warfare.mp4",
   "sleep-soaking": "assets/video/lanes/lane-sleep-soaking.mp4",
   "kids": "assets/video/lanes/lane-kids.mp4",
-  "choirs-groups": "assets/video/lanes/lane-choirs-groups.mp4"
+  "choirs-groups": "assets/video/lanes/lane-choirs-groups.mp4",
+  "sermons": "assets/video/lanes/lane-sermons.mp4"
  },
  "generatedAt": "2026-11-23",
  "source": "backfill-b0/b1-batch33/projection/web-discography.json (sha ee4033c7) — release/track titles + isLive + roster names; primary doors stay the index door field (genre-reference audit)",
