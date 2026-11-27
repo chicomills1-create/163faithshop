@@ -314,7 +314,7 @@ function indexHTML(doc) {
 
   <div class="pp-kicker"><span>Person of the Week</span><span class="hair"></span><span class="tag">Rotates weekly through the hall</span></div>
   <button type="button" class="pp-potw reveal" data-person="${esc(potw.slug)}">
-    <img class="pp-live" src="${esc(potw.portrait)}" alt="${esc(potw.name)} — portrait" loading="lazy">
+    <img class="pp-live" style="object-position:${esc(potw.cardPos || '50% 22%')}" src="${esc(potw.portrait)}" alt="${esc(potw.name)} — portrait" loading="lazy">
     <span>
       <span class="lab">✦ Person of the Week</span>
       <h3>${esc(potw.name)}</h3>
@@ -330,7 +330,7 @@ function indexHTML(doc) {
     <p>One line runs through the whole Bible — the promise carried from father to son, mother to child, all the way to Jesus. Tap anyone on the line to land on their page. The line grows as the hall grows.</p>
     <div class="pp-line">
       <span class="pp-origin">From Adam →</span>
-      ${threadNodes.map((p, i) => `${i ? '<span class="pp-link"></span>' : ''}<button type="button" class="pp-node${p.heart ? ' heart' : ''}" data-person="${esc(p.slug)}"><img class="pt" src="${esc(p.portrait)}" alt="" loading="lazy"><span>${esc(p.name.split(' ')[0])}</span></button>`).join('')}
+      ${threadNodes.map((p, i) => `${i ? '<span class="pp-link"></span>' : ''}<button type="button" class="pp-node${p.heart ? ' heart' : ''}" data-person="${esc(p.slug)}"><img class="pt" style="object-position:${esc(p.cardPos || '50% 20%')}" src="${esc(p.portrait)}" alt="" loading="lazy"><span>${esc(p.name.split(' ')[0])}</span></button>`).join('')}
     </div>
   </section>
 
@@ -346,7 +346,7 @@ function indexHTML(doc) {
   <div class="pp-grid">
     ${g.people.map((p) => `
     <button type="button" class="pp-card${p.heart ? ' heart' : ''} reveal" data-person="${esc(p.slug)}">
-      <img class="pp-live" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
+      <img class="pp-live" style="object-position:${esc(p.cardPos || '50% 18%')}" src="${esc(p.portrait)}" alt="${esc(p.name)} — portrait" loading="lazy">
       <span class="shade"></span>
       <span class="pres">16:3 Faith Presents</span>
       <span class="film">${FILMS.has(p.slug) ? 'The Film · Now Playing' : 'Film in production'}</span>
@@ -411,7 +411,7 @@ function personHTML(doc, p) {
   <div class="pp-atmo" aria-hidden="true"></div>
   <button type="button" class="pp-back" data-back>← Back to the Hall</button>
   <section class="pp-scene hero reveal">
-    <img class="pp-live slow" src="${esc(p.scene)}" alt="${esc(p.name)} — the defining moment: ${esc(p.sceneCaption)}">
+    <img class="pp-live slow" style="object-position:${esc(p.scenePos || '50% 50%')}" src="${esc(p.scene)}" alt="${esc(p.name)} — the defining moment: ${esc(p.sceneCaption)}">
     ${isMoses ? `<video class="pp-loopvid" data-living src="assets/video/people/red-sea-loop.mp4" poster="${esc(p.scene)}" muted loop playsinline preload="none" aria-hidden="true"></video>` : ''}
     <div class="pp-sceneshade"></div>
     <span class="cap chip">${esc(p.sceneCaption)}</span>
@@ -424,7 +424,7 @@ function personHTML(doc, p) {
   <section class="pp-river reveal">
     <div class="lab"><span>✦ On the River</span><span class="where">Witness ${idx + 1} of ${doc.people.length} · ${esc(p.eraLabel)}</span>${p.thread ? '<span class="threadnote">✦ On the Scarlet Thread</span>' : ''}</div>
     <div class="pp-riverline">
-      ${doc.people.map((x, i) => `${i ? `<span class="pp-rlink${i <= idx ? ' done' : ''}"></span>` : ''}<button type="button" class="pp-rnode${x.slug === p.slug ? ' now' : ''}" data-person="${esc(x.slug)}" aria-label="${esc(x.name)}"><img src="${esc(x.portrait)}" alt="" loading="lazy"><span>${esc(x.name.split(' ')[0])}</span></button>`).join('')}
+      ${doc.people.map((x, i) => `${i ? `<span class="pp-rlink${i <= idx ? ' done' : ''}"></span>` : ''}<button type="button" class="pp-rnode${x.slug === p.slug ? ' now' : ''}" data-person="${esc(x.slug)}" aria-label="${esc(x.name)}"><img style="object-position:${esc(x.cardPos || '50% 20%')}" src="${esc(x.portrait)}" alt="" loading="lazy"><span>${esc(x.name.split(' ')[0])}</span></button>`).join('')}
     </div>
   </section>
   ${words ? `<section class="pp-words reveal"><span class="lab">${esc(words.lab)}</span><blockquote>“${esc(words.text)}”</blockquote><span class="ref">${esc(words.ref)} · KJV</span></section>` : ''}
@@ -475,7 +475,7 @@ function personHTML(doc, p) {
     <h3>THE STORY.</h3>
     ${p.story.map((t) => `<p>${esc(t)}</p>`).join('')}
   </section>
-  ${p.scene2 ? `<section class="pp-scene pp-scene2 reveal"><img class="pp-live" src="${esc(p.scene2)}" alt="${esc(p.name)} — ${esc(p.scene2Caption)}" loading="lazy"><span class="cap">${esc(p.scene2Caption)}</span></section>` : ''}
+  ${p.scene2 ? `<section class="pp-scene pp-scene2 reveal"><img class="pp-live" style="object-position:50% 0%" src="${esc(p.scene2)}" alt="${esc(p.name)} — ${esc(p.scene2Caption)}" loading="lazy"><span class="cap">${esc(p.scene2Caption)}</span></section>` : ''}
   <section class="pp-ask reveal">
     <div><p class="t">✦ Ask about ${esc(p.name.split(' ')[0])}</p><p class="s">FaithGuide answers from ${esc(p.name.split(' ')[0])}'s record on this page only — their own words and the verses below, cited. Labeled AI, as everywhere in this house.</p></div>
     <button type="button" data-ask="${esc(p.slug)}">Ask FaithGuide →</button>
