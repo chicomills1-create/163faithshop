@@ -63,7 +63,10 @@
      "ref": "Genesis 3:12"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "83% 27%",
+   "framePos": "50% 29%",
+   "scenePos": "15% 50%"
   },
   {
    "slug": "eve",
@@ -104,7 +107,10 @@
      "ref": "Genesis 3:20"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "56% 18%",
+   "framePos": "50% 21%",
+   "scenePos": "39% 50%"
   },
   {
    "slug": "noah",
@@ -144,7 +150,10 @@
      "ref": "Genesis 6:22"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "37% 30%",
+   "framePos": "50% 32%",
+   "scenePos": "34% 50%"
   },
   {
    "slug": "jacob",
@@ -188,7 +197,10 @@
      "ref": "Genesis 32:28"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "63% 20%",
+   "framePos": "50% 22%",
+   "scenePos": "39% 50%"
   },
   {
    "slug": "abraham",
@@ -221,7 +233,10 @@
      "ref": "Hebrews 11:17"
     }
    ],
-   "versesPending": "Genesis 15:6 and his own words (Genesis 22:8) — sourcing pass owed"
+   "versesPending": "Genesis 15:6 and his own words (Genesis 22:8) — sourcing pass owed",
+   "cardPos": "57% 38%",
+   "framePos": "50% 39%",
+   "scenePos": "23% 50%"
   },
   {
    "slug": "joseph",
@@ -250,7 +265,10 @@
      "ref": "Hebrews 11:22"
     }
    ],
-   "versesPending": "Genesis 50:20 (his own words) — sourcing pass owed"
+   "versesPending": "Genesis 50:20 (his own words) — sourcing pass owed",
+   "cardPos": "96% 24%",
+   "framePos": "50% 25%",
+   "scenePos": "21% 0%"
   },
   {
    "slug": "moses",
@@ -290,7 +308,10 @@
      "ref": "Hebrews 11:29"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "44% 10%",
+   "framePos": "50% 14%",
+   "scenePos": "2% 10%"
   },
   {
    "slug": "gideon",
@@ -334,7 +355,10 @@
      "ref": "Judges 7:7"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 19%",
+   "framePos": "50% 22%",
+   "scenePos": "4% 50%"
   },
   {
    "slug": "boaz",
@@ -371,7 +395,10 @@
      "ref": "Ruth 4:10"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 9%",
+   "framePos": "50% 13%",
+   "scenePos": "58% 50%"
   },
   {
    "slug": "samson",
@@ -407,7 +434,10 @@
      "ref": "Judges 16:30"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "57% 15%",
+   "framePos": "50% 18%",
+   "scenePos": "50% 88%"
   },
   {
    "slug": "rizpah",
@@ -441,7 +471,10 @@
      "ref": "2 Samuel 21:11"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 25%",
+   "framePos": "50% 27%",
+   "scenePos": "81% 15%"
   },
   {
    "slug": "elijah",
@@ -478,7 +511,10 @@
      "ref": "1 Kings 18:39"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 18%",
+   "framePos": "50% 20%",
+   "scenePos": "79% 50%"
   },
   {
    "slug": "elisha",
@@ -519,7 +555,10 @@
      "ref": "2 Kings 6:17"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "48% 6%",
+   "framePos": "50% 11%",
+   "scenePos": "15% 50%"
   },
   {
    "slug": "isaiah",
@@ -560,7 +599,10 @@
      "ref": "Isaiah 53:5"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "37% 49%",
+   "framePos": "50% 49%",
+   "scenePos": "48% 100%"
   },
   {
    "slug": "ruth",
@@ -593,7 +635,10 @@
      "ref": "Ruth 1:17"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "40% 14%",
+   "framePos": "50% 18%",
+   "scenePos": "36% 27%"
   },
   {
    "slug": "king-saul",
@@ -634,7 +679,10 @@
      "ref": "1 Samuel 15:30"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "7% 16%",
+   "framePos": "50% 19%",
+   "scenePos": "53% 47%"
   },
   {
    "slug": "david",
@@ -667,7 +715,10 @@
      "ref": "Psalm 23:4"
     }
    ],
-   "versesPending": "1 Samuel 17:45 (his words to Goliath) — sourcing pass owed"
+   "versesPending": "1 Samuel 17:45 (his words to Goliath) — sourcing pass owed",
+   "cardPos": "47% 13%",
+   "framePos": "50% 15%",
+   "scenePos": "16% 81%"
   },
   {
    "slug": "esther",
@@ -705,7 +756,10 @@
      "ref": "Esther 7:3"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 24%",
+   "framePos": "50% 25%",
+   "scenePos": "34% 50%"
   },
   {
    "slug": "daniel",
@@ -731,7 +785,10 @@
      "ref": "Hebrews 11:33"
     }
    ],
-   "versesPending": "Daniel 2:20 and 6:22 — sourcing pass owed"
+   "versesPending": "Daniel 2:20 and 6:22 — sourcing pass owed",
+   "cardPos": "57% 36%",
+   "framePos": "50% 37%",
+   "scenePos": "55% 69%"
   },
   {
    "slug": "john-the-baptist",
@@ -764,7 +821,10 @@
      "ref": "Matthew 11:11"
     }
    ],
-   "versesPending": "John 1:29 — sourcing pass owed"
+   "versesPending": "John 1:29 — sourcing pass owed",
+   "cardPos": "43% 19%",
+   "framePos": "50% 21%",
+   "scenePos": "43% 50%"
   },
   {
    "slug": "mary",
@@ -798,7 +858,10 @@
      "ref": "John 2:5"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "60% 17%",
+   "framePos": "50% 20%",
+   "scenePos": "84% 48%"
   },
   {
    "slug": "mary-magdalene",
@@ -839,7 +902,10 @@
      "ref": "John 20:18"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "46% 23%",
+   "framePos": "50% 26%",
+   "scenePos": "30% 50%"
   },
   {
    "slug": "jesus",
@@ -879,7 +945,10 @@
      "ref": "Matthew 11:28"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "33% 28%",
+   "framePos": "50% 29%",
+   "scenePos": "76% 1%"
   },
   {
    "slug": "peter",
@@ -917,7 +986,10 @@
      "ref": "Acts 2:38"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "53% 23%",
+   "framePos": "50% 25%",
+   "scenePos": "36% 0%"
   },
   {
    "slug": "paul",
@@ -947,7 +1019,10 @@
      "ref": "Philippians 4:13"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "54% 15%",
+   "framePos": "50% 18%",
+   "scenePos": "69% 100%"
   },
   {
    "slug": "andrew",
@@ -988,7 +1063,10 @@
      "ref": "John 12:22"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "67% 24%",
+   "framePos": "50% 25%",
+   "scenePos": "16% 7%"
   },
   {
    "slug": "james-zebedee",
@@ -1029,7 +1107,10 @@
      "ref": "Acts 12:2"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 14%",
+   "framePos": "50% 17%",
+   "scenePos": "24% 10%"
   },
   {
    "slug": "john-apostle",
@@ -1067,7 +1148,10 @@
      "ref": "Revelation 1:9"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "50% 25%",
+   "framePos": "50% 27%",
+   "scenePos": "28% 59%"
   },
   {
    "slug": "philip",
@@ -1108,7 +1192,10 @@
      "ref": "John 14:8"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "73% 19%",
+   "framePos": "50% 21%",
+   "scenePos": "16% 0%"
   },
   {
    "slug": "bartholomew",
@@ -1145,7 +1232,10 @@
      "ref": "John 21:2"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "70% 33%",
+   "framePos": "50% 34%",
+   "scenePos": "65% 73%"
   },
   {
    "slug": "matthew",
@@ -1183,7 +1273,10 @@
      "ref": "Acts 1:13"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "53% 20%",
+   "framePos": "50% 22%",
+   "scenePos": "24% 0%"
   },
   {
    "slug": "thomas",
@@ -1224,7 +1317,10 @@
      "ref": "John 20:28"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "33% 34%",
+   "framePos": "50% 35%",
+   "scenePos": "21% 45%"
   },
   {
    "slug": "james-alphaeus",
@@ -1262,7 +1358,10 @@
      "ref": "Acts 1:13"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "67% 33%",
+   "framePos": "50% 34%",
+   "scenePos": "43% 87%"
   },
   {
    "slug": "thaddaeus",
@@ -1303,7 +1402,10 @@
      "ref": "Acts 1:13"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "60% 39%",
+   "framePos": "50% 40%",
+   "scenePos": "5% 66%"
   },
   {
    "slug": "simon-zealot",
@@ -1337,7 +1439,10 @@
      "ref": "Acts 1:13"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "60% 10%",
+   "framePos": "50% 13%",
+   "scenePos": "40% 0%"
   },
   {
    "slug": "judas-iscariot",
@@ -1378,7 +1483,10 @@
      "ref": "Acts 1:18"
     }
    ],
-   "versesPending": null
+   "versesPending": null,
+   "cardPos": "83% 13%",
+   "framePos": "50% 15%",
+   "scenePos": "36% 0%"
   }
  ]
 }
