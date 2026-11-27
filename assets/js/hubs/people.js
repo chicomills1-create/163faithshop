@@ -112,7 +112,7 @@ function injectCss() {
   .pp-card .chip{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:6px 11px;color:var(--bone);background:rgba(5,5,5,.55)}
   .pp-card .chip.thread{border-color:rgba(224,101,90,.6);color:#f0a49c}
   .pp-card.heart{grid-column:1/-1;border:2px solid var(--gold);box-shadow:0 0 34px rgba(212,175,55,.22)}
-  .pp-card.heart img{height:460px}
+  .pp-card.heart img{height:460px;object-fit:contain}
   @media(min-width:760px){.pp-card.heart img{height:540px}}
   /* ——— Church closing band ——— */
   .pp-church{position:relative;border:1px solid var(--gold-dim);border-radius:22px;overflow:hidden;margin-top:44px}
