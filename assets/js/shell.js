@@ -62,6 +62,7 @@ const Player = {
   npTitleEl: $('np-title'),
   npSubEl: $('np-sub'),
   npProvEl: $('np-prov'),
+   npImprintEl: $('np-imprint'),
   npEndedEl: $('np-ended'),
   npEndedLineEl: $('np-ended-line'),
   npSeekEl: $('np-seek'),
@@ -130,7 +131,11 @@ const Player = {
     this.stageProvEl.hidden = !prov;
     this.npProvEl.hidden = !prov;
     if (prov) this.stageProvEl.textContent = prov;
-    this.coverEl.disabled = false;
+     /* LABEL IMPRINT (16:3 Faith Records, LABEL-PAGE-SPEC placement 5):
+        when the duo's track is on the face, the Now Playing page carries
+        the imprint line linking to the label page (#/records). */
+    if (this.npImprintEl) this.npImprintEl.hidden = (track.sub || '') !== 'Malachi & Amara Grace';
+       this.coverEl.disabled = false;
     this.titleEl.disabled = false;
     this.coverEl.setAttribute('aria-label', `Open now playing: ${title}`);
     this.titleEl.setAttribute('aria-label', `Open now playing: ${title}`);
@@ -830,7 +835,7 @@ const PageTurn = {
    lays out exactly as if it were a direct child of #hub-root. */
 let navSeq = 0;
 async function navigate(name) {
-  if (![...HUB_ORDER, 'home', 'people', 'pastor', 'signin', 'join'].includes(name)) name = 'home';
+  if (![...HUB_ORDER, 'home', 'people', 'pastor', 'signin', 'join', 'records'].includes(name)) name = 'home';
   const from = currentHub;
   /* The account page is a desk, not a chapter: no page-turn plane. */
   if (name === 'signin' || name === 'join') PageTurn.cancel();
