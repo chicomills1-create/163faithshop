@@ -280,6 +280,19 @@ const STYLE = `<style>
 .artist-counts{font-size:15px;color:var(--bone);margin:0}
 .artist-counts b{color:var(--gold-hi);font-family:var(--serif);font-size:17px}
 .artist-sub{font-size:12.5px;color:var(--mute);margin:5px 0 0}
+.artist-imprint{display:inline-block;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.artist-imprint:hover{color:var(--gold-hi)}
+.artist-credit{font-size:12.5px;color:var(--mute);margin:9px 0 0}
+.artist-credit a{color:var(--gold)}
+.artist-chip{display:inline-block;margin-top:9px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-hi);border:1px solid var(--gold-dim);border-radius:999px;padding:6px 12px;background:rgba(212,175,55,.07)}
+.acard-imprint{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+.lsn-housevoice .hv-card{display:flex;gap:16px;align-items:center;border:1px solid var(--gold-dim);border-radius:16px;background:linear-gradient(150deg,#141003,#0d0d0d 70%);padding:18px;flex-wrap:wrap}
+.lsn-housevoice .hv-card img{width:84px;height:84px;border-radius:12px;object-fit:cover;border:1px solid rgba(212,175,55,.4)}
+.hv-main{flex:1;min-width:220px}
+.hv-main b{font-family:var(--serif);font-size:22px;color:var(--bone);display:block}
+.hv-main p{color:var(--mute);font-size:13px;margin:5px 0 0;line-height:1.55}
+.hv-chip{display:inline-block;margin-top:8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-hi);border:1px solid var(--gold-dim);border-radius:999px;padding:5px 11px}
+.hv-links{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .artist-card-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:13px}
 .rel-filter{display:block;flex:1 1 200px;min-width:0}
 .rel-filter input{background:#0d0c0a;border:1px solid var(--line);border-radius:999px;color:var(--bone);padding:9px 14px;font-size:13px;width:100%;box-sizing:border-box;font-family:var(--sans)}
@@ -470,6 +483,7 @@ function artistCard(a) {
   return `<button type="button" class="acard" data-artist="${esc(a.slug)}">
     <span class="acard-art">${art}${a.art ? '' : `<span class="acard-mono">${esc(monogram(a.name))}</span>`}</span>
     <b>${esc(a.name)}</b>
+    ${a.slug === 'malachi-amara' ? `<span class="acard-imprint" data-labellink role="link" aria-label="Visit 16:3 Faith Records">16:3 Faith Records</span>` : ''}
     <span class="acard-meta">${a.releases} releases · ${a.songs} songs${rowsPlayable(a) ? ` · ${rowsPlayable(a)} playable` : ''}</span>
   </button>`;
 }
@@ -582,8 +596,14 @@ export function render(root, { player }) {
   }
 
   function wireArtistCards(scope) {
-    scope.querySelectorAll('[data-artist]').forEach((el) =>
-      el.addEventListener('click', () => artistView(el.dataset.artist)));
+    scope.querySelectorAll('[data-artist]').forEach((el) => {
+         /* LABEL LINK (placement 3): the duo card's imprint line goes to
+            the label page, not the artist page — stop the card's own
+            navigation before wiring it. */
+    const ll = el.querySelector('[data-labellink]');
+       if (ll) ll.addEventListener('click', (ev) => { ev.stopPropagation(); location.hash = '#/records'; });
+      el.addEventListener('click', () => artistView(el.dataset.artist));
+    });
   }
   const scrollToId = (id) => {
     const el = viewEl.querySelector(id);
@@ -853,6 +873,15 @@ export function render(root, { player }) {
         <div class="lsn-sechead"><div><span class="lsn-eyebrow">01 / Now Spinning</span><h2 id="lsn-first-head">The first <em>listen.</em></h2><p>Put something on while you find your way around.</p></div><span class="lsn-side">Real albums · real covers · full songs</span></div>
         <div class="lsn-feature" id="lsn-feature"><p class="lsn-wait">Pulling the first record off the shelf…</p></div>
       </section>
+      ${artistBySlug('malachi-amara') ? `
+      <section class="lsn-sec lsn-housevoice" aria-labelledby="lsn-hv-head">
+        <div class="lsn-sechead"><div><span class="lsn-eyebrow">The House Label</span><h2 id="lsn-hv-head">16:3 Faith' <em>own voice.</em></h2><p>The label's founding act — made in this house, for this house.</p></div><span class="lsn-side">16:3 Faith Records</span></div>
+        <div class="hv-card">
+          <img loading="lazy" src="assets/img/label/malachi-amara-duo-cover-163.webp" alt="" onerror="this.remove()">
+          <div class="hv-main"><b>Malachi &amp; Amara Grace</b><p>His verses, her voice, one anthem: “16:3 (God So Loved)” — the first release on 16:3 Faith Records (163FR-001).</p><span class="hv-chip">AI artists created by 16:3 Faith</span></div>
+          <div class="hv-links"><button type="button" class="lsn-goldbtn" data-artist="malachi-amara">Open the duo <span>↗</span></button><a class="lsn-underlink" href="#/records">Visit the label <span>→</span></a></div>
+      </div>
+    </section>`: ''}
 
       <section class="lsn-sec" id="lsn-crates" aria-labelledby="lsn-lane-head">
         <div class="lsn-sechead"><div><span class="lsn-eyebrow">02 / Find Your Frequency</span><h2 id="lsn-lane-head">Pick a <em>lane.</em></h2><p>Different sounds. Same foundation.</p></div><span class="lsn-side">${idx.artists.length} artists on the roster</span></div>
@@ -1285,9 +1314,11 @@ export function render(root, { player }) {
         <span class="ah-tint"></span><span class="ah-shade"></span>
         <span class="ah-eyebrow">✦ 16:3 Faith Presents</span>
         <div class="ah-body">
+          ${slug === 'malachi-amara'? `<a class="artist-imprint" href="#/records">16:3 Faith Records presents…</a>`: ''}
           <h2 class="ah-name">${esc(a.name)}</h2>
           <p class="artist-counts">${countsLine}</p>
           <p class="artist-sub">${headerPlayable ? `${headerPlayable} playable` : 'songs listed · playable songs coming'}${a.door ? ` · ${esc(doorLabel(a.door))}` : ''}${yearsLine ? ` · ${yearsLine}` : ''}</p>
+          ${slug === 'malachi-amara'? `<span class="artist-chip">AI artists created by 16:3 Faith</span><p class="artist-credit">“16:3 (God So Loved)” — on <a href="#/records">16:3 Faith Records</a> · ℗ 2026 16:3 Faith Records · © 2026 16:3 Faith Records · Catalog 163FR-001</p>`: ''}
           <div class="ah-actions">
             ${groups && tracks.length ? `<button type="button" class="btn-gold ah-play" data-playall>▶ Play all — ${esc(a.name)}</button>` : ''}
           </div>
