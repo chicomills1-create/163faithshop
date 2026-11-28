@@ -875,7 +875,7 @@ export function render(root, { player }) {
       </section>
       ${artistBySlug('malachi-amara') ? `
       <section class="lsn-sec lsn-housevoice" aria-labelledby="lsn-hv-head">
-        <div class="lsn-sechead"><div><span class="lsn-eyebrow">The House Label</span><h2 id="lsn-hv-head">16:3 Faith' <em>own voice.</em></h2><p>The label's founding act — made in this house, for this house.</p></div><span class="lsn-side">16:3 Faith Records</span></div>
+        <div class="lsn-sechead"><div><span class="lsn-eyebrow">The House Label</span><h2 id="lsn-hv-head">16:3 Faith's <em>own voice.</em></h2><p>The label's founding act — made in this house, for this house.</p></div><span class="lsn-side">16:3 Faith Records</span></div>
         <div class="hv-card">
           <img loading="lazy" src="assets/img/label/malachi-amara-duo-cover-163.webp" alt="" onerror="this.remove()">
           <div class="hv-main"><b>Malachi &amp; Amara Grace</b><p>His verses, her voice, one anthem: “16:3 (God So Loved)” — the first release on 16:3 Faith Records (163FR-001).</p><span class="hv-chip">AI artists created by 16:3 Faith</span></div>
