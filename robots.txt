@@ -1,0 +1,8 @@
+# 16:3 Faith — 163faith.com
+User-agent: *
+Allow: /
+
+Sitemap: https://163faith.com/sitemap.xml
+
+
+
