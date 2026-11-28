@@ -256,6 +256,9 @@ body.np-open{overflow:hidden}
 .np-prov{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
 .np-title{font-family:var(--serif);font-size:23px;line-height:1.25;color:var(--bone);margin-top:7px}
 .np-sub{margin-top:4px;font-size:13.5px;color:var(--mute)}
+.np-imprint{display:inline-block;margin-top:9px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.np-imprint:hover{color:var(--gold-hi)}
+.np-imprint[hidden]{display:none}
 .np-ended{margin-top:14px;border:1px dashed var(--gold-dim);border-radius:14px;padding:12px 14px;color:var(--bone);font-size:14px}
 .np-ended .btn-gold{margin-left:10px;padding:9px 18px;font-size:11.5px}
 .np-seekrow{margin-top:16px}
